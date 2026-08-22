@@ -4,8 +4,8 @@
 
 **Project:** Local Copilot (VS Code AI Autocomplete Extension)
 **Current Sprint:** Sprint 1 — Foundation & Infrastructure
-**Active Ticket:** LC-006 — Configure CI Pipeline
-**Overall Progress:** 5/38 tickets completed
+**Active Ticket:** Sprint 1 Complete!
+**Overall Progress:** 6/38 tickets completed
 
 ### Key Components
 
@@ -28,7 +28,7 @@
 - [x] LC-003: Extension skeleton created
 - [x] LC-004: Testing framework set up
 - [x] LC-005: Test fixtures created
-- [ ] LC-006: CI/CD configured
+- [x] LC-006: CI/CD configured
 
 ---
 
@@ -207,16 +207,61 @@ LC-005: Create Test Fixtures and Mocks — Build reusable test fixtures and mock
 
 ### Test Summary
 
-| Package | Tests | Status |
-|---------|-------|--------|
-| shared | 6 | ✅ |
-| core | 1 | ✅ |
-| extension | 38 | ✅ |
+| Package   | Tests  | Status |
+| --------- | ------ | ------ |
+| shared    | 6      | ✅     |
+| core      | 1      | ✅     |
+| extension | 38     | ✅     |
 | **Total** | **45** | **✅** |
 
 ### Next Steps
 
 LC-006: Configure CI Pipeline — Set up GitHub Actions for automated build, lint, and test
+
+---
+
+---
+
+## 🚀 LC-006: Configure CI Pipeline
+
+**Date/Time:** 2024-01-01 | **Agent:** Buffy | **Ticket:** LC-006
+
+### Changes Made
+
+1. Updated `.github/workflows/ci.yml` — Bumped pnpm from v8 to v10 (matching local), updated `pnpm/action-setup` from v2 to v4
+2. CI workflow structure:
+   - **build** job: Runs on ubuntu-latest with Node 18.x and 20.x matrix — install, lint, typecheck, test, build
+   - **package** job: Runs after build passes — builds extension and uploads VSIX artifact
+3. Triggers on push to main and pull requests to main
+4. VSIX artifact named with commit SHA for traceability
+
+### Acceptance Criteria Met
+
+- [x] CI workflow runs on PR and push to main
+- [x] Build, lint, typecheck, and tests all pass in CI
+- [x] CI workflow is documented in HANDOFF.md
+
+### CI Pipeline Summary
+
+```
+Trigger: push/PR to main
+│
+├── build (Node 18.x + 20.x matrix)
+│   ├── pnpm install
+│   ├── pnpm lint
+│   ├── pnpm typecheck
+│   ├── pnpm test
+│   └── pnpm build
+│
+└── package (after build)
+    ├── pnpm build
+    ├── pnpm package
+    └── upload VSIX artifact
+```
+
+### Next Steps
+
+Sprint 1 is complete! Sprint 2 will focus on the completion engine and provider implementations.
 
 ---
 
