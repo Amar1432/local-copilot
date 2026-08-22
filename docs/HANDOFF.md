@@ -4,8 +4,8 @@
 
 **Project:** Local Copilot (VS Code AI Autocomplete Extension)
 **Current Sprint:** Sprint 4 — Context Engine & Multi-File Support
-**Active Ticket:** LC-024: Implement Import/Definition Resolver
-**Overall Progress:** 23/38 tickets completed
+**Active Ticket:** LC-025: Implement Context Window Budgeting
+**Overall Progress:** 24/38 tickets completed
 
 ### Key Components
 
@@ -46,10 +46,42 @@
 - [x] LC-021: Define Context Provider Interface
 - [x] LC-022: Implement File Context Extractor
 - [x] LC-023: Implement Recent Files Provider
+- [x] LC-024: Implement Import/Definition Resolver
 
 ---
 
 <!-- Newest session logs are prepended below this line (latest on top) -->
+
+## ⚡ LC-024: Implement Import/Definition Resolver
+
+**Date/Time:** 2026-08-22 | **Agent:** opencode | **Ticket:** LC-024
+
+### Changes Made
+
+1. Created `packages/core/src/context/import-definition-resolver.ts`:
+   - `ImportDefinitionResolver` implementing `ContextProvider` with `id: "import-resolver"`, `priority: ContextPriority.HIGH` (75), gated to TypeScript/JavaScript language family
+   - `parseImportLine` / `extractImportSpecifiers` parsing ES named (with `as` aliases and inline `type` specifiers), default, namespace, side-effect imports, `export ... from` re-exports, and CJS `require` destructuring
+   - `isResolvableSpecifier` restricting resolution to relative (`./`, `../`) specifiers; bare package specifiers skipped
+   - `resolveImportCandidates(specifier, sourceUri)` probing `.ts/.tsx/.js/.jsx/.mjs/.cjs` extensions plus `/index.*` variants with posix path normalization and URI scheme preservation
+   - `computeImportScore` relationship-strength scoring: referenced named (90) > referenced default (85) > plain named (75) > default (70) > namespace (60) > side-effect (25)
+   - `ImportFileAccess` injected async file bridge (`findExisting`, `readText`) keeping core environment-agnostic; host wiring deferred to LC-027
+   - Chunks emitted as `type: "definition"` with imported-name symbol preference, budget-aware line/token truncation per chunk, specifier deduplication, abort-signal awareness, <20ms latency guard
+2. Exported resolver, parsing helpers, scoring constants, and options from `packages/core/src/context/index.ts`
+3. Created unit tests in `packages/core/src/context/import-definition-resolver.test.ts` (24 tests) covering import parsing forms, resolvable-specifier classification, candidate probing/normalization, relationship-score ordering, workspace resolution to URIs, imported-symbol preference, same-file import deduplication, min-score filtering, import/symbol caps, budget truncation, unsupported-language and empty-result handling, mid-resolution abort, and <20ms in-memory performance benchmark
+4. Total test suite expanded to **250 passing tests** across `shared` (6), `core` (132), and `extension` (112) with 100% clean typecheck, lint, and build
+
+### Acceptance Criteria Met
+
+- [x] Resolve relative and index-based import specifiers in TypeScript/JavaScript to workspace file URIs
+- [x] Extract symbol or chunk content from resolved definition/imported files
+- [x] Assign priority scores based on import relationship strength
+- [x] Provide non-blocking async retrieval with cancellation support
+
+### Next Steps
+
+Sprint 4 — Context Engine & Multi-File Support: LC-025: Implement Context Window Budgeting.
+
+---
 
 ## ⚡ LC-023: Implement Recent Files Provider
 
