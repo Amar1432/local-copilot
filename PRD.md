@@ -669,10 +669,7 @@ interface CompletionProvider {
 
   getModels(): Promise<ModelInfo[]>;
 
-  complete(
-    request: CompletionRequest,
-    signal: AbortSignal
-  ): Promise<CompletionResponse>;
+  complete(request: CompletionRequest, signal: AbortSignal): Promise<CompletionResponse>;
 }
 ```
 
@@ -1677,17 +1674,17 @@ Changing provider/model/base URL should not require code changes.
 
 These are initial engineering targets.
 
-| Metric | Target |
-|---|---:|
-| Extension activation | < 500 ms incremental impact |
-| Scheduling overhead | < 10 ms |
-| Context build (simple) | < 20 ms |
-| Cache lookup | < 5 ms |
-| Local completion P50 | < 300 ms |
-| Cloud completion P50 | < 500 ms |
-| Cancellation response | < 50 ms where provider permits |
-| Suggestion normalization | < 10 ms |
-| Main UI blocking | ~0 ms |
+| Metric                   |                         Target |
+| ------------------------ | -----------------------------: |
+| Extension activation     |    < 500 ms incremental impact |
+| Scheduling overhead      |                        < 10 ms |
+| Context build (simple)   |                        < 20 ms |
+| Cache lookup             |                         < 5 ms |
+| Local completion P50     |                       < 300 ms |
+| Cloud completion P50     |                       < 500 ms |
+| Cancellation response    | < 50 ms where provider permits |
+| Suggestion normalization |                        < 10 ms |
+| Main UI blocking         |                          ~0 ms |
 
 Hardware and model performance will significantly affect these numbers.
 
@@ -2600,29 +2597,29 @@ This is a product target for internal evaluation, not a guaranteed performance c
 
 # 96. Architecture Decision Summary
 
-| Area | MVP Decision |
-|---|---|
-| Editor | VS Code |
-| Language | TypeScript |
-| Completion API | InlineCompletionItemProvider |
-| Primary inference | Local |
-| Remote inference | Optional |
-| Provider API | OpenAI-compatible abstraction |
-| Custom base URL | Required |
-| API key | Optional for local, required where provider needs it |
-| Secrets | VS Code SecretStorage |
-| Context | Current file first |
-| FIM | Required where supported |
-| Repository RAG | Deferred |
-| Embeddings | Deferred |
-| Cancellation | Required |
-| Debounce | Required |
-| Cache | In-memory |
-| Telemetry | Disabled by default |
-| Local-only mode | Required |
-| Streaming | Optional/provider-dependent |
-| Testing | Unit + integration + benchmark |
-| Packaging | VSIX |
+| Area              | MVP Decision                                         |
+| ----------------- | ---------------------------------------------------- |
+| Editor            | VS Code                                              |
+| Language          | TypeScript                                           |
+| Completion API    | InlineCompletionItemProvider                         |
+| Primary inference | Local                                                |
+| Remote inference  | Optional                                             |
+| Provider API      | OpenAI-compatible abstraction                        |
+| Custom base URL   | Required                                             |
+| API key           | Optional for local, required where provider needs it |
+| Secrets           | VS Code SecretStorage                                |
+| Context           | Current file first                                   |
+| FIM               | Required where supported                             |
+| Repository RAG    | Deferred                                             |
+| Embeddings        | Deferred                                             |
+| Cancellation      | Required                                             |
+| Debounce          | Required                                             |
+| Cache             | In-memory                                            |
+| Telemetry         | Disabled by default                                  |
+| Local-only mode   | Required                                             |
+| Streaming         | Optional/provider-dependent                          |
+| Testing           | Unit + integration + benchmark                       |
+| Packaging         | VSIX                                                 |
 
 ---
 
@@ -2741,4 +2738,3 @@ The most important engineering principle is:
 > **Optimize the completion path before adding intelligence.**
 
 A small, fast, accurate completion system is a stronger MVP than a large repository-aware AI system that takes too long to respond.
-

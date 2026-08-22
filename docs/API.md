@@ -16,10 +16,7 @@ interface CompletionProvider {
   getModels(): Promise<ModelInfo[]>;
 
   /** Generate completions */
-  complete(
-    request: CompletionRequest,
-    signal: AbortSignal
-  ): Promise<CompletionResponse>;
+  complete(request: CompletionRequest, signal: AbortSignal): Promise<CompletionResponse>;
 }
 ```
 
@@ -254,14 +251,14 @@ interface ProviderError {
 
 ### Error Handling
 
-| Error Code | User Message | Action |
-|---|---|---|
-| authentication | "Authentication failed. Check your provider credentials." | Show error, suggest settings |
-| not_found | "Model '{model}' is unavailable at the configured endpoint." | Show error, suggest model selection |
-| timeout | "Request timed out." | Silently discard, update diagnostics |
-| rate_limit | "Rate limit exceeded. Retrying..." | Apply backoff, retry |
-| network | "Unable to connect to provider." | Show status indicator |
-| unknown | "Unexpected error occurred." | Log error, show generic message |
+| Error Code     | User Message                                                 | Action                               |
+| -------------- | ------------------------------------------------------------ | ------------------------------------ |
+| authentication | "Authentication failed. Check your provider credentials."    | Show error, suggest settings         |
+| not_found      | "Model '{model}' is unavailable at the configured endpoint." | Show error, suggest model selection  |
+| timeout        | "Request timed out."                                         | Silently discard, update diagnostics |
+| rate_limit     | "Rate limit exceeded. Retrying..."                           | Apply backoff, retry                 |
+| network        | "Unable to connect to provider."                             | Show status indicator                |
+| unknown        | "Unexpected error occurred."                                 | Log error, show generic message      |
 
 ## Versioning Policy
 

@@ -1,4 +1,4 @@
-# Devin Agent Kickoff
+# Opencode Agent Kickoff
 
 ## Instructions
 
@@ -23,8 +23,8 @@ You are working on the Local Copilot VS Code extension. Before making any change
 
 ## Target Ticket
 
-**TICKET_ID: _____________**
-**Title: _____________**
+**TICKET_ID: ******\_********
+**Title: ******\_********
 
 ## Tool Protocol
 

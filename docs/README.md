@@ -27,6 +27,7 @@
 ## For New Contributors
 
 If you're new to the project, read all documentation before making any changes. This ensures:
+
 - You understand the product goals
 - You follow architectural patterns
 - You maintain API contracts
@@ -36,6 +37,7 @@ If you're new to the project, read all documentation before making any changes. 
 ## For Existing Contributors
 
 At minimum, read:
+
 - `docs/ACTIVE_TASK.md` — Know what you're working on
 - `AI.md` — Know the workflow and conventions
 - Any docs related to your ticket scope

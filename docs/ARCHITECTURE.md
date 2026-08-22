@@ -6,19 +6,19 @@ Local Copilot is a VS Code extension that provides AI-powered inline code comple
 
 ## Component Table
 
-| Component | Technology Stack | Core Responsibility | Hosting Target |
-|---|---|---|---|
-| VS Code Extension Host | TypeScript, VS Code API | Editor integration, lifecycle management | VS Code Extension |
-| Completion Orchestrator | TypeScript | Request coordination, lifecycle management | VS Code Extension |
-| Request Scheduler | TypeScript, AbortController | Debounce, cancellation, deduplication | VS Code Extension |
-| Context Engine | TypeScript, VS Code Language APIs | Context extraction, ranking, caching | VS Code Extension |
-| Prompt Builder | TypeScript | Prompt construction, FIM formatting | VS Code Extension |
-| Provider Router | TypeScript | Provider selection, capability detection | VS Code Extension |
-| OpenAI-Compatible Provider | TypeScript, Fetch API | HTTP communication with AI endpoints | Local/Remote |
-| Completion Normalizer | TypeScript | Output validation, cleanup, insertion | VS Code Extension |
-| Secret Storage | VS Code SecretStorage API | Secure credential management | VS Code Extension |
-| Cache (L1/L2/L3) | TypeScript Map/LRU | Request caching, context caching | VS Code Extension |
-| Diagnostics | TypeScript, VS Code APIs | Metrics collection, status reporting | VS Code Extension |
+| Component                  | Technology Stack                  | Core Responsibility                        | Hosting Target    |
+| -------------------------- | --------------------------------- | ------------------------------------------ | ----------------- |
+| VS Code Extension Host     | TypeScript, VS Code API           | Editor integration, lifecycle management   | VS Code Extension |
+| Completion Orchestrator    | TypeScript                        | Request coordination, lifecycle management | VS Code Extension |
+| Request Scheduler          | TypeScript, AbortController       | Debounce, cancellation, deduplication      | VS Code Extension |
+| Context Engine             | TypeScript, VS Code Language APIs | Context extraction, ranking, caching       | VS Code Extension |
+| Prompt Builder             | TypeScript                        | Prompt construction, FIM formatting        | VS Code Extension |
+| Provider Router            | TypeScript                        | Provider selection, capability detection   | VS Code Extension |
+| OpenAI-Compatible Provider | TypeScript, Fetch API             | HTTP communication with AI endpoints       | Local/Remote      |
+| Completion Normalizer      | TypeScript                        | Output validation, cleanup, insertion      | VS Code Extension |
+| Secret Storage             | VS Code SecretStorage API         | Secure credential management               | VS Code Extension |
+| Cache (L1/L2/L3)           | TypeScript Map/LRU                | Request caching, context caching           | VS Code Extension |
+| Diagnostics                | TypeScript, VS Code APIs          | Metrics collection, status reporting       | VS Code Extension |
 
 ## Repository Structure
 
@@ -155,19 +155,19 @@ Extension Components
 
 ### In-Memory Caches
 
-| Cache | Purpose | TTL | Size Limit |
-|---|---|---|---|
-| L1 Request | Avoid duplicate provider calls | 5s | 100 entries |
-| L2 Completion | Reuse recent completions | 30s | 500 entries |
-| L3 Context | Cache parsed document structure | 60s | 200 entries |
+| Cache         | Purpose                         | TTL | Size Limit  |
+| ------------- | ------------------------------- | --- | ----------- |
+| L1 Request    | Avoid duplicate provider calls  | 5s  | 100 entries |
+| L2 Completion | Reuse recent completions        | 30s | 500 entries |
+| L3 Context    | Cache parsed document structure | 60s | 200 entries |
 
 ### Persistent Storage
 
-| Storage | Purpose | Location |
-|---|---|---|
-| SecretStorage | API keys, tokens | VS Code SecretStorage |
-| Extension State | Extension preferences | VS Code GlobalState |
-| Workspace Settings | Per-project config | .vscode/settings.json |
+| Storage            | Purpose               | Location              |
+| ------------------ | --------------------- | --------------------- |
+| SecretStorage      | API keys, tokens      | VS Code SecretStorage |
+| Extension State    | Extension preferences | VS Code GlobalState   |
+| Workspace Settings | Per-project config    | .vscode/settings.json |
 
 ### No Persistent Code Storage
 
@@ -176,16 +176,19 @@ The MVP does NOT persist source code to disk. All context extraction happens in-
 ## Security Model
 
 ### Credential Handling
+
 - API keys stored in VS Code SecretStorage (encrypted)
 - Never logged, included in diagnostics, or exposed to other extensions
 - Masked in all user-facing displays
 
 ### Local-Only Mode
+
 - When enabled, blocks ALL remote requests
 - Enforced at the provider router level
 - Cannot be bypassed by configuration
 
 ### Data Privacy
+
 - Source code never leaves the machine in local mode
 - Cloud mode sends only configured context (prefix/suffix)
 - Telemetry (opt-in) never includes source code
@@ -193,17 +196,17 @@ The MVP does NOT persist source code to disk. All context extraction happens in-
 
 ## Performance Targets
 
-| Metric | Target | Notes |
-|---|---|---|
-| Extension activation | <500ms | Incremental impact |
-| Scheduling overhead | <10ms | Debounce + versioning |
-| Context build | <20ms | Simple context |
-| Cache lookup | <5ms | L1 hit |
-| Local completion P50 | <300ms | Hardware dependent |
-| Cloud completion P50 | <500ms | Network dependent |
-| Cancellation response | <50ms | Where provider permits |
-| Suggestion normalization | <10ms | Post-processing |
-| Main UI blocking | ~0ms | Async throughout |
+| Metric                   | Target | Notes                  |
+| ------------------------ | ------ | ---------------------- |
+| Extension activation     | <500ms | Incremental impact     |
+| Scheduling overhead      | <10ms  | Debounce + versioning  |
+| Context build            | <20ms  | Simple context         |
+| Cache lookup             | <5ms   | L1 hit                 |
+| Local completion P50     | <300ms | Hardware dependent     |
+| Cloud completion P50     | <500ms | Network dependent      |
+| Cancellation response    | <50ms  | Where provider permits |
+| Suggestion normalization | <10ms  | Post-processing        |
+| Main UI blocking         | ~0ms   | Async throughout       |
 
 ## Assumptions
 

@@ -56,15 +56,15 @@ pnpm typecheck
 
 Open VS Code settings and search for "Local Copilot":
 
-| Setting | Default | Description |
-|---|---|---|
-| `localCopilot.enabled` | `true` | Enable/disable the extension |
-| `localCopilot.provider` | `custom` | Provider type |
-| `localCopilot.baseUrl` | `http://localhost:11434/v1` | Provider base URL |
-| `localCopilot.model` | `""` | Model identifier |
-| `localCopilot.localOnly` | `true` | Block all remote requests |
-| `localCopilot.debounceMs` | `150` | Debounce delay (ms) |
-| `localCopilot.requestTimeoutMs` | `2000` | Request timeout (ms) |
+| Setting                         | Default                     | Description                  |
+| ------------------------------- | --------------------------- | ---------------------------- |
+| `localCopilot.enabled`          | `true`                      | Enable/disable the extension |
+| `localCopilot.provider`         | `custom`                    | Provider type                |
+| `localCopilot.baseUrl`          | `http://localhost:11434/v1` | Provider base URL            |
+| `localCopilot.model`            | `""`                        | Model identifier             |
+| `localCopilot.localOnly`        | `true`                      | Block all remote requests    |
+| `localCopilot.debounceMs`       | `150`                       | Debounce delay (ms)          |
+| `localCopilot.requestTimeoutMs` | `2000`                      | Request timeout (ms)         |
 
 ## Supported Providers
 
@@ -76,16 +76,16 @@ Open VS Code settings and search for "Local Copilot":
 
 ## Commands
 
-| Command | Description |
-|---|---|
-| `Local Copilot: Enable` | Enable the extension |
-| `Local Copilot: Disable` | Disable the extension |
+| Command                             | Description                 |
+| ----------------------------------- | --------------------------- |
+| `Local Copilot: Enable`             | Enable the extension        |
+| `Local Copilot: Disable`            | Disable the extension       |
 | `Local Copilot: Trigger Completion` | Manually trigger completion |
-| `Local Copilot: Select Model` | Choose a model |
-| `Local Copilot: Test Connection` | Test provider connection |
-| `Local Copilot: Show Diagnostics` | View diagnostics |
-| `Local Copilot: Clear Cache` | Clear completion cache |
-| `Local Copilot: Open Settings` | Open extension settings |
+| `Local Copilot: Select Model`       | Choose a model              |
+| `Local Copilot: Test Connection`    | Test provider connection    |
+| `Local Copilot: Show Diagnostics`   | View diagnostics            |
+| `Local Copilot: Clear Cache`        | Clear completion cache      |
+| `Local Copilot: Open Settings`      | Open extension settings     |
 
 ## Documentation
 
