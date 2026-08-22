@@ -4,8 +4,8 @@
 
 **Project:** Local Copilot (VS Code AI Autocomplete Extension)
 **Current Sprint:** Sprint 3 — Provider Abstraction & Local Provider
-**Active Ticket:** LC-015: Implement Provider Router
-**Overall Progress:** 14/38 tickets completed
+**Active Ticket:** LC-016: Implement OpenAI-Compatible Provider
+**Overall Progress:** 15/38 tickets completed
 
 ### Key Components
 
@@ -37,10 +37,40 @@
 - [x] LC-012: Implement Request Deduplication
 - [x] LC-013: Implement L1 Request Cache
 - [x] LC-014: Define CompletionProvider Interface
+- [x] LC-015: Implement Provider Router
 
 ---
 
 <!-- Newest session logs are prepended below this line (latest on top) -->
+
+## ⚡ LC-015: Implement Provider Router
+
+**Date/Time:** 2026-08-22 | **Agent:** Antigravity | **Ticket:** LC-015
+
+### Changes Made
+
+1. Created `packages/core/src/providers/provider-router.ts`:
+   - `ProviderRouter` class managing provider registration, unregistration, lookup, and selection
+   - `selectProvider(config)` selecting the matching registered provider from `config.provider`
+   - `validateConfig(config)` enforcing required `baseUrl`, local-only address checks when `localOnly` is enabled, and delegating provider-specific validation
+   - `getModels(config, signal)` and `complete(request, config, signal)` methods routing requests with error handling and abort signal handling
+   - `isLocalUrl` helper verifying `localhost`, `127.0.0.1`, `0.0.0.0`, `[::1]`, and `.local` hostnames
+2. Exported `ProviderRouter` from `packages/core/src/providers/index.ts` and `packages/core/src/index.ts`
+3. Created unit tests in `packages/core/src/providers/provider-router.test.ts` (12 tests) covering lifecycle, provider switching, validation, error wrapping, and request completion
+4. Total test suite expanded to 120 passing tests (100% clean typecheck, lint, and build)
+
+### Acceptance Criteria Met
+
+- [x] Router selects provider from configuration
+- [x] Router validates provider configuration
+- [x] Router handles provider failures gracefully
+- [x] Router supports provider switching
+
+### Next Steps
+
+LC-016: Implement OpenAI-Compatible Provider — Create a provider adapter for OpenAI-compatible endpoints that handles authentication, request formatting, and response parsing.
+
+---
 
 ## ⚡ LC-014: Define CompletionProvider Interface
 

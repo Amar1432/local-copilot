@@ -21,7 +21,7 @@
 ### Progress
 
 - [x] LC-014: Define CompletionProvider Interface
-- [ ] LC-015: Implement Provider Router
+- [x] LC-015: Implement Provider Router
 - [ ] LC-016: Implement OpenAI-Compatible Provider
 - [ ] LC-017: Implement FIM Support
 - [ ] LC-018: Implement Model Discovery
@@ -30,15 +30,15 @@
 
 ---
 
-### Next Ticket: **LC-015: Implement Provider Router**
+### Next Ticket: **LC-016: Implement OpenAI-Compatible Provider**
 
 **Sprint:** Sprint 3 — Provider Abstraction & Local Provider  
-**Epic:** Epic 7 — Provider Interface  
-**Goal:** Create a router that selects the appropriate provider based on configuration and manages provider lifecycle.
+**Epic:** Epic 8 — OpenAI-Compatible Provider  
+**Goal:** Create a provider adapter for OpenAI-compatible endpoints that handles authentication, request formatting, and response parsing.
 
 **Acceptance Criteria:**
 
-- Router selects provider from configuration
-- Router validates provider configuration
-- Router handles provider failures gracefully
-- Router supports provider switching
+- Provider sends requests to configured baseUrl
+- Provider supports API key authentication
+- Provider handles streaming and non-streaming responses
+- Provider implements proper error handling
