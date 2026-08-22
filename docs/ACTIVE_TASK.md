@@ -24,16 +24,16 @@
 - [x] LC-001: Initialize Monorepo Structure
 - [x] LC-002: Configure Build Tooling
 - [x] LC-003: Create VS Code Extension Skeleton
-- [ ] LC-004: Set Up Vitest Testing
+- [x] LC-004: Set Up Vitest Testing
 - [ ] LC-005: Create Test Fixtures and Mocks
 - [ ] LC-006: Configure CI Pipeline
 
-### Next Ticket**LC-004: Set Up Vitest Testing**
+### Next Ticket**LC-005: Create Test Fixtures and Mocks**
 
-Configure Vitest testing framework, create test configuration, and write initial unit tests.
+Build reusable test fixtures, mock factories, and test utilities for provider and context testing.
 
 **Acceptance Criteria:**
-- Vitest configuration works across all packages
-- Initial unit tests pass
-- Test scripts in package.json work correctly
-- Coverage reporting configured
+- Mock factories for VS Code APIs exist
+- Test fixtures for completion scenarios exist
+- Test utilities reduce boilerplate in test files
+- All existing tests still pass

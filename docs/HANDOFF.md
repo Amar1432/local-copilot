@@ -4,8 +4,8 @@
 
 **Project:** Local Copilot (VS Code AI Autocomplete Extension)
 **Current Sprint:** Sprint 1 — Foundation & Infrastructure
-**Active Ticket:** LC-004 — Set Up Vitest Testing
-**Overall Progress:** 3/38 tickets completed
+**Active Ticket:** LC-005 — Create Test Fixtures and Mocks
+**Overall Progress:** 4/38 tickets completed
 
 ### Key Components
 
@@ -26,7 +26,7 @@
 - [x] LC-001: Repository initialized
 - [x] LC-002: Build tooling configured
 - [x] LC-003: Extension skeleton created
-- [ ] LC-004: Testing framework set up
+- [x] LC-004: Testing framework set up
 - [ ] LC-005: Test fixtures created
 - [ ] LC-006: CI/CD configured
 
@@ -138,6 +138,46 @@ packages/extension/src/
 ### Next Steps
 
 LC-004: Set Up Vitest Testing — Configure test framework and write initial tests
+
+---
+
+---
+
+## 🧪 LC-004: Set Up Vitest Testing
+
+**Date/Time:** 2024-01-01 | **Agent:** Buffy | **Ticket:** LC-004
+
+### Changes Made
+
+1. Created per-package `vitest.config.ts` for shared, core, and extension packages
+2. Created `packages/extension/__mocks__/vscode.ts` — Mock implementation of vscode API (Position, Range, StatusBarAlignment, workspace, window, commands, languages)
+3. Created `packages/shared/src/types.test.ts` — 6 tests validating ProviderConfig, CompletionRequest, CompletionResponse, DiagnosticsInfo type structures
+4. Created `packages/core/src/index.test.ts` — Placeholder test for core package
+5. Created `packages/extension/src/configuration.test.ts` — 2 tests validating configuration defaults and ProviderConfig compatibility
+6. Created `packages/extension/src/status-bar.test.ts` — 5 tests for StatusBarManager creation, show/hide, status updates, and disposal
+7. Created `packages/extension/src/completion-provider.test.ts` — 4 tests for provider creation, method existence, and config updates
+8. Configured vite resolve aliases to mock `vscode` module in extension tests
+9. All 18 tests pass across 3 packages (shared: 6, core: 1, extension: 11)
+
+### Acceptance Criteria Met
+
+- [x] Vitest configuration works across all packages
+- [x] Initial unit tests pass (18/18)
+- [x] Test scripts in package.json work correctly (`pnpm test` succeeds)
+- [x] Coverage reporting configured (v8 provider, text/json/html reporters)
+
+### Test Summary
+
+| Package | Tests | Status |
+|---------|-------|--------|
+| shared | 6 | ✅ |
+| core | 1 | ✅ |
+| extension | 11 | ✅ |
+| **Total** | **18** | **✅** |
+
+### Next Steps
+
+LC-005: Create Test Fixtures and Mocks — Build reusable test fixtures and mock factories
 
 ---
 
