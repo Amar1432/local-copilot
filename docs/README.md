@@ -6,13 +6,13 @@
 
 1. **`graphify-out/GRAPH_REPORT.md`** — Codebase knowledge graph, community structure, and god nodes
 2. **`PRD.md`** — Product requirements, user stories, acceptance criteria
-3. **`ARCHITECTURE.md`** — System design, component responsibilities, data flows
-4. **`API.md`** — Provider interfaces, VS Code extension APIs, configuration schema
+3. **`docs/ARCHITECTURE.md`** — System design, component responsibilities, data flows
+4. **`docs/API.md`** — Provider interfaces, VS Code extension APIs, configuration schema
 5. **`docs/DESIGN_SYSTEM.md`** — UI guidelines, component patterns, accessibility
 6. **`docs/DEPLOYMENT.md`** — Build commands, environment setup, troubleshooting
 7. **`docs/ACTIVE_TASK.md`** — Current focus and progress
 8. **`docs/HANDOFF.md`** — Session history and changes
-9. **`DECISIONS.md`** — Architectural decisions and rationale
+9. **`docs/DECISIONS.md`** — Architectural decisions and rationale
 
 ## Why This Order?
 
@@ -41,7 +41,7 @@ If you're new to the project, read all documentation before making any changes. 
 At minimum, read:
 
 - `docs/ACTIVE_TASK.md` — Know what you're working on
-- `AI.md` — Know the workflow and conventions
+- `docs/AI.md` — Know the workflow and conventions
 - Any docs related to your ticket scope
 
 ## Document Maintenance

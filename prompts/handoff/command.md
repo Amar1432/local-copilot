@@ -4,7 +4,7 @@
 
 You are working on the Local Copilot VS Code extension. Before making any changes:
 
-1. **Read `AI.md` first** — This contains workflow rules, conventions, and execution requirements.
+1. **Read `docs/AI.md` first** — This contains workflow rules, conventions, and execution requirements.
 
 2. **Consult Graphify Knowledge Graph:**
    - Read `graphify-out/GRAPH_REPORT.md` to understand god nodes, community clusters, and architecture before diving into files.
@@ -12,13 +12,13 @@ You are working on the Local Copilot VS Code extension. Before making any change
 
 3. **Read docs in mandatory order:**
    - PRD.md
-   - ARCHITECTURE.md
-   - API.md
+   - docs/ARCHITECTURE.md
+   - docs/API.md
    - docs/DESIGN_SYSTEM.md
    - docs/DEPLOYMENT.md
    - docs/ACTIVE_TASK.md
    - docs/HANDOFF.md
-   - DECISIONS.md
+   - docs/DECISIONS.md
 
 4. **Understand your assignment:**
    - Check `docs/ACTIVE_TASK.md` for the current ticket
@@ -44,18 +44,18 @@ Before ending your session:
 - [ ] **Update knowledge graph:** Run `graphify update .` to keep the graph in sync with AST changes
 - [ ] **Stage changes:** `git add .`
 - [ ] **Commit with ticket ID:** `git commit -m "feat(scope): [<TICKET_ID>] Description"`
-- [ ] **Update HANDOFF.md:** Prepend entry with changes made (newest logs on top, directly under Project State Summary)
-- [ ] **Update ACTIVE_TASK.md:** Mark ticket complete, point to next
+- [ ] **Update docs/HANDOFF.md:** Prepend entry with changes made (newest logs on top, directly under Project State Summary)
+- [ ] **Update docs/ACTIVE_TASK.md:** Mark ticket complete, point to next
 
 ## Scope Discipline
 
 - Changes MUST be confined to the assigned ticket
 - No out-of-scope refactoring
 - No "while I'm here" improvements
-- If you discover issues, note them in DECISIONS.md
+- If you discover issues, note them in docs/DECISIONS.md
 
 ## Self-Maintenance
 
 - If docs grow unwieldy, archive to `docs/archive/`
-- Keep ACTIVE_TASK.md concise
-- Prune old entries from HANDOFF.md when archiving
+- Keep docs/ACTIVE_TASK.md concise
+- Prune old entries from docs/HANDOFF.md when archiving

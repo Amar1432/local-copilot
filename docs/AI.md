@@ -20,7 +20,7 @@
 - Changes MUST be confined to the assigned ticket
 - No out-of-scope refactoring
 - No "while I'm here" improvements
-- If you discover issues, note them in `DECISIONS.md` for future tickets
+- If you discover issues, note them in `docs/DECISIONS.md` for future tickets
 
 ## 2. Environment & Startup
 
@@ -81,13 +81,13 @@ pnpm --filter @local-copilot/core build
 
 1. `graphify-out/GRAPH_REPORT.md` — Codebase knowledge graph, community structure, and god nodes
 2. `PRD.md` — Product requirements
-3. `ARCHITECTURE.md` — System design
-4. `API.md` — Provider interfaces and contracts
+3. `docs/ARCHITECTURE.md` — System design
+4. `docs/API.md` — Provider interfaces and contracts
 5. `docs/DESIGN_SYSTEM.md` — UI guidelines
 6. `docs/DEPLOYMENT.md` — Build and deployment
 7. `docs/ACTIVE_TASK.md` — Current focus
 8. `docs/HANDOFF.md` — Session history
-9. `DECISIONS.md` — Architectural decisions
+9. `docs/DECISIONS.md` — Architectural decisions
 
 ## 4. Architecture & Coding Conventions
 
@@ -175,16 +175,16 @@ test(provider): [LC-016] Add OpenAI provider tests
 
 ### Documentation Updates
 
-- Update `HANDOFF.md` with session summary prepended at the top (newest first, directly under Project State Summary)
-- Update `ACTIVE_TASK.md` with progress
-- Add decisions to `DECISIONS.md` if made
+- Update `docs/HANDOFF.md` with session summary prepended at the top (newest first, directly under Project State Summary)
+- Update `docs/ACTIVE_TASK.md` with progress
+- Add decisions to `docs/DECISIONS.md` if made
 - Update any affected documentation
 
 ## 6. Agent Session Protocol
 
 ### Starting a Session
 
-1. Read `AI.md` (this file)
+1. Read `docs/AI.md` (this file)
 2. Consult `graphify-out/GRAPH_REPORT.md` (and use Graphify tools/MCP if available for architecture queries)
 3. Read `docs/ACTIVE_TASK.md` for current ticket
 4. Read relevant documentation based on ticket scope

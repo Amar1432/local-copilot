@@ -97,7 +97,7 @@ Open VS Code settings and search for "Local Copilot":
 
 ## Contributing
 
-1. Read the [AI.md](AI.md) file for workflow and conventions
+1. Read the [docs/AI.md](docs/AI.md) file for workflow and conventions
 2. Check [docs/ACTIVE_TASK.md](docs/ACTIVE_TASK.md) for current tasks
 3. Follow the reading order in [docs/README.md](docs/README.md)
 
