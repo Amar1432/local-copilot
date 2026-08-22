@@ -4,8 +4,8 @@
 
 **Project:** Local Copilot (VS Code AI Autocomplete Extension)
 **Current Sprint:** Sprint 4 — Context Engine & Multi-File Support
-**Active Ticket:** LC-021: Define Context Provider Interface
-**Overall Progress:** 20/38 tickets completed
+**Active Ticket:** LC-022: Implement File Context Extractor
+**Overall Progress:** 21/38 tickets completed
 
 ### Key Components
 
@@ -43,10 +43,52 @@
 - [x] LC-018: Implement Model Discovery
 - [x] LC-019: Implement SecretStorage Integration
 - [x] LC-020: Implement Local-Only Mode
+- [x] LC-021: Define Context Provider Interface
 
 ---
 
 <!-- Newest session logs are prepended below this line (latest on top) -->
+
+## ⚡ LC-021: Define Context Provider Interface
+
+**Date/Time:** 2026-08-22 | **Agent:** Antigravity | **Ticket:** LC-021
+
+### Changes Made
+
+1. Created `packages/core/src/context/context.types.ts`:
+   - `ContextProvider` interface with `id`, `name`, `priority`, `isAvailable(target)`, and `getContext(target, budget, signal)`
+   - `ContextChunkType` taxonomy: `"file" | "recent" | "import" | "definition"`
+   - `ContextChunk` model with `id`, `type`, `uri`, `content`, `score`, `range`, `symbolName`, `estimatedTokens`, and `metadata`
+   - `ContextPriority` enumeration (`CRITICAL = 100`, `HIGH = 75`, `MEDIUM = 50`, `LOW = 25`, `BACKGROUND = 10`)
+   - `ContextBudget` model with `maxTokens`, `maxChunks`, `maxLines`, `maxLinesPerChunk`, `maxTokensPerChunk`, and `reservedTokens`
+   - `ContextTarget` model encapsulating active document URI, version, language, cursor position, prefix, suffix, and full text
+2. Created `packages/core/src/context/context-budget.ts`:
+   - `DEFAULT_CONTEXT_BUDGET` constant
+   - `estimateTokenCount(text)` heuristic estimator (~4 chars/token)
+   - `truncateToTokenBudget(text, maxTokens)` utility
+   - `rankAndFilterChunks(chunks, budget)` ranking chunks by priority score descending and strictly enforcing budget limits
+3. Created `packages/core/src/context/context-serializer.ts`:
+   - `serializeContextChunks(chunks, options)` supporting XML (`<context><chunk ...>...</chunk></context>`), Markdown, Comment, and Plain text serialization formats
+   - `formatChunkXml`, `formatChunkMarkdown`, `formatChunkComment`, `formatChunkPlain` formatting functions
+4. Exported context subsystem from `packages/core/src/context/index.ts` and `packages/core/src/index.ts`
+5. Created comprehensive unit tests in:
+   - `packages/core/src/context/context.types.test.ts` (4 tests)
+   - `packages/core/src/context/context-budget.test.ts` (7 tests)
+   - `packages/core/src/context/context-serializer.test.ts` (7 tests)
+6. Total test suite expanded to **196 passing tests** across `shared` (6), `core` (78), and `extension` (112) with 100% clean typecheck, lint, and build
+
+### Acceptance Criteria Met
+
+- [x] Context provider interface defined with priority scoring
+- [x] Context chunk types defined (file, recent, import, definition)
+- [x] Context budget constraints defined
+- [x] Context serialization format defined
+
+### Next Steps
+
+Sprint 4 — Context Engine & Multi-File Support: LC-022: Implement File Context Extractor.
+
+---
 
 ## ⚡ LC-020: Implement Local-Only Mode
 

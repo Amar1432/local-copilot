@@ -21,7 +21,7 @@
 
 ### Progress
 
-- [ ] LC-021: Define Context Provider Interface
+- [x] LC-021: Define Context Provider Interface
 - [ ] LC-022: Implement File Context Extractor
 - [ ] LC-023: Implement Recent Files Provider
 - [ ] LC-024: Implement Import/Definition Resolver
@@ -31,15 +31,15 @@
 
 ---
 
-### Next Ticket: **LC-021: Define Context Provider Interface**
+### Next Ticket: **LC-022: Implement File Context Extractor**
 
 **Sprint:** Sprint 4 — Context Engine & Multi-File Support  
 **Epic:** Epic 11 — Context Interface  
-**Goal:** Define the interface for context extractors with support for priority-based context inclusion.
+**Goal:** Extract semantic context chunks from the active file, such as imports, current enclosing function/class scopes, and nearby declarations.
 
 **Acceptance Criteria:**
 
-- Context provider interface defined with priority scoring
-- Context chunk types defined (file, recent, import, definition)
-- Context budget constraints defined
-- Context serialization format defined
+- Context extractor extracts active file imports and declarations
+- Context extractor extracts enclosing function or class definitions
+- Context extractor produces typed ContextChunk objects with priority scoring
+- Context extractor operates within strict latency boundaries (<20ms)
