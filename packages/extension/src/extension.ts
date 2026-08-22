@@ -81,58 +81,63 @@ function registerCommands(context: vscode.ExtensionContext, status: StatusBarMan
       const config = getConfiguration();
       const discovery = new ModelDiscoveryService();
 
-      let discoveredModels: Array<{ label: string; description?: string; detail?: string }> = [];
+      const popularModels = [
+        { label: "qwen2.5-coder:7b", description: "FIM • local", detail: "Qwen 2.5 Coder (Recommended local model)" },
+        { label: "deepseek-coder:6.7b", description: "FIM • local", detail: "DeepSeek Coder 6.7B Instruct" },
+        { label: "starcoder2:3b", description: "FIM • local", detail: "StarCoder2 3B (Lightweight)" },
+        { label: "codellama:7b", description: "FIM • local", detail: "Code Llama 7B" },
+      ];
+
+      // Try discovering live models from the provider endpoint
+      let liveModelItems: Array<{ label: string; description?: string; detail?: string }> = [];
       try {
         const models = await discovery.discoverModels(config);
-        discoveredModels = models.map((m) => ({
-          label: m.id,
-          description: `${m.capabilities.fim ? "FIM" : "No FIM"} • ${config.localOnly ? "local" : "remote"}`,
-          detail: m.name !== m.id ? m.name : undefined,
-        }));
+        liveModelItems = models
+          .filter((m) => !popularModels.some((p) => p.label === m.id))
+          .map((m) => ({
+            label: m.id,
+            description: `${m.capabilities.fim ? "FIM" : "No FIM"} • ${config.localOnly ? "local" : "remote"}`,
+            detail: m.name !== m.id ? m.name : "Discovered from endpoint",
+          }));
       } catch {
-        // Fallback to manual entry if discovery fails
+        // Discovery endpoint offline or unreachable
       }
 
-      if (discoveredModels.length > 0) {
-        const manualOption = {
-          label: "$(edit) Enter model manually...",
-          description: "Type custom model identifier",
-        };
-        const items = [...discoveredModels, manualOption];
+      const manualOption = {
+        label: "$(edit) Enter model manually...",
+        description: "Type custom model identifier",
+        detail: "Provide any custom model name or HuggingFace ID",
+      };
 
-        const selected = await vscode.window.showQuickPick(items, {
-          placeHolder: `Select a model (currently: ${config.model || "none"})`,
-        });
+      const quickPickItems = [
+        ...liveModelItems,
+        ...popularModels,
+        manualOption,
+      ];
 
-        if (!selected) return;
+      const selected = await vscode.window.showQuickPick(quickPickItems, {
+        placeHolder: `Select a model (currently: ${config.model || "none"})`,
+        matchOnDescription: true,
+        matchOnDetail: true,
+      });
 
-        if (selected === manualOption) {
-          const custom = await vscode.window.showInputBox({
-            prompt: "Enter model identifier",
-            placeHolder: "e.g. qwen-coder, deepseek-coder",
-            value: config.model,
-          });
-          if (custom !== undefined) {
-            const cfg = vscode.workspace.getConfiguration("localCopilot");
-            await cfg.update("model", custom, vscode.ConfigurationTarget.Global);
-            vscode.window.showInformationMessage(`Model set to: ${custom}`);
-          }
-        } else {
-          const cfg = vscode.workspace.getConfiguration("localCopilot");
-          await cfg.update("model", selected.label, vscode.ConfigurationTarget.Global);
-          vscode.window.showInformationMessage(`Model set to: ${selected.label}`);
-        }
-      } else {
-        const model = await vscode.window.showInputBox({
+      if (!selected) return;
+
+      if (selected.label === manualOption.label) {
+        const custom = await vscode.window.showInputBox({
           prompt: "Enter model identifier",
           placeHolder: "e.g. qwen-coder, deepseek-coder",
           value: config.model,
         });
-        if (model !== undefined) {
+        if (custom !== undefined && custom.trim()) {
           const cfg = vscode.workspace.getConfiguration("localCopilot");
-          await cfg.update("model", model, vscode.ConfigurationTarget.Global);
-          vscode.window.showInformationMessage(`Model set to: ${model}`);
+          await cfg.update("model", custom.trim(), vscode.ConfigurationTarget.Global);
+          vscode.window.showInformationMessage(`Model set to: ${custom.trim()}`);
         }
+      } else {
+        const cfg = vscode.workspace.getConfiguration("localCopilot");
+        await cfg.update("model", selected.label, vscode.ConfigurationTarget.Global);
+        vscode.window.showInformationMessage(`Model set to: ${selected.label}`);
       }
     })
   );
