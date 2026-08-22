@@ -39,7 +39,7 @@ Before ending your session:
 
 - [ ] **Stage changes:** `git add .`
 - [ ] **Commit with ticket ID:** `git commit -m "feat(scope): [<TICKET_ID>] Description"`
-- [ ] **Update HANDOFF.md:** Prepend entry with changes made
+- [ ] **Update HANDOFF.md:** Prepend entry with changes made (newest logs on top, directly under Project State Summary)
 - [ ] **Update ACTIVE_TASK.md:** Mark ticket complete, point to next
 
 ## Scope Discipline

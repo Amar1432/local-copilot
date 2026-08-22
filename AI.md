@@ -11,7 +11,7 @@
 3. Implement changes
 4. Run build/lint/tests until green
 5. Commit with ticket ID: `feat|fix|test|chore(scope): [<TICKET_ID>] <message>`
-6. Prepend entry to `docs/HANDOFF.md`
+6. Prepend entry to `docs/HANDOFF.md` (newest on top, immediately below the Project State Summary header)
 7. Update `docs/ACTIVE_TASK.md` to next ticket
 
 ### Scope Discipline
@@ -165,7 +165,7 @@ test(provider): [LC-016] Add OpenAI provider tests
 
 ### Documentation Updates
 
-- Update `HANDOFF.md` with session summary
+- Update `HANDOFF.md` with session summary prepended at the top (newest first, directly under Project State Summary)
 - Update `ACTIVE_TASK.md` with progress
 - Add decisions to `DECISIONS.md` if made
 - Update any affected documentation
@@ -190,7 +190,7 @@ test(provider): [LC-016] Add OpenAI provider tests
 
 1. Ensure all changes compile and tests pass
 2. Commit with proper message format
-3. Prepend entry to `docs/HANDOFF.md`
+3. Prepend entry to `docs/HANDOFF.md` (newest on top, immediately below Project State Summary)
 4. Update `docs/ACTIVE_TASK.md`
 5. Do NOT leave partially completed work
 
