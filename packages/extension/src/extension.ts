@@ -1,11 +1,29 @@
 import * as vscode from "vscode";
+import type { ProviderConfig } from "@local-copilot/shared";
 import { getConfiguration, onConfigurationChanged } from "./configuration";
 import { StatusBarManager } from "./status-bar";
 import { LocalCopilotCompletionProvider } from "./completion-provider";
+import { SecretManager } from "./secret-manager";
 import { ModelDiscoveryService } from "@local-copilot/core";
 
 let statusBar: StatusBarManager | undefined;
 let completionProvider: LocalCopilotCompletionProvider | undefined;
+let secretManager: SecretManager | undefined;
+
+/**
+ * Retrieve effective configuration with securely retrieved API key.
+ */
+async function getEffectiveConfig(secrets?: SecretManager): Promise<ProviderConfig> {
+  const baseConfig = getConfiguration();
+  if (!secrets) {
+    return baseConfig;
+  }
+  const apiKey = await secrets.getApiKey(baseConfig.provider, baseConfig.apiKey);
+  return {
+    ...baseConfig,
+    apiKey,
+  };
+}
 
 /**
  * Called when the extension is activated.
@@ -13,8 +31,12 @@ let completionProvider: LocalCopilotCompletionProvider | undefined;
  * Activation is triggered by the `activationEvents` in package.json
  * (onLanguage: typescript, javascript, typescriptreact, javascriptreact).
  */
-export function activate(context: vscode.ExtensionContext): void {
-  const config = getConfiguration();
+export async function activate(context: vscode.ExtensionContext): Promise<void> {
+  // Initialize SecretManager
+  secretManager = new SecretManager(context.secrets);
+
+  // Load effective configuration
+  const config = await getEffectiveConfig(secretManager);
 
   // Status bar
   statusBar = new StatusBarManager();
@@ -26,15 +48,26 @@ export function activate(context: vscode.ExtensionContext): void {
   registerCompletionProvider(context, completionProvider);
 
   // Commands
-  registerCommands(context, statusBar);
+  registerCommands(context, statusBar, secretManager);
 
   // Listen for configuration changes
   context.subscriptions.push(
-    onConfigurationChanged((newConfig) => {
-      completionProvider?.updateConfig(newConfig);
+    onConfigurationChanged(async (newConfig) => {
+      const effective = await getEffectiveConfig(secretManager);
+      completionProvider?.updateConfig(effective);
       statusBar?.setStatus("disconnected", newConfig.localOnly);
     })
   );
+
+  // Listen for secret changes
+  if (context.secrets && context.secrets.onDidChange) {
+    context.subscriptions.push(
+      context.secrets.onDidChange(async () => {
+        const effective = await getEffectiveConfig(secretManager);
+        completionProvider?.updateConfig(effective);
+      })
+    );
+  }
 
   console.log("Local Copilot activated.");
 }
@@ -46,6 +79,7 @@ export function deactivate(): void {
   completionProvider?.dispose();
   statusBar = undefined;
   completionProvider = undefined;
+  secretManager = undefined;
   console.log("Local Copilot deactivated.");
 }
 
@@ -53,7 +87,11 @@ export function deactivate(): void {
 // Commands
 // ---------------------------------------------------------------------------
 
-function registerCommands(context: vscode.ExtensionContext, status: StatusBarManager): void {
+function registerCommands(
+  context: vscode.ExtensionContext,
+  status: StatusBarManager,
+  secrets: SecretManager
+): void {
   context.subscriptions.push(
     vscode.commands.registerCommand("localCopilot.enable", async () => {
       const config = vscode.workspace.getConfiguration("localCopilot");
@@ -77,15 +115,62 @@ function registerCommands(context: vscode.ExtensionContext, status: StatusBarMan
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("localCopilot.selectModel", async () => {
+    vscode.commands.registerCommand("localCopilot.setApiKey", async () => {
       const config = getConfiguration();
+      const apiKey = await vscode.window.showInputBox({
+        password: true,
+        prompt: `Enter API key for provider '${config.provider}'`,
+        placeHolder: "sk-...",
+        ignoreFocusOut: true,
+      });
+
+      if (apiKey !== undefined) {
+        await secrets.setApiKey(apiKey, config.provider);
+        const effective = await getEffectiveConfig(secrets);
+        completionProvider?.updateConfig(effective);
+        vscode.window.showInformationMessage(
+          apiKey ? "API key saved securely in SecretStorage." : "API key cleared."
+        );
+      }
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand("localCopilot.deleteApiKey", async () => {
+      const config = getConfiguration();
+      await secrets.deleteApiKey(config.provider);
+      const effective = await getEffectiveConfig(secrets);
+      completionProvider?.updateConfig(effective);
+      vscode.window.showInformationMessage(`API key for '${config.provider}' cleared.`);
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand("localCopilot.selectModel", async () => {
+      const config = await getEffectiveConfig(secrets);
       const discovery = new ModelDiscoveryService();
 
       const popularModels = [
-        { label: "qwen2.5-coder:7b", description: "FIM • local", detail: "Qwen 2.5 Coder (Recommended local model)" },
-        { label: "deepseek-coder:6.7b", description: "FIM • local", detail: "DeepSeek Coder 6.7B Instruct" },
-        { label: "starcoder2:3b", description: "FIM • local", detail: "StarCoder2 3B (Lightweight)" },
-        { label: "codellama:7b", description: "FIM • local", detail: "Code Llama 7B" },
+        {
+          label: "qwen2.5-coder:7b",
+          description: "FIM • local",
+          detail: "Qwen 2.5 Coder (Recommended local model)",
+        },
+        {
+          label: "deepseek-coder:6.7b",
+          description: "FIM • local",
+          detail: "DeepSeek Coder 6.7B Instruct",
+        },
+        {
+          label: "starcoder2:3b",
+          description: "FIM • local",
+          detail: "StarCoder2 3B (Lightweight)",
+        },
+        {
+          label: "codellama:7b",
+          description: "FIM • local",
+          detail: "Code Llama 7B",
+        },
       ];
 
       // Try discovering live models from the provider endpoint
@@ -183,13 +268,14 @@ function registerCommands(context: vscode.ExtensionContext, status: StatusBarMan
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("localCopilot.showDiagnostics", () => {
-      const config = getConfiguration();
+    vscode.commands.registerCommand("localCopilot.showDiagnostics", async () => {
+      const config = await getEffectiveConfig(secrets);
       const stats = completionProvider?.orchestratorInstance.cacheStats;
       const info = [
         `Provider: ${config.provider}`,
         `Model: ${config.model || "(not set)"}`,
         `Base URL: ${config.baseUrl}`,
+        `API Key: ${SecretManager.maskApiKey(config.apiKey)}`,
         `Local Only: ${config.localOnly ? "Yes" : "No"}`,
         `Debounce: ${config.debounceMs}ms`,
         `Timeout: ${config.requestTimeoutMs}ms`,

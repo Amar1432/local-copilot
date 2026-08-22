@@ -4,13 +4,16 @@ import { activate } from "./extension";
 import { resetMocks, spy } from "../__mocks__/vscode";
 
 describe("Extension Commands & selectModel", () => {
-  let mockContext: { subscriptions: Array<{ dispose: () => void }> };
+  let mockContext: { subscriptions: Array<{ dispose: () => void }>; secrets: typeof spy.secrets };
   let commandHandlers: Map<string, (...args: unknown[]) => Promise<unknown> | unknown>;
 
   beforeEach(() => {
     resetMocks();
     commandHandlers = new Map();
-    mockContext = { subscriptions: [] };
+    mockContext = {
+      subscriptions: [],
+      secrets: spy.secrets,
+    };
 
     // Capture registered command callbacks
     vi.spyOn(vscode.commands, "registerCommand").mockImplementation(
@@ -21,16 +24,18 @@ describe("Extension Commands & selectModel", () => {
     );
   });
 
-  it("should activate and register localCopilot.selectModel command", () => {
-    activate(mockContext as unknown as vscode.ExtensionContext);
+  it("should activate and register localCopilot commands", async () => {
+    await activate(mockContext as unknown as vscode.ExtensionContext);
     expect(commandHandlers.has("localCopilot.selectModel")).toBe(true);
     expect(commandHandlers.has("localCopilot.selectProvider")).toBe(true);
     expect(commandHandlers.has("localCopilot.testConnection")).toBe(true);
     expect(commandHandlers.has("localCopilot.showDiagnostics")).toBe(true);
+    expect(commandHandlers.has("localCopilot.setApiKey")).toBe(true);
+    expect(commandHandlers.has("localCopilot.deleteApiKey")).toBe(true);
   });
 
   it("should open QuickPick with popular models and allow selecting a model", async () => {
-    activate(mockContext as unknown as vscode.ExtensionContext);
+    await activate(mockContext as unknown as vscode.ExtensionContext);
 
     let quickPickItems: Array<{ label: string }> = [];
     vi.spyOn(vscode.window, "showQuickPick").mockImplementation(async (items) => {
@@ -60,7 +65,7 @@ describe("Extension Commands & selectModel", () => {
   });
 
   it("should open input box when manual entry option is selected", async () => {
-    activate(mockContext as unknown as vscode.ExtensionContext);
+    await activate(mockContext as unknown as vscode.ExtensionContext);
 
     vi.spyOn(vscode.window, "showQuickPick").mockImplementation(async () => {
       return { label: "$(edit) Enter model manually..." } as unknown as vscode.QuickPickItem;
@@ -82,5 +87,50 @@ describe("Extension Commands & selectModel", () => {
         }),
       ])
     );
+  });
+
+  it("should securely store API key via localCopilot.setApiKey", async () => {
+    await activate(mockContext as unknown as vscode.ExtensionContext);
+
+    vi.spyOn(vscode.window, "showInputBox").mockResolvedValue("sk-my-super-secret-key-12345");
+
+    const handler = commandHandlers.get("localCopilot.setApiKey");
+    expect(handler).toBeDefined();
+    await handler!();
+
+    const stored = await spy.secrets.get("localCopilot.apiKey.custom");
+    expect(stored).toBe("sk-my-super-secret-key-12345");
+  });
+
+  it("should clear API key via localCopilot.deleteApiKey", async () => {
+    await spy.secrets.store("localCopilot.apiKey.custom", "existing-secret");
+
+    await activate(mockContext as unknown as vscode.ExtensionContext);
+
+    const handler = commandHandlers.get("localCopilot.deleteApiKey");
+    expect(handler).toBeDefined();
+    await handler!();
+
+    const stored = await spy.secrets.get("localCopilot.apiKey.custom");
+    expect(stored).toBeUndefined();
+  });
+
+  it("should display masked API key in diagnostics", async () => {
+    await spy.secrets.store("localCopilot.apiKey.custom", "sk-1234567890abcdef");
+
+    await activate(mockContext as unknown as vscode.ExtensionContext);
+
+    let modalInfo = "";
+    vi.spyOn(vscode.window, "showInformationMessage").mockImplementation((info: unknown) => {
+      modalInfo = String(info);
+      return Promise.resolve(undefined);
+    });
+
+    const handler = commandHandlers.get("localCopilot.showDiagnostics");
+    expect(handler).toBeDefined();
+    await handler!();
+
+    expect(modalInfo).toContain("API Key: sk-...cdef");
+    expect(modalInfo).not.toContain("sk-1234567890abcdef");
   });
 });

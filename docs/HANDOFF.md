@@ -4,8 +4,8 @@
 
 **Project:** Local Copilot (VS Code AI Autocomplete Extension)
 **Current Sprint:** Sprint 3 — Provider Abstraction & Local Provider
-**Active Ticket:** LC-019: Implement SecretStorage Integration
-**Overall Progress:** 18/38 tickets completed
+**Active Ticket:** LC-020: Implement Local-Only Mode
+**Overall Progress:** 19/38 tickets completed
 
 ### Key Components
 
@@ -41,10 +41,45 @@
 - [x] LC-016: Implement OpenAI-Compatible Provider
 - [x] LC-017: Implement FIM Support
 - [x] LC-018: Implement Model Discovery
+- [x] LC-019: Implement SecretStorage Integration
 
 ---
 
 <!-- Newest session logs are prepended below this line (latest on top) -->
+
+## ⚡ LC-019: Implement SecretStorage Integration
+
+**Date/Time:** 2026-08-22 | **Agent:** Antigravity | **Ticket:** LC-019
+
+### Changes Made
+
+1. Created `packages/extension/src/secret-manager.ts`:
+   - `SecretManager` class wrapping VS Code's native `vscode.SecretStorage` API
+   - `getApiKey(provider, fallback)` resolving provider-specific secret keys (`localCopilot.apiKey.<provider>`), global fallback keys, and legacy config values
+   - `setApiKey(apiKey, provider)` and `deleteApiKey(provider)` for safe persistence and revocation
+   - `SecretManager.maskApiKey(key)` utility producing non-reversible masked representations (e.g. `sk-...cdef` or `********`) for logs and UI diagnostics
+   - Event listening via `onDidChange` to reactively notify completion providers of secret rotations
+2. Integrated `SecretManager` into `packages/extension/src/extension.ts`:
+   - Hydrated effective runtime provider configuration with securely fetched API keys
+   - Registered `localCopilot.setApiKey` command with password-masked input prompt
+   - Registered `localCopilot.deleteApiKey` command to clear stored keys
+   - Sanitized `localCopilot.showDiagnostics` output with masked API key indicators
+3. Updated `packages/extension/package.json` with `localCopilot.setApiKey` and `localCopilot.deleteApiKey` contributions and activation events
+4. Created unit tests in `packages/extension/src/secret-manager.test.ts` (9 tests) and extended `packages/extension/src/extension.test.ts` (+3 tests)
+5. Total test suite expanded to 168 passing tests (100% clean typecheck, lint, and build)
+
+### Acceptance Criteria Met
+
+- [x] API keys stored in SecretStorage, not plaintext
+- [x] API keys retrieved securely for provider requests
+- [x] API keys never logged or included in diagnostics
+- [x] API key update flow works correctly
+
+### Next Steps
+
+LC-020: Implement Local-Only Mode — Block external requests and validate endpoints for privacy when localOnly mode is enabled.
+
+---
 
 ## ⚡ LC-018: Implement Model Discovery
 

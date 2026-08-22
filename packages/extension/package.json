@@ -37,7 +37,9 @@
     "onCommand:localCopilot.testConnection",
     "onCommand:localCopilot.showDiagnostics",
     "onCommand:localCopilot.clearCache",
-    "onCommand:localCopilot.openSettings"
+    "onCommand:localCopilot.openSettings",
+    "onCommand:localCopilot.setApiKey",
+    "onCommand:localCopilot.deleteApiKey"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -77,6 +79,14 @@
       {
         "command": "localCopilot.openSettings",
         "title": "Local Copilot: Open Settings"
+      },
+      {
+        "command": "localCopilot.setApiKey",
+        "title": "Local Copilot: Set API Key"
+      },
+      {
+        "command": "localCopilot.deleteApiKey",
+        "title": "Local Copilot: Clear API Key"
       }
     ],
     "configuration": {

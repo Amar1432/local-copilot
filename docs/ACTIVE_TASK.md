@@ -25,20 +25,20 @@
 - [x] LC-016: Implement OpenAI-Compatible Provider
 - [x] LC-017: Implement FIM Support
 - [x] LC-018: Implement Model Discovery
-- [ ] LC-019: Implement SecretStorage Integration
+- [x] LC-019: Implement SecretStorage Integration
 - [ ] LC-020: Implement Local-Only Mode
 
 ---
 
-### Next Ticket: **LC-019: Implement SecretStorage Integration**
+### Next Ticket: **LC-020: Implement Local-Only Mode**
 
 **Sprint:** Sprint 3 — Provider Abstraction & Local Provider  
-**Epic:** Epic 9 — Secret Management  
-**Goal:** Use VS Code SecretStorage for API key management with secure storage and retrieval.
+**Epic:** Epic 10 — Local Provider & Privacy  
+**Goal:** Block external requests and validate endpoints for privacy when localOnly mode is enabled.
 
 **Acceptance Criteria:**
 
-- API keys stored in SecretStorage, not plaintext
-- API keys retrieved securely for provider requests
-- API keys never logged or included in diagnostics
-- API key update flow works correctly
+- localOnly setting blocks non-local URLs
+- Allowed local patterns: localhost, 127.0.0.1, 0.0.0.0, [::1], *.local
+- Provider connections to non-local endpoints fail with clear error
+- Diagnostics display local-only enforcement status

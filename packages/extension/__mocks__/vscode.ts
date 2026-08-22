@@ -98,6 +98,39 @@ export const mockConfig: Record<string, unknown> = {
   "telemetry.enabled": false,
 };
 
+export class MockSecretStorage {
+  private secrets: Map<string, string> = new Map();
+  private listeners: Array<(e: { key: string }) => void> = [];
+
+  async get(key: string): Promise<string | undefined> {
+    return this.secrets.get(key);
+  }
+
+  async store(key: string, value: string): Promise<void> {
+    this.secrets.set(key, value);
+    for (const listener of this.listeners) {
+      listener({ key });
+    }
+  }
+
+  async delete(key: string): Promise<void> {
+    this.secrets.delete(key);
+    for (const listener of this.listeners) {
+      listener({ key });
+    }
+  }
+
+  onDidChange(listener: (e: { key: string }) => void): MockDisposable {
+    this.listeners.push(listener);
+    return new MockDisposable();
+  }
+
+  clear(): void {
+    this.secrets.clear();
+    this.listeners = [];
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Spy trackers — record calls for assertions
 // ---------------------------------------------------------------------------
@@ -112,6 +145,7 @@ export const spy = {
     target: unknown;
   }[],
   statusBarItem: null as MockStatusBarItem | null,
+  secrets: new MockSecretStorage(),
 };
 
 /**
@@ -122,6 +156,7 @@ export function resetMocks(): void {
   spy.commands = [];
   spy.configurationUpdates = [];
   spy.statusBarItem = null;
+  spy.secrets.clear();
 
   mockConfig.enabled = true;
   mockConfig.provider = "custom";
