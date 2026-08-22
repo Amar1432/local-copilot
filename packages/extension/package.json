@@ -28,7 +28,16 @@
     "onLanguage:typescript",
     "onLanguage:javascript",
     "onLanguage:typescriptreact",
-    "onLanguage:javascriptreact"
+    "onLanguage:javascriptreact",
+    "onCommand:localCopilot.enable",
+    "onCommand:localCopilot.disable",
+    "onCommand:localCopilot.triggerCompletion",
+    "onCommand:localCopilot.selectModel",
+    "onCommand:localCopilot.selectProvider",
+    "onCommand:localCopilot.testConnection",
+    "onCommand:localCopilot.showDiagnostics",
+    "onCommand:localCopilot.clearCache",
+    "onCommand:localCopilot.openSettings"
   ],
   "main": "./dist/extension.js",
   "contributes": {

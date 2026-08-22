@@ -13,7 +13,7 @@ const buildOptions = {
   entryPoints: [resolve(__dirname, "src/extension.ts")],
   bundle: true,
   outfile: resolve(__dirname, "dist/extension.js"),
-  external: ["vscode", "@local-copilot/core", "@local-copilot/shared"],
+  external: ["vscode"],
   format: "cjs",
   platform: "node",
   target: "node18",
