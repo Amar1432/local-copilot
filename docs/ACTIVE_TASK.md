@@ -23,7 +23,7 @@
 
 - [x] LC-021: Define Context Provider Interface
 - [x] LC-022: Implement File Context Extractor
-- [ ] LC-023: Implement Recent Files Provider
+- [x] LC-023: Implement Recent Files Provider
 - [ ] LC-024: Implement Import/Definition Resolver
 - [ ] LC-025: Implement Context Window Budgeting
 - [ ] LC-026: Implement Cross-File Deduplication
@@ -31,15 +31,15 @@
 
 ---
 
-### Next Ticket: **LC-023: Implement Recent Files Provider**
+### Next Ticket: **LC-024: Implement Import/Definition Resolver**
 
 **Sprint:** Sprint 4 — Context Engine & Multi-File Support  
 **Epic:** Epic 11 — Context Interface  
-**Goal:** Track recently opened and edited files in an in-memory LRU buffer and extract relevant snippets as context chunks.
+**Goal:** Resolve import specifiers in the active TypeScript/JavaScript file to workspace files and extract symbol chunks from resolved definitions.
 
 **Acceptance Criteria:**
 
-- Track recently active/opened documents with an LRU buffer and recency timestamps
-- Extract top-level symbols or relevant chunks from recent files matching current language/domain
-- Assign priority scores based on recency and lexical relevance
-- Provide non-blocking async context retrieval
+- Resolve relative and index-based import specifiers in TypeScript/JavaScript to workspace file URIs
+- Extract symbol or chunk content from resolved definition/imported files
+- Assign priority scores based on import relationship strength
+- Provide non-blocking async retrieval with cancellation support

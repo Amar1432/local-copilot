@@ -4,8 +4,8 @@
 
 **Project:** Local Copilot (VS Code AI Autocomplete Extension)
 **Current Sprint:** Sprint 4 — Context Engine & Multi-File Support
-**Active Ticket:** LC-023: Implement Recent Files Provider
-**Overall Progress:** 22/38 tickets completed
+**Active Ticket:** LC-024: Implement Import/Definition Resolver
+**Overall Progress:** 23/38 tickets completed
 
 ### Key Components
 
@@ -45,10 +45,42 @@
 - [x] LC-020: Implement Local-Only Mode
 - [x] LC-021: Define Context Provider Interface
 - [x] LC-022: Implement File Context Extractor
+- [x] LC-023: Implement Recent Files Provider
 
 ---
 
 <!-- Newest session logs are prepended below this line (latest on top) -->
+
+## ⚡ LC-023: Implement Recent Files Provider
+
+**Date/Time:** 2026-08-22 | **Agent:** opencode | **Ticket:** LC-023
+
+### Changes Made
+
+1. Created `packages/core/src/context/recent-files-provider.ts`:
+   - `RecentFilesBuffer` — bounded in-memory LRU buffer tracking recently opened/edited documents with recency timestamps, injectable clock for testability, and `record`/`remove`/`get`/`list`/`clear` operations
+   - `RecentFilesProvider` implementing `ContextProvider` with `id: "recent-files"`, `priority: ContextPriority.MEDIUM` (50)
+   - `extractTopLevelSymbols(lines, maxCount)` extracting top-level functions, classes, interfaces, types, enums, structs across TypeScript, JavaScript, Python, Go, Rust with bracket-aware body capture
+   - `computeLexicalRelevance` identifier-token-overlap scoring (0-100) between completion target and candidate files
+   - `computeRecencyScore` LRU-position-based decay scoring; `combineScores` weighted recency+lexical blend
+   - Chunks emitted as `type: "recent"` with symbol-name relevance boost, budget-aware line/token truncation per chunk, and metadata (`recencyPosition`, `lastActiveAt`, `recencyScore`, `lexicalScore`)
+   - Language matching via `normalizeLanguageId` (TSX→TS, JSX→JS, etc.), active document excluded, abort-signal aware, non-blocking async retrieval (<20ms target)
+2. Exported `RecentFilesBuffer`, `RecentFilesProvider`, scoring helpers, and options from `packages/core/src/context/index.ts`
+3. Created unit tests in `packages/core/src/context/recent-files-provider.test.ts` (23 tests) covering LRU ordering/eviction/recency timestamps, symbol extraction across languages, lexical + recency score ranking, language filtering, active-document exclusion, min-relevance filtering, file/symbol limits, budget truncation, abort handling, empty-buffer edge cases, and <20ms performance benchmark
+4. Total test suite expanded to **226 passing tests** across `shared` (6), `core` (108), and `extension` (112) with 100% clean typecheck, lint, and build
+
+### Acceptance Criteria Met
+
+- [x] Track recently active/opened documents with an LRU buffer and recency timestamps
+- [x] Extract top-level symbols or relevant chunks from recent files matching current language/domain
+- [x] Assign priority scores based on recency and lexical relevance
+- [x] Provide non-blocking async context retrieval
+
+### Next Steps
+
+Sprint 4 — Context Engine & Multi-File Support: LC-024: Implement Import/Definition Resolver.
+
+---
 
 ## ⚡ LC-022: Implement File Context Extractor
 
