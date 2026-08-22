@@ -4,8 +4,8 @@
 
 **Project:** Local Copilot (VS Code AI Autocomplete Extension)
 **Current Sprint:** Sprint 4 — Context Engine & Multi-File Support
-**Active Ticket:** LC-027: Integrate Multi-File Context with Orchestrator
-**Overall Progress:** 26/38 tickets completed
+**Active Ticket:** Sprint 5 — Next Ticket TBD
+**Overall Progress:** 27/38 tickets completed
 
 ### Key Components
 
@@ -47,10 +47,66 @@
 - [x] LC-024: Implement Import/Definition Resolver
 - [x] LC-025: Implement Context Window Budgeting
 - [x] LC-026: Implement Cross-File Deduplication
+- [x] LC-027: Integrate Multi-File Context with Orchestrator
 
 ---
 
 <!-- Newest session logs are prepended below this line (latest on top) -->
+
+## ⚡ LC-027: Integrate Multi-File Context with Orchestrator
+
+**Date/Time:** 2026-08-22 | **Agent:** Buffy (Freebuff) | **Ticket:** LC-027
+
+### Changes Made
+
+1. Updated `packages/shared/src/types.ts`:
+   - Added `contextBudgetPreset?: string` to `ProviderConfig` for configurable budget preset selection ("fast" | "balanced" | "rich")
+   - Added `contextText?: string` to `CompletionRequest` for passing serialized multi-file context chunks through to the prompt builder
+
+2. Updated `packages/extension/src/completion-orchestrator.ts`:
+   - `CompletionOrchestrator` now accepts optional `ContextProvider[]` in constructor and via `setContextProviders()`
+   - `gatherContext()` private method runs all registered providers concurrently, deduplicates chunks via `deduplicateChunks()`, applies budget constraints via `rankAndFilterChunks()`, and serializes via `serializeContextChunks()` to XML
+   - `resolveBudget()` maps the config's `contextBudgetPreset` to a `ContextBudget` from `BUDGET_PRESETS` (default: balanced)
+   - `requestCompletion()` now gathers context, builds an enriched `CompletionRequest` with `contextText`, and passes it to the provider — backward compatible when no providers are configured
+
+3. Updated `packages/extension/src/prompt-builder.ts`:
+   - `buildStandardMessages()` now injects serialized context chunks into the system prompt when `request.contextText` is present, under a "relevant code context" instruction block
+
+4. Updated `packages/extension/src/completion-provider.ts`:
+   - Constructor now accepts optional `ContextProvider[]` and passes them to `CompletionOrchestrator`
+
+5. Updated `packages/extension/src/configuration.ts`:
+   - Reads `localCopilot.context.budgetPreset` setting (default: "balanced")
+
+6. Updated `packages/extension/src/extension.ts`:
+   - `createContextProviders()` instantiates `FileContextExtractor`, `RecentFilesProvider` (with shared `RecentFilesBuffer`), and `ImportDefinitionResolver` (with VS Code workspace FS bridge)
+   - `trackRecentDocuments()` sets up `onDidOpenTextDocument`, `onDidChangeTextDocument`, `onDidCloseTextDocument` listeners to maintain the recent files buffer
+   - Context providers passed to `LocalCopilotCompletionProvider` during activation
+
+7. Updated `packages/extension/package.json`:
+   - Added `localCopilot.context.budgetPreset` setting with enum ["fast", "balanced", "rich"] and description
+
+8. Updated `packages/extension/__mocks__/vscode.ts`:
+   - Added `Uri` class, `workspace.fs`, `workspace.onDidOpenTextDocument`, `workspace.onDidChangeTextDocument`, `workspace.onDidCloseTextDocument`, `workspace.textDocuments` mocks for context tracking tests
+
+9. Updated test suites:
+   - `completion-orchestrator.test.ts`: 9 new tests covering context provider integration (backward compatibility, context gathering, empty chunks, unavailable providers, error handling, deduplication, setContextProviders, budget preset, cache interaction)
+   - `prompt-builder.test.ts`: 3 new tests for context text inclusion in system prompt
+   - `configuration.test.ts`: 3 new tests for budget preset configuration
+   - Total test suite: **288 passing tests** across shared (6), core (155), and extension (127) with 100% clean typecheck, lint, and build
+
+### Acceptance Criteria Met
+
+- [x] Orchestrate all registered context providers in the Completion Orchestrator's completion flow
+- [x] Apply cross-file deduplication and budget enforcement before prompt assembly
+- [x] Expose a configurable budget preset selection via extension settings
+- [x] Maintain <20ms total context assembly overhead for typical completions
+
+### Next Steps
+
+Sprint 4 complete. Sprint 5 — Extension UI & Diagnostics: next ticket TBD.
+
+---
 
 ## ⚡ LC-026: Implement Cross-File Deduplication
 
