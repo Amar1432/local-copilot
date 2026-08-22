@@ -4,8 +4,8 @@
 
 **Project:** Local Copilot (VS Code AI Autocomplete Extension)
 **Current Sprint:** Sprint 3 — Provider Abstraction & Local Provider
-**Active Ticket:** LC-017: Implement FIM Support
-**Overall Progress:** 16/38 tickets completed
+**Active Ticket:** LC-018: Implement Model Discovery
+**Overall Progress:** 17/38 tickets completed
 
 ### Key Components
 
@@ -39,10 +39,45 @@
 - [x] LC-014: Define CompletionProvider Interface
 - [x] LC-015: Implement Provider Router
 - [x] LC-016: Implement OpenAI-Compatible Provider
+- [x] LC-017: Implement FIM Support
 
 ---
 
 <!-- Newest session logs are prepended below this line (latest on top) -->
+
+## ⚡ LC-017: Implement FIM Support
+
+**Date/Time:** 2026-08-22 | **Agent:** Antigravity | **Ticket:** LC-017
+
+### Changes Made
+
+1. Created `packages/core/src/providers/fim.ts`:
+   - Defined `FimTokens` interface and token dictionaries (`FIM_TEMPLATES`) for `default`, `qwen`, `deepseek`, `starcoder`, and `codellama` formats
+   - Implemented `getFimTokens(modelOrTemplate)` resolving tokens based on model name substrings or explicit template identifiers
+   - Implemented `formatFimPrompt(prefix, suffix, templateOrTokens)` generating fill-in-the-middle prompts with custom or standard tokens
+   - Implemented `isFimSupported(model, capabilities)` helper detecting model and capability FIM support
+2. Updated `OpenAICompatibleProvider` in `packages/core/src/providers/openai-compatible-provider.ts`:
+   - Evaluated FIM readiness on incoming completion requests (respecting provider capabilities, model family, and explicit `useFim` options)
+   - Formatted prompts with model-specific FIM tokens when supported
+   - Provided seamless fallback to standard structured prompt messages when FIM is disabled or unsupported
+   - Supported FIM in both non-streaming (`complete`) and streaming (`completeStream`) pipelines
+   - Added FIM capability detection during model listing (`getModels`)
+3. Updated shared `ProviderConfig` and `CompletionRequest` types in `packages/shared/src/types.ts` with optional `useFim` and `fimTemplate` fields
+4. Created unit tests in `packages/core/src/providers/fim.test.ts` (10 tests) and expanded `packages/core/src/providers/openai-compatible-provider.test.ts` (+2 tests, 16 tests total)
+5. Total test suite expanded to 146 passing tests (100% clean typecheck, lint, and build)
+
+### Acceptance Criteria Met
+
+- [x] Provider detects FIM capability from model info
+- [x] Provider formats FIM requests with prefix/suffix tokens
+- [x] FIM requests produce correct completions
+- [x] FIM falls back to standard completion when unsupported
+
+### Next Steps
+
+LC-018: Implement Model Discovery — Add optional model listing via GET /v1/models endpoint for providers that support it.
+
+---
 
 ## ⚡ LC-016: Implement OpenAI-Compatible Provider
 

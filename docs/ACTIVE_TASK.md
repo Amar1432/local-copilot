@@ -23,22 +23,22 @@
 - [x] LC-014: Define CompletionProvider Interface
 - [x] LC-015: Implement Provider Router
 - [x] LC-016: Implement OpenAI-Compatible Provider
-- [ ] LC-017: Implement FIM Support
+- [x] LC-017: Implement FIM Support
 - [ ] LC-018: Implement Model Discovery
 - [ ] LC-019: Implement SecretStorage Integration
 - [ ] LC-020: Implement Local-Only Mode
 
 ---
 
-### Next Ticket: **LC-017: Implement FIM Support**
+### Next Ticket: **LC-018: Implement Model Discovery**
 
 **Sprint:** Sprint 3 — Provider Abstraction & Local Provider  
 **Epic:** Epic 8 — OpenAI-Compatible Provider  
-**Goal:** Add Fill-in-the-Middle support for providers that advertise FIM capability.
+**Goal:** Add optional model listing via GET /v1/models endpoint for providers that support it.
 
 **Acceptance Criteria:**
 
-- Provider detects FIM capability from model info
-- Provider formats FIM requests with prefix/suffix tokens
-- FIM requests produce correct completions
-- FIM falls back to standard completion when unsupported
+- Provider attempts model discovery on connection
+- Model list is cached and refreshable
+- Model list fallback allows manual entry
+- Model capabilities are extracted from metadata

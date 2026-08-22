@@ -24,6 +24,8 @@ export interface ProviderConfig {
   readonly contextMaxLines: number;
   readonly localOnly: boolean;
   readonly telemetryEnabled: boolean;
+  readonly useFim?: boolean;
+  readonly fimTemplate?: string;
 }
 
 /**
@@ -36,6 +38,7 @@ export interface CompletionRequest {
   readonly prefix: string;
   readonly suffix: string;
   readonly position: { readonly line: number; readonly character: number };
+  readonly useFim?: boolean;
 }
 
 /**

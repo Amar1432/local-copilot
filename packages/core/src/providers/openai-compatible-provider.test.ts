@@ -187,6 +187,68 @@ describe("OpenAICompatibleProvider", () => {
       expect(result?.text).toBe("return a + b;");
     });
 
+    it("should format request with FIM tokens when model supports FIM", async () => {
+      let capturedBody: { messages?: Array<{ role: string; content: string }> } = {};
+      const mockFetch = vi.fn().mockImplementation(async (_url, opts) => {
+        capturedBody = JSON.parse(opts.body);
+        return {
+          ok: true,
+          json: async () => ({
+            choices: [{ message: { content: "a * b;" } }],
+          }),
+        } as Response;
+      });
+
+      const provider = new OpenAICompatibleProvider({
+        config: createMockConfig({ model: "qwen-2.5-coder:7b" }),
+        customFetch: mockFetch as unknown as typeof fetch,
+      });
+
+      const controller = new AbortController();
+      const request = createMockRequest({
+        prefix: "const x = ",
+        suffix: ";",
+      });
+
+      const result = await provider.complete(request, controller.signal);
+      expect(result?.text).toBe("a * b;");
+      expect(capturedBody.messages).toHaveLength(1);
+      expect(capturedBody.messages?.[0].content).toContain("<|fim_prefix|>const x = ");
+      expect(capturedBody.messages?.[0].content).toContain("<|fim_suffix|>;");
+      expect(capturedBody.messages?.[0].content).toContain("<|fim_middle|>");
+    });
+
+    it("should fall back to standard prompt when FIM is unsupported or disabled", async () => {
+      let capturedBody: { messages?: Array<{ role: string; content: string }> } = {};
+      const mockFetch = vi.fn().mockImplementation(async (_url, opts) => {
+        capturedBody = JSON.parse(opts.body);
+        return {
+          ok: true,
+          json: async () => ({
+            choices: [{ message: { content: "return x;" } }],
+          }),
+        } as Response;
+      });
+
+      const provider = new OpenAICompatibleProvider({
+        config: createMockConfig({ model: "gpt-4o", useFim: false }),
+        customFetch: mockFetch as unknown as typeof fetch,
+      });
+
+      const controller = new AbortController();
+      const request = createMockRequest({
+        prefix: "function test() {\n  ",
+        suffix: "\n}",
+      });
+
+      const result = await provider.complete(request, controller.signal);
+      expect(result?.text).toBe("return x;");
+      expect(capturedBody.messages).toHaveLength(2);
+      expect(capturedBody.messages?.[0].role).toBe("system");
+      expect(capturedBody.messages?.[1].content).toContain("<PREFIX>");
+      expect(capturedBody.messages?.[1].content).toContain("<SUFFIX>");
+    });
+
     it("should return null if model is not set", async () => {
       const provider = new OpenAICompatibleProvider({
         config: createMockConfig({ model: "" }),

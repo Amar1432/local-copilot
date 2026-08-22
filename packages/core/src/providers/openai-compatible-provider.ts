@@ -9,6 +9,7 @@ import type {
   ProviderCapabilities,
 } from "./provider.types";
 import { ProviderError } from "./provider.types";
+import { formatFimPrompt, isFimSupported } from "./fim";
 
 /**
  * Options for configuring OpenAICompatibleProvider
@@ -136,17 +137,21 @@ export class OpenAICompatibleProvider implements CompletionProvider {
           ? body.data
           : [];
 
-      return data.map((item) => ({
-        id: item.id || String(item),
-        name: item.name || item.id || String(item),
-        capabilities: {
-          streaming: true,
-          fim: true,
-          stopSequences: true,
-          contextWindow: 4096,
-          auth: config.apiKey ? "apiKey" : "none",
-        },
-      }));
+      return data.map((item) => {
+        const id = item.id || String(item);
+        const fimCapability = isFimSupported(id);
+        return {
+          id,
+          name: item.name || id,
+          capabilities: {
+            streaming: true,
+            fim: fimCapability,
+            stopSequences: true,
+            contextWindow: 4096,
+            auth: config.apiKey ? "apiKey" : "none",
+          },
+        };
+      });
     } catch (error) {
       if (signal?.aborted) {
         return [];
@@ -196,29 +201,51 @@ export class OpenAICompatibleProvider implements CompletionProvider {
       headers["Authorization"] = `Bearer ${config.apiKey}`;
     }
 
-    const messages = [
-      {
-        role: "system",
-        content: [
-          "You are a code completion engine.",
-          `Language: ${request.language}`,
-          "Complete only the code at the cursor position.",
-          "Do not explain. Do not repeat existing text.",
-          "Return only code that should be inserted.",
-          "Do not include markdown fences or backticks.",
-        ].join("\n"),
-      },
-      {
-        role: "user",
-        content: [
-          request.prefix ? `<PREFIX>\n${request.prefix}</PREFIX>` : "",
-          request.suffix ? `<SUFFIX>\n${request.suffix}</SUFFIX>` : "",
-          "<COMPLETION>",
-        ]
-          .filter(Boolean)
-          .join("\n\n"),
-      },
-    ];
+    const useFim =
+      this.capabilities.fim &&
+      config.useFim !== false &&
+      request.useFim !== false &&
+      isFimSupported(config.model, this.capabilities);
+
+    let messages: Array<{ readonly role: string; readonly content: string }>;
+
+    if (useFim) {
+      const fimPrompt = formatFimPrompt(
+        request.prefix,
+        request.suffix,
+        config.fimTemplate ?? config.model
+      );
+      messages = [
+        {
+          role: "user",
+          content: fimPrompt,
+        },
+      ];
+    } else {
+      messages = [
+        {
+          role: "system",
+          content: [
+            "You are a code completion engine.",
+            `Language: ${request.language}`,
+            "Complete only the code at the cursor position.",
+            "Do not explain. Do not repeat existing text.",
+            "Return only code that should be inserted.",
+            "Do not include markdown fences or backticks.",
+          ].join("\n"),
+        },
+        {
+          role: "user",
+          content: [
+            request.prefix ? `<PREFIX>\n${request.prefix}</PREFIX>` : "",
+            request.suffix ? `<SUFFIX>\n${request.suffix}</SUFFIX>` : "",
+            "<COMPLETION>",
+          ]
+            .filter(Boolean)
+            .join("\n\n"),
+        },
+      ];
+    }
 
     const body = {
       model: config.model,
@@ -301,18 +328,55 @@ export class OpenAICompatibleProvider implements CompletionProvider {
       headers["Authorization"] = `Bearer ${config.apiKey}`;
     }
 
-    const body = {
-      model: config.model,
-      messages: [
+    const useFim =
+      this.capabilities.fim &&
+      config.useFim !== false &&
+      request.useFim !== false &&
+      isFimSupported(config.model, this.capabilities);
+
+    let messages: Array<{ readonly role: string; readonly content: string }>;
+
+    if (useFim) {
+      const fimPrompt = formatFimPrompt(
+        request.prefix,
+        request.suffix,
+        config.fimTemplate ?? config.model
+      );
+      messages = [
+        {
+          role: "user",
+          content: fimPrompt,
+        },
+      ];
+    } else {
+      messages = [
         {
           role: "system",
-          content: `You are a code completion engine for ${request.language}. Output only the code to insert at the cursor.`,
+          content: [
+            "You are a code completion engine.",
+            `Language: ${request.language}`,
+            "Complete only the code at the cursor position.",
+            "Do not explain. Do not repeat existing text.",
+            "Return only code that should be inserted.",
+            "Do not include markdown fences or backticks.",
+          ].join("\n"),
         },
         {
           role: "user",
-          content: `<PREFIX>${request.prefix}</PREFIX><SUFFIX>${request.suffix}</SUFFIX><COMPLETION>`,
+          content: [
+            request.prefix ? `<PREFIX>\n${request.prefix}</PREFIX>` : "",
+            request.suffix ? `<SUFFIX>\n${request.suffix}</SUFFIX>` : "",
+            "<COMPLETION>",
+          ]
+            .filter(Boolean)
+            .join("\n\n"),
         },
-      ],
+      ];
+    }
+
+    const body = {
+      model: config.model,
+      messages,
       max_tokens: config.maxOutputTokens,
       temperature: config.temperature,
       stream: true,
