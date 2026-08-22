@@ -90,11 +90,11 @@ LC-002: Configure Build Tooling — Set up esbuild or tsup for extension build p
 
 ### Build Tooling Summary
 
-| Package | Build Tool | Output |
-|---|---|---|
-| extension | esbuild | `dist/extension.js` (CJS bundle, vscode externalized) |
-| core | tsup | `dist/index.js` (CJS), `dist/index.mjs` (ESM), `dist/index.d.ts` (types) |
-| shared | tsup | `dist/index.js` (CJS), `dist/index.mjs` (ESM), `dist/index.d.ts` (types) |
+| Package   | Build Tool | Output                                                                   |
+| --------- | ---------- | ------------------------------------------------------------------------ |
+| extension | esbuild    | `dist/extension.js` (CJS bundle, vscode externalized)                    |
+| core      | tsup       | `dist/index.js` (CJS), `dist/index.mjs` (ESM), `dist/index.d.ts` (types) |
+| shared    | tsup       | `dist/index.js` (CJS), `dist/index.mjs` (ESM), `dist/index.d.ts` (types) |
 
 ### Next Steps
 

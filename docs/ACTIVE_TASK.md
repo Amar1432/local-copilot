@@ -33,6 +33,7 @@
 Implement the actual extension activation, inline completion provider, and command handlers.
 
 **Acceptance Criteria:**
+
 - Extension activates successfully in VS Code
 - Inline completion provider is registered
 - Commands are registered and functional
