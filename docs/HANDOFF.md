@@ -4,8 +4,8 @@
 
 **Project:** Local Copilot (VS Code AI Autocomplete Extension)
 **Current Sprint:** Sprint 4 — Context Engine & Multi-File Support
-**Active Ticket:** LC-026: Implement Cross-File Deduplication
-**Overall Progress:** 25/38 tickets completed
+**Active Ticket:** LC-027: Integrate Multi-File Context with Orchestrator
+**Overall Progress:** 26/38 tickets completed
 
 ### Key Components
 
@@ -44,13 +44,42 @@
 - [x] LC-019: Implement SecretStorage Integration
 - [x] LC-020: Implement Local-Only Mode
 - [x] LC-021: Define Context Provider Interface
-- [x] LC-023: Implement Recent Files Provider
 - [x] LC-024: Implement Import/Definition Resolver
 - [x] LC-025: Implement Context Window Budgeting
+- [x] LC-026: Implement Cross-File Deduplication
 
 ---
 
 <!-- Newest session logs are prepended below this line (latest on top) -->
+
+## ⚡ LC-026: Implement Cross-File Deduplication
+
+**Date/Time:** 2026-08-22 | **Agent:** opencode | **Ticket:** LC-026
+
+### Changes Made
+
+1. Created `packages/core/src/context/context-dedup.ts`:
+   - `deduplicateChunks(chunks, contentSimilarityThreshold?)` — two-pass dedup: symbol-based (same `symbolName` across files → keep highest score) then content-based (Jaccard similarity on identifier token sets ≥ 0.85 threshold → keep highest score)
+   - Exact content match fast-path bypasses token-count requirements
+   - Minimum 3 identifier tokens required for Jaccard content dedup to prevent trivial overlap on tiny snippets
+   - Deterministic ordering via score-desc secondary key on uri+id before grouping
+   - Final output sorted by score descending with id tie-breaking
+2. Exported `deduplicateChunks` from `packages/core/src/context/index.ts`
+3. Created unit tests in `packages/core/src/context/context-dedup.test.ts` (9 tests) covering symbol dedup, content dedup, mixed strategies, distinct-preservation, input-order independence, and 100-chunk performance benchmark (<20ms)
+4. Total test suite expanded to **273 passing tests** across `shared` (6), `core` (155), and `extension` (112) with 100% clean typecheck, lint, and build
+
+### Acceptance Criteria Met
+
+- [x] Detect duplicate chunks by content similarity or symbol identity across different provider results
+- [x] Deduplicate before budget enforcement so the budget is spent on unique context only
+- [x] Preserve the highest-priority chunk when duplicates are detected
+- [x] Provide deterministic deduplication ordering regardless of provider insertion order
+
+### Next Steps
+
+Sprint 4 — Context Engine & Multi-File Support: LC-027: Integrate Multi-File Context with Orchestrator.
+
+---
 
 ## ⚡ LC-025: Implement Context Window Budgeting
 

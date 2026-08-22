@@ -26,20 +26,20 @@
 - [x] LC-023: Implement Recent Files Provider
 - [x] LC-024: Implement Import/Definition Resolver
 - [x] LC-025: Implement Context Window Budgeting
-- [ ] LC-026: Implement Cross-File Deduplication
+- [x] LC-026: Implement Cross-File Deduplication
 - [ ] LC-027: Integrate Multi-File Context with Orchestrator
 
 ---
 
-### Next Ticket: **LC-026: Implement Cross-File Deduplication**
+### Next Ticket: **LC-027: Integrate Multi-File Context with Orchestrator**
 
 **Sprint:** Sprint 4 — Context Engine & Multi-File Support  
 **Epic:** Epic 11 — Context Interface  
-**Goal:** Detect and remove duplicate context chunks across providers so the same symbol definition is never included twice.
+**Goal:** Wire the file, recent, and import/definition context providers into the Completion Orchestrator pipeline so all providers contribute chunks assembled under the global budget.
 
 **Acceptance Criteria:**
 
-- Detect duplicate chunks by content similarity or symbol identity across different provider results
-- Deduplicate before budget enforcement so the budget is spent on unique context only
-- Preserve the highest-priority chunk when duplicates are detected
-- Provide deterministic deduplication ordering regardless of provider insertion order
+- Orchestrate all registered context providers in the Completion Orchestrator's completion flow
+- Apply cross-file deduplication and budget enforcement before prompt assembly
+- Expose a configurable budget preset selection via extension settings
+- Maintain <20ms total context assembly overhead for typical completions
