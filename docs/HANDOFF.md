@@ -40,62 +40,6 @@
 
 ---
 
-## ⚡ LC-014: Define CompletionProvider Interface
-
-**Date/Time:** 2026-08-22 | **Agent:** Antigravity | **Ticket:** LC-014
-
-### Changes Made
-
-1. Created `packages/core/src/providers/provider.types.ts`:
-   - `CompletionProvider` interface with `id`, `capabilities`, `validateConfig(config)`, `getModels(signal)`, and `complete(request, signal)` methods
-   - `ProviderCapabilities` interface specifying `streaming`, `fim`, `stopSequences`, `modelListing`, `contextWindow`, `maxOutputTokens`, and `auth`
-   - `ModelInfo` and `ModelCapabilities` interfaces specifying metadata, token budgets, and capabilities per model
-   - `ProviderError` domain error class with error code taxonomy (`authentication`, `not_found`, `timeout`, `rate_limit`, `network`, `invalid_request`, `unknown`), `retryable` flag, and `statusCode`
-2. Created `packages/core/src/providers/index.ts` and updated `packages/core/src/index.ts` barrel exports.
-3. Created comprehensive unit tests in `packages/core/src/providers/provider.types.test.ts` (4 tests) and updated `packages/core/src/index.test.ts` (1 test).
-4. Verified that all 108 tests across the monorepo pass cleanly, and that lint, typecheck, and build steps succeed without warnings.
-
-### Acceptance Criteria Met
-
-- [x] Interface defines `id`, `validateConfig`, `getModels`, `complete` methods
-- [x] `ProviderCapabilities` interface defined
-- [x] `ModelInfo` interface defined for model metadata
-- [x] Interface is extensible for future providers
-
-### Next Steps
-
-LC-015: Implement Provider Router — Create a router that selects the appropriate provider based on configuration and manages provider lifecycle.
-
----
-
-## ⚡ LC-013: Implement L1 Request Cache
-
-**Date/Time:** 2026-08-22 | **Agent:** Antigravity | **Ticket:** LC-013
-
-### Changes Made
-
-1. Created `packages/extension/src/request-cache.ts` — In-memory LRU request cache with configurable TTL (default 5000ms), max size (default 100 entries), hit/miss statistics, and LRU eviction order tracking
-2. Integrated `RequestCache` into `CompletionOrchestrator` (`completion-orchestrator.ts`) — Instant cache hit lookup by request fingerprint before debouncing or provider invocation; caches normalized results on completion
-3. Added `clearCache()` and `cacheStats` to `CompletionOrchestrator` and `LocalCopilotCompletionProvider`
-4. Wired `localCopilot.clearCache` and enriched `localCopilot.showDiagnostics` in `extension.ts` to clear and report cache metrics
-5. Created comprehensive unit tests in `request-cache.test.ts` (9 tests) and `completion-orchestrator.test.ts` (6 tests)
-6. Fixed TypeScript type assertion in `openai-provider.ts` for strict type checking
-7. Total test suite expanded to 97 passing tests (0 failures, 100% clean typecheck, lint, and build)
-
-### Acceptance Criteria Met
-
-- [x] Cache stores completion results by fingerprint
-- [x] Cache has configurable TTL (default 5000ms)
-- [x] Cache has size limits with LRU eviction (default 100 entries)
-- [x] Cache hit returns result without provider call
-- [x] Cache clear command and diagnostics reporting supported
-
-### Next Steps
-
-LC-014: Define CompletionProvider Interface — Standardize provider abstraction in `@local-copilot/core`.
-
----
-
 ## 🚀 LC-001: Initialize Monorepo Structure
 
 **Date/Time:** 2024-01-01 | **Agent:** Buffy | **Ticket:** LC-001
@@ -123,8 +67,6 @@ LC-014: Define CompletionProvider Interface — Standardize provider abstraction
 ### Next Steps
 
 LC-002: Configure Build Tooling — Set up esbuild or tsup for extension build pipeline
-
----
 
 ---
 
@@ -166,8 +108,6 @@ LC-003: Create VS Code Extension Skeleton — Implement the actual extension act
 
 ---
 
----
-
 ## 🧩 LC-003: Create VS Code Extension Skeleton
 
 **Date/Time:** 2024-01-01 | **Agent:** Buffy | **Ticket:** LC-003
@@ -202,8 +142,6 @@ packages/extension/src/
 ### Next Steps
 
 LC-004: Set Up Vitest Testing — Configure test framework and write initial tests
-
----
 
 ---
 
@@ -245,8 +183,6 @@ LC-005: Create Test Fixtures and Mocks — Build reusable test fixtures and mock
 
 ---
 
----
-
 ## 🧪 LC-005: Create Test Fixtures and Mocks
 
 **Date/Time:** 2024-01-01 | **Agent:** Buffy | **Ticket:** LC-005
@@ -281,8 +217,6 @@ LC-005: Create Test Fixtures and Mocks — Build reusable test fixtures and mock
 ### Next Steps
 
 LC-006: Configure CI Pipeline — Set up GitHub Actions for automated build, lint, and test
-
----
 
 ---
 
@@ -326,8 +260,6 @@ Trigger: push/PR to main
 ### Next Steps
 
 Sprint 1 is complete! Sprint 2 will focus on the completion engine and provider implementations.
-
----
 
 ---
 
@@ -393,4 +325,56 @@ Sprint 2 continued: Provider-specific adapters (Ollama, LM Studio), model discov
 
 ---
 
-_New entries are prepended below this line_
+## ⚡ LC-013: Implement L1 Request Cache
+
+**Date/Time:** 2026-08-22 | **Agent:** Antigravity | **Ticket:** LC-013
+
+### Changes Made
+
+1. Created `packages/extension/src/request-cache.ts` — In-memory LRU request cache with configurable TTL (default 5000ms), max size (default 100 entries), hit/miss statistics, and LRU eviction order tracking
+2. Integrated `RequestCache` into `CompletionOrchestrator` (`completion-orchestrator.ts`) — Instant cache hit lookup by request fingerprint before debouncing or provider invocation; caches normalized results on completion
+3. Added `clearCache()` and `cacheStats` to `CompletionOrchestrator` and `LocalCopilotCompletionProvider`
+4. Wired `localCopilot.clearCache` and enriched `localCopilot.showDiagnostics` in `extension.ts` to clear and report cache metrics
+5. Created comprehensive unit tests in `request-cache.test.ts` (9 tests) and `completion-orchestrator.test.ts` (6 tests)
+6. Fixed TypeScript type assertion in `openai-provider.ts` for strict type checking
+7. Total test suite expanded to 97 passing tests (0 failures, 100% clean typecheck, lint, and build)
+
+### Acceptance Criteria Met
+
+- [x] Cache stores completion results by fingerprint
+- [x] Cache has configurable TTL (default 5000ms)
+- [x] Cache has size limits with LRU eviction (default 100 entries)
+- [x] Cache hit returns result without provider call
+- [x] Cache clear command and diagnostics reporting supported
+
+### Next Steps
+
+LC-014: Define CompletionProvider Interface — Standardize provider abstraction in `@local-copilot/core`.
+
+---
+
+## ⚡ LC-014: Define CompletionProvider Interface
+
+**Date/Time:** 2026-08-22 | **Agent:** Antigravity | **Ticket:** LC-014
+
+### Changes Made
+
+1. Created `packages/core/src/providers/provider.types.ts`:
+   - `CompletionProvider` interface with `id`, `capabilities`, `validateConfig(config)`, `getModels(signal)`, and `complete(request, signal)` methods
+   - `ProviderCapabilities` interface specifying `streaming`, `fim`, `stopSequences`, `modelListing`, `contextWindow`, `maxOutputTokens`, and `auth`
+   - `ModelInfo` and `ModelCapabilities` interfaces specifying metadata, token budgets, and capabilities per model
+   - `ProviderError` domain error class with error code taxonomy (`authentication`, `not_found`, `timeout`, `rate_limit`, `network`, `invalid_request`, `unknown`), `retryable` flag, and `statusCode`
+2. Created `packages/core/src/providers/index.ts` and updated `packages/core/src/index.ts` barrel exports.
+3. Created comprehensive unit tests in `packages/core/src/providers/provider.types.test.ts` (4 tests) and updated `packages/core/src/index.test.ts` (1 test).
+4. Verified that all 108 tests across the monorepo pass cleanly, and that lint, typecheck, and build steps succeed without warnings.
+
+### Acceptance Criteria Met
+
+- [x] Interface defines `id`, `validateConfig`, `getModels`, `complete` methods
+- [x] `ProviderCapabilities` interface defined
+- [x] `ModelInfo` interface defined for model metadata
+- [x] Interface is extensible for future providers
+
+### Next Steps
+
+LC-015: Implement Provider Router — Create a router that selects the appropriate provider based on configuration and manages provider lifecycle.
