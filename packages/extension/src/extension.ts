@@ -21,7 +21,7 @@ export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(statusBar);
 
   // Completion provider
-  completionProvider = new LocalCopilotCompletionProvider();
+  completionProvider = new LocalCopilotCompletionProvider(config);
   registerCompletionProvider(context, completionProvider);
 
   // Commands
@@ -42,6 +42,7 @@ export function activate(context: vscode.ExtensionContext): void {
  * Called when the extension is deactivated.
  */
 export function deactivate(): void {
+  completionProvider?.dispose();
   statusBar = undefined;
   completionProvider = undefined;
   console.log("Local Copilot deactivated.");
@@ -114,8 +115,19 @@ function registerCommands(context: vscode.ExtensionContext, status: StatusBarMan
     vscode.commands.registerCommand("localCopilot.testConnection", async () => {
       status.setStatus("checking", getConfiguration().localOnly);
       vscode.window.showInformationMessage("Testing connection...");
-      // TODO: Implement actual connection test in Sprint 2
-      status.setStatus("disconnected", getConfiguration().localOnly);
+      try {
+        const connected = await completionProvider?.orchestratorInstance.testProviderConnection();
+        if (connected) {
+          status.setStatus("connected", getConfiguration().localOnly);
+          vscode.window.showInformationMessage("Connection successful!");
+        } else {
+          status.setStatus("disconnected", getConfiguration().localOnly);
+          vscode.window.showErrorMessage("Connection failed. Check your provider settings.");
+        }
+      } catch {
+        status.setStatus("disconnected", getConfiguration().localOnly);
+        vscode.window.showErrorMessage("Connection test failed.");
+      }
     })
   );
 

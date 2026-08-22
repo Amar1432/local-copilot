@@ -1,99 +1,98 @@
 import * as vscode from "vscode";
 import type { ProviderConfig } from "@local-copilot/shared";
-import { getConfiguration } from "./configuration";
+import { CompletionOrchestrator } from "./completion-orchestrator";
 
 /**
  * Inline completion provider for Local Copilot.
  *
- * Extracts prefix/suffix context from the document and delegates to
- * a provider for actual completions. For now, this returns empty items
- * until the provider layer is implemented in Sprint 2.
+ * Uses the CompletionOrchestrator to request completions from the configured
+ * provider, normalizes the output, and returns InlineCompletionItems to VS Code.
  */
 export class LocalCopilotCompletionProvider implements vscode.InlineCompletionItemProvider {
-  private config: ProviderConfig;
+  private orchestrator: CompletionOrchestrator;
 
-  constructor() {
-    this.config = getConfiguration();
+  constructor(config: ProviderConfig) {
+    this.orchestrator = new CompletionOrchestrator(config);
   }
 
   /**
    * Update the provider configuration (called when settings change).
    */
   updateConfig(config: ProviderConfig): void {
-    this.config = config;
+    this.orchestrator.updateConfig(config);
+  }
+
+  /**
+   * Get the orchestrator (for testing connection, etc.).
+   */
+  get orchestratorInstance(): CompletionOrchestrator {
+    return this.orchestrator;
   }
 
   provideInlineCompletionItems(
     document: vscode.TextDocument,
     position: vscode.Position,
-    context: vscode.InlineCompletionContext,
+    _context: vscode.InlineCompletionContext,
     token: vscode.CancellationToken
   ): vscode.ProviderResult<vscode.InlineCompletionList> {
-    // Skip if disabled
-    if (!this.config.enabled) {
-      return { items: [] };
-    }
-
-    // Skip if no model configured
-    if (!this.config.model) {
-      return { items: [] };
-    }
-
-    // Skip if request was already cancelled
-    if (token.isCancellationRequested) {
-      return { items: [] };
-    }
-
-    // Skip if we're in a comment or string (basic heuristic)
+    // Skip if in a comment or string (basic heuristic)
     if (isInsideCommentOrString(document, position)) {
       return { items: [] };
     }
 
-    // Extract context
-    const prefix = getPrefix(document, position, this.config.contextMaxLines);
-    const suffix = getSuffix(document, position, this.config.contextMaxLines);
+    // Cancel any previous in-flight request
+    this.orchestrator.cancel();
 
-    // Placeholder: will be connected to provider in Sprint 2
-    void prefix;
-    void suffix;
-    void context;
+    // Fire-and-forget the async completion request.
+    // VS Code handles the Promise-based return from provideInlineCompletionItems.
+    return this.requestCompletion(document, position, token);
+  }
 
-    return { items: [] };
+  private async requestCompletion(
+    document: vscode.TextDocument,
+    position: vscode.Position,
+    token: vscode.CancellationToken
+  ): Promise<vscode.InlineCompletionList> {
+    const startTime = Date.now();
+
+    const text = document.getText();
+    const result = await this.orchestrator.requestCompletion({
+      documentUri: document.uri.toString(),
+      documentVersion: document.version,
+      language: document.languageId,
+      fullText: text,
+      cursorLine: position.line,
+      cursorCharacter: position.character,
+      cancellationToken: token,
+    });
+
+    if (!result || token.isCancellationRequested) {
+      return { items: [] };
+    }
+
+    const latencyMs = Date.now() - startTime;
+    console.log(`[Local Copilot] Completion in ${latencyMs}ms: "${result.slice(0, 50)}..."`);
+
+    return {
+      items: [
+        {
+          insertText: result,
+          range: new vscode.Range(position, position),
+        },
+      ],
+    };
+  }
+
+  /**
+   * Dispose of the provider and its resources.
+   */
+  dispose(): void {
+    this.orchestrator.dispose();
   }
 }
 
 /**
- * Get the text before the cursor, limited to maxLines.
- */
-function getPrefix(
-  document: vscode.TextDocument,
-  position: vscode.Position,
-  maxLines: number
-): string {
-  const startLine = Math.max(0, position.line - maxLines);
-  const range = new vscode.Range(new vscode.Position(startLine, 0), position);
-  return document.getText(range);
-}
-
-/**
- * Get the text after the cursor, limited to maxLines.
- */
-function getSuffix(
-  document: vscode.TextDocument,
-  position: vscode.Position,
-  maxLines: number
-): string {
-  const endLine = Math.min(document.lineCount - 1, position.line + maxLines);
-  const range = new vscode.Range(
-    position,
-    new vscode.Position(endLine, document.lineAt(endLine).text.length)
-  );
-  return document.getText(range);
-}
-
-/**
  * Basic heuristic to detect if the cursor is inside a comment or string.
- * Returns true if the line prefix contains an unclosed quote or comment marker.
  */
 function isInsideCommentOrString(
   document: vscode.TextDocument,

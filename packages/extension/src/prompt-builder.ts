@@ -1,0 +1,69 @@
+/**
+ * Prompt Builder — constructs prompts for OpenAI-compatible completion APIs.
+ *
+ * Supports two modes:
+ * 1. Standard mode: Prefix-based continuation
+ * 2. FIM mode: Fill-in-the-middle with prefix + suffix
+ */
+
+import type { CompletionRequest } from "@local-copilot/shared";
+
+/**
+ * Build the messages array for an OpenAI-compatible chat completions endpoint.
+ *
+ * Uses a system prompt that instructs the model to act as a code completion engine,
+ * followed by the prefix as user context.
+ */
+export function buildStandardMessages(
+  request: CompletionRequest
+): Array<{ readonly role: string; readonly content: string }> {
+  const systemPrompt = [
+    "You are a code completion engine.",
+    "",
+    `Language: ${request.language}`,
+    "",
+    "Complete only the code at the cursor position.",
+    "Do not explain. Do not repeat existing text.",
+    "Return only code that should be inserted.",
+    "Do not include markdown fences or backticks.",
+  ].join("\n");
+
+  const userContent = [
+    request.prefix ? `<PREFIX>\n${request.prefix}</PREFIX>` : "",
+    request.suffix ? `<SUFFIX>\n${request.suffix}</SUFFIX>` : "",
+    "<COMPLETION>",
+  ]
+    .filter(Boolean)
+    .join("\n\n");
+
+  return [
+    { role: "system", content: systemPrompt },
+    { role: "user", content: userContent },
+  ];
+}
+
+/**
+ * Build a prompt using FIM (Fill-in-the-Middle) tokens.
+ *
+ * Many code models (DeepSeek, Qwen, Starcoder) support special FIM tokens:
+ *   <PRE> prefix <SUF> suffix <MID>
+ */
+export function buildFIMPrompt(request: CompletionRequest): string {
+  const parts: string[] = [];
+
+  if (request.prefix) {
+    parts.push(`<PRE> ${request.prefix}`);
+  } else {
+    parts.push("<PRE>");
+  }
+
+  parts.push("<SUF>");
+
+  if (request.suffix) {
+    parts.push(`${request.suffix} <MID>`);
+  } else {
+    parts.push("<MID>");
+  }
+
+  return parts.join(" ");
+}

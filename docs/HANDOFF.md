@@ -4,8 +4,8 @@
 
 **Project:** Local Copilot (VS Code AI Autocomplete Extension)
 **Current Sprint:** Sprint 1 — Foundation & Infrastructure
-**Active Ticket:** Sprint 1 Complete!
-**Overall Progress:** 6/38 tickets completed
+**Active Ticket:** Sprint 2 — Completion Engine
+**Overall Progress:** 7/38 tickets completed
 
 ### Key Components
 
@@ -262,6 +262,70 @@ Trigger: push/PR to main
 ### Next Steps
 
 Sprint 1 is complete! Sprint 2 will focus on the completion engine and provider implementations.
+
+---
+
+---
+
+## ⚡ Sprint 2: Completion Engine
+
+**Date/Time:** 2024-01-01 | **Agent:** Buffy | **Sprint:** 2
+
+### Changes Made
+
+1. Created `context-engine.ts` — Extracts prefix/suffix from documents, generates request IDs, computes fingerprints for deduplication
+2. Created `prompt-builder.ts` — Builds OpenAI-compatible messages (standard mode) and FIM prompts (PRE/SUF/MID tokens)
+3. Created `completion-normalizer.ts` — Cleans model output: removes code fences, prompt labels, duplicate prefix/suffix, prose detection
+4. Created `openai-provider.ts` — HTTP communication with any OpenAI-compatible endpoint using native fetch + AbortController
+5. Created `request-scheduler.ts` — Debounce, cancellation, deduplication with AbortController per request
+6. Created `completion-orchestrator.ts` — Central coordinator wiring context → scheduler → provider → normalizer
+7. Updated `completion-provider.ts` — Now uses orchestrator for real completions, async return, connection test support
+8. Updated `extension.ts` — Passes config to provider, wires test connection command to orchestrator
+9. Added 37 new tests across 4 test files (context-engine, prompt-builder, completion-normalizer, request-scheduler)
+10. Total tests: 82 (up from 45)
+
+### Architecture
+
+```
+User Types
+    │
+    ▼
+CompletionProvider (vscode.InlineCompletionItemProvider)
+    │
+    ▼
+CompletionOrchestrator
+    ├──► buildCompletionRequest (context-engine)
+    ├──► RequestScheduler (debounce + cancel + dedup)
+    ├──► complete() (openai-provider → fetch)
+    └──► normalizeCompletion (completion-normalizer)
+    │
+    ▼
+InlineCompletionItem → VS Code
+```
+
+### New Modules
+
+| Module | Purpose | Tests |
+|--------|---------|-------|
+| context-engine | Extract prefix/suffix, generate IDs, fingerprints | 8 |
+| prompt-builder | Standard + FIM prompt formatting | 14 |
+| completion-normalizer | Clean up model output (fences, labels, prose) | 14 |
+| openai-provider | HTTP communication with OpenAI-compatible APIs | — |
+| request-scheduler | Debounce, cancellation, deduplication | 6 |
+| completion-orchestrator | Central coordinator | — |
+
+### What Works Now
+
+- Extension sends real completion requests to configured provider
+- Provider returns completions that are normalized and displayed as ghost text
+- Cancellation works — typing again cancels in-flight requests
+- Debouncing prevents hammering the provider on every keystroke
+- Test Connection command actually tests the provider endpoint
+- Connection state updates in status bar
+
+### Next Steps
+
+Sprint 2 continued: Provider-specific adapters (Ollama, LM Studio), model discovery, better diagnostics
 
 ---
 

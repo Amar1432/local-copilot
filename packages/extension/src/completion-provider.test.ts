@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
 import { LocalCopilotCompletionProvider } from "./completion-provider";
 import {
   createDefaultConfig,
@@ -19,7 +19,13 @@ describe("LocalCopilotCompletionProvider", () => {
   let provider: LocalCopilotCompletionProvider;
 
   beforeEach(() => {
-    provider = new LocalCopilotCompletionProvider();
+    vi.useFakeTimers();
+    provider = new LocalCopilotCompletionProvider(createDefaultConfig());
+  });
+
+  afterEach(() => {
+    provider.dispose();
+    vi.useRealTimers();
   });
 
   // -----------------------------------------------------------------------
@@ -42,12 +48,16 @@ describe("LocalCopilotCompletionProvider", () => {
     provider.updateConfig(createDefaultConfig({ model: "test-model" }));
   });
 
+  it("should have orchestratorInstance getter", () => {
+    expect(provider.orchestratorInstance).toBeDefined();
+  });
+
   // -----------------------------------------------------------------------
   // Disabled state
   // -----------------------------------------------------------------------
 
   describe("when disabled", () => {
-    it("should return empty items", () => {
+    it("should return empty items", async () => {
       provider.updateConfig(createDefaultConfig({ enabled: false }));
       const doc = createMockDocument("const x = |");
       const result = provider.provideInlineCompletionItems(
@@ -56,7 +66,7 @@ describe("LocalCopilotCompletionProvider", () => {
         createMockCompletionContext(),
         createMockCancellationToken()
       );
-      expect(result).toEqual({ items: [] });
+      expect(await result).toEqual({ items: [] });
     });
   });
 
@@ -65,7 +75,7 @@ describe("LocalCopilotCompletionProvider", () => {
   // -----------------------------------------------------------------------
 
   describe("when no model is configured", () => {
-    it("should return empty items", () => {
+    it("should return empty items", async () => {
       provider.updateConfig(createDefaultConfig({ model: "" }));
       const doc = createMockDocument("const x = |");
       const result = provider.provideInlineCompletionItems(
@@ -74,7 +84,7 @@ describe("LocalCopilotCompletionProvider", () => {
         createMockCompletionContext(),
         createMockCancellationToken()
       );
-      expect(result).toEqual({ items: [] });
+      expect(await result).toEqual({ items: [] });
     });
   });
 
@@ -83,7 +93,7 @@ describe("LocalCopilotCompletionProvider", () => {
   // -----------------------------------------------------------------------
 
   describe("when request is cancelled", () => {
-    it("should return empty items", () => {
+    it("should return empty items", async () => {
       const doc = createMockDocument("const x = |");
       const result = provider.provideInlineCompletionItems(
         doc as never,
@@ -91,7 +101,7 @@ describe("LocalCopilotCompletionProvider", () => {
         createMockCompletionContext(),
         createMockCancellationToken(true)
       );
-      expect(result).toEqual({ items: [] });
+      expect(await result).toEqual({ items: [] });
     });
   });
 
@@ -103,7 +113,7 @@ describe("LocalCopilotCompletionProvider", () => {
     it.each([
       ["comment", INSIDE_COMMENT],
       ["string", INSIDE_STRING],
-    ] as const)("should skip when cursor is inside a %s", (_label, scenario) => {
+    ] as const)("should skip when cursor is inside a %s", async (_label, scenario) => {
       const doc = createMockDocument(scenario.document, scenario.language);
       const result = provider.provideInlineCompletionItems(
         doc as never,
@@ -111,12 +121,12 @@ describe("LocalCopilotCompletionProvider", () => {
         createMockCompletionContext(),
         createMockCancellationToken()
       );
-      expect(result).toEqual({ items: [] });
+      expect(await result).toEqual({ items: [] });
     });
   });
 
   // -----------------------------------------------------------------------
-  // Normal scenarios — currently returns empty (provider not connected yet)
+  // Normal scenarios — returns empty (provider not connected)
   // -----------------------------------------------------------------------
 
   describe("completion scenarios", () => {
@@ -125,19 +135,24 @@ describe("LocalCopilotCompletionProvider", () => {
       ["variable assignment", VARIABLE_ASSIGNMENT],
       ["empty document", EMPTY_DOCUMENT],
       ["JSX return", JSX_RETURN],
-    ] as const)("should return empty items for %s (provider not connected)", (_label, scenario) => {
-      const doc = createMockDocument(scenario.document, scenario.language);
-      const result = provider.provideInlineCompletionItems(
-        doc as never,
-        {
-          line: scenario.cursorLine,
-          character: scenario.cursorCharacter,
-        } as never,
-        createMockCompletionContext(),
-        createMockCancellationToken()
-      );
-      expect(result).toEqual({ items: [] });
-    });
+    ] as const)(
+      "should return empty items for %s (provider not connected)",
+      async (_label, scenario) => {
+        const doc = createMockDocument(scenario.document, scenario.language);
+        const resultPromise = provider.provideInlineCompletionItems(
+          doc as never,
+          {
+            line: scenario.cursorLine,
+            character: scenario.cursorCharacter,
+          } as never,
+          createMockCompletionContext(),
+          createMockCancellationToken()
+        );
+        // Advance past debounce so the scheduler resolves
+        vi.advanceTimersByTime(200);
+        expect(await resultPromise).toEqual({ items: [] });
+      }
+    );
   });
 
   // -----------------------------------------------------------------------
@@ -145,29 +160,39 @@ describe("LocalCopilotCompletionProvider", () => {
   // -----------------------------------------------------------------------
 
   describe("config updates", () => {
-    it("should reflect new enabled state after update", () => {
+    it("should reflect new enabled state after update", async () => {
       // Start enabled
       provider.updateConfig(createDefaultConfig({ enabled: true }));
       let doc = createMockDocument("const x = |");
-      let result = provider.provideInlineCompletionItems(
+      let resultPromise = provider.provideInlineCompletionItems(
         doc as never,
         { line: 0, character: 10 } as never,
         createMockCompletionContext(),
         createMockCancellationToken()
       );
-      // Returns empty (no model), but not because disabled
-      expect(result).toEqual({ items: [] });
+      vi.advanceTimersByTime(200);
+      expect(await resultPromise).toEqual({ items: [] });
 
       // Disable
       provider.updateConfig(createDefaultConfig({ enabled: false }));
       doc = createMockDocument("const x = |");
-      result = provider.provideInlineCompletionItems(
+      resultPromise = provider.provideInlineCompletionItems(
         doc as never,
         { line: 0, character: 10 } as never,
         createMockCompletionContext(),
         createMockCancellationToken()
       );
-      expect(result).toEqual({ items: [] });
+      expect(await resultPromise).toEqual({ items: [] });
+    });
+  });
+
+  // -----------------------------------------------------------------------
+  // Dispose
+  // -----------------------------------------------------------------------
+
+  describe("dispose", () => {
+    it("should dispose without throwing", () => {
+      provider.dispose();
     });
   });
 });
