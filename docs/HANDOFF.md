@@ -4,8 +4,8 @@
 
 **Project:** Local Copilot (VS Code AI Autocomplete Extension)
 **Current Sprint:** Sprint 3 — Provider Abstraction & Local Provider
-**Active Ticket:** LC-016: Implement OpenAI-Compatible Provider
-**Overall Progress:** 15/38 tickets completed
+**Active Ticket:** LC-017: Implement FIM Support
+**Overall Progress:** 16/38 tickets completed
 
 ### Key Components
 
@@ -38,10 +38,42 @@
 - [x] LC-013: Implement L1 Request Cache
 - [x] LC-014: Define CompletionProvider Interface
 - [x] LC-015: Implement Provider Router
+- [x] LC-016: Implement OpenAI-Compatible Provider
 
 ---
 
 <!-- Newest session logs are prepended below this line (latest on top) -->
+
+## ⚡ LC-016: Implement OpenAI-Compatible Provider
+
+**Date/Time:** 2026-08-22 | **Agent:** Antigravity | **Ticket:** LC-016
+
+### Changes Made
+
+1. Created `packages/core/src/providers/openai-compatible-provider.ts` implementing `CompletionProvider`:
+   - Configurable endpoint routing (`baseUrl/chat/completions` and `baseUrl/models`)
+   - Bearer API key authentication header support
+   - Non-streaming completion handling parsing OpenAI chat message content or legacy text fields
+   - Streaming completion via Server-Sent Events (SSE) through async generator `completeStream()`
+   - Comprehensive error categorization for 401/403 (authentication), 404 (not_found), 429 (rate_limit), and 5xx (network) with typed `ProviderError`
+   - URL protocol validation rejecting non-HTTP/HTTPS URLs
+   - Graceful cancellation handling returning null on abort signals
+2. Exported `OpenAICompatibleProvider` from `packages/core/src/providers/index.ts` and `packages/core/src/index.ts`
+3. Created unit tests in `packages/core/src/providers/openai-compatible-provider.test.ts` (14 tests) testing model discovery, non-streaming/streaming completions, auth headers, and error mapping
+4. Total test suite expanded to 134 passing tests (100% clean typecheck, lint, and build)
+
+### Acceptance Criteria Met
+
+- [x] Provider sends requests to configured baseUrl
+- [x] Provider supports API key authentication
+- [x] Provider handles streaming and non-streaming responses
+- [x] Provider implements proper error handling
+
+### Next Steps
+
+LC-017: Implement FIM Support — Add Fill-in-the-Middle support for providers that advertise FIM capability.
+
+---
 
 ## ⚡ LC-015: Implement Provider Router
 

@@ -22,7 +22,7 @@
 
 - [x] LC-014: Define CompletionProvider Interface
 - [x] LC-015: Implement Provider Router
-- [ ] LC-016: Implement OpenAI-Compatible Provider
+- [x] LC-016: Implement OpenAI-Compatible Provider
 - [ ] LC-017: Implement FIM Support
 - [ ] LC-018: Implement Model Discovery
 - [ ] LC-019: Implement SecretStorage Integration
@@ -30,15 +30,15 @@
 
 ---
 
-### Next Ticket: **LC-016: Implement OpenAI-Compatible Provider**
+### Next Ticket: **LC-017: Implement FIM Support**
 
 **Sprint:** Sprint 3 — Provider Abstraction & Local Provider  
 **Epic:** Epic 8 — OpenAI-Compatible Provider  
-**Goal:** Create a provider adapter for OpenAI-compatible endpoints that handles authentication, request formatting, and response parsing.
+**Goal:** Add Fill-in-the-Middle support for providers that advertise FIM capability.
 
 **Acceptance Criteria:**
 
-- Provider sends requests to configured baseUrl
-- Provider supports API key authentication
-- Provider handles streaming and non-streaming responses
-- Provider implements proper error handling
+- Provider detects FIM capability from model info
+- Provider formats FIM requests with prefix/suffix tokens
+- FIM requests produce correct completions
+- FIM falls back to standard completion when unsupported
