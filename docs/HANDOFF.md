@@ -4,8 +4,8 @@
 
 **Project:** Local Copilot (VS Code AI Autocomplete Extension)
 **Current Sprint:** Sprint 4 — Context Engine & Multi-File Support
-**Active Ticket:** LC-025: Implement Context Window Budgeting
-**Overall Progress:** 24/38 tickets completed
+**Active Ticket:** LC-026: Implement Cross-File Deduplication
+**Overall Progress:** 25/38 tickets completed
 
 ### Key Components
 
@@ -44,13 +44,43 @@
 - [x] LC-019: Implement SecretStorage Integration
 - [x] LC-020: Implement Local-Only Mode
 - [x] LC-021: Define Context Provider Interface
-- [x] LC-022: Implement File Context Extractor
 - [x] LC-023: Implement Recent Files Provider
 - [x] LC-024: Implement Import/Definition Resolver
+- [x] LC-025: Implement Context Window Budgeting
 
 ---
 
 <!-- Newest session logs are prepended below this line (latest on top) -->
+
+## ⚡ LC-025: Implement Context Window Budgeting
+
+**Date/Time:** 2026-08-22 | **Agent:** opencode | **Ticket:** LC-025
+
+### Changes Made
+
+1. Updated `packages/core/src/context/context-budget.ts`:
+   - Added `ContextBudgetPreset` interface and three named presets: `FAST_BUDGET` (512 tokens, 4 chunks), `BALANCED_BUDGET` (1024 tokens, 10 chunks), `RICH_BUDGET` (2048 tokens, 16 chunks) with increasing capacity tiers
+   - Added `BUDGET_PRESETS` map for name-to-config lookup without code changes
+   - Added `computeEffectiveBudget(params)` that computes a `ContextBudget` from total token budget and prompt layout (template + prefix + suffix tokens → `reservedTokens`)
+   - Added `effectiveCapacity(budget)` returning `maxTokens - reservedTokens`
+   - Fixed `rankAndFilterChunks` to enforce `reservedTokens` as excluded capacity — the function now uses `effectiveCapacity(budget)` instead of `budget.maxTokens` as the token limit
+   - Added `assembleChunksFromProviders(providerChunks, budget)` that flattens, deduplicates by chunk id, and applies global budget constraints across multiple provider results
+   - `DEFAULT_CONTEXT_BUDGET` now derived from `BALANCED_BUDGET` for consistency
+2. Expanded test suite in `packages/core/src/context/context-budget.test.ts` from 7 to 21 tests covering budget presets, effective budget computation, capacity calculation, reservedTokens enforcement in ranking, and multi-provider assembly
+3. Total test suite expanded to **264 passing tests** across `shared` (6), `core` (146), and `extension` (112) with 100% clean typecheck, lint, and build
+
+### Acceptance Criteria Met
+
+- [x] Aggregate chunks from all providers into one ranked selection under a global token budget
+- [x] Reserve tokens for the prompt template and active prefix/suffix before allocating context
+- [x] Enforce per-chunk and global line/token caps deterministically
+- [x] Support configurable budget presets (e.g., fast vs rich context) without code changes
+
+### Next Steps
+
+Sprint 4 — Context Engine & Multi-File Support: LC-026: Implement Cross-File Deduplication.
+
+---
 
 ## ⚡ LC-024: Implement Import/Definition Resolver
 

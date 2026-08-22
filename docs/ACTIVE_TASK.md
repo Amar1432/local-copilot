@@ -25,21 +25,21 @@
 - [x] LC-022: Implement File Context Extractor
 - [x] LC-023: Implement Recent Files Provider
 - [x] LC-024: Implement Import/Definition Resolver
-- [ ] LC-025: Implement Context Window Budgeting
+- [x] LC-025: Implement Context Window Budgeting
 - [ ] LC-026: Implement Cross-File Deduplication
 - [ ] LC-027: Integrate Multi-File Context with Orchestrator
 
 ---
 
-### Next Ticket: **LC-025: Implement Context Window Budgeting**
+### Next Ticket: **LC-026: Implement Cross-File Deduplication**
 
 **Sprint:** Sprint 4 — Context Engine & Multi-File Support  
 **Epic:** Epic 11 — Context Interface  
-**Goal:** Enforce a single deterministic token budget across all context provider chunks before prompt assembly, with reserved space for the active prefix/suffix.
+**Goal:** Detect and remove duplicate context chunks across providers so the same symbol definition is never included twice.
 
 **Acceptance Criteria:**
 
-- Aggregate chunks from all providers into one ranked selection under a global token budget
-- Reserve tokens for the prompt template and active prefix/suffix before allocating context
-- Enforce per-chunk and global line/token caps deterministically
-- Support configurable budget presets (e.g., fast vs rich context) without code changes
+- Detect duplicate chunks by content similarity or symbol identity across different provider results
+- Deduplicate before budget enforcement so the budget is spent on unique context only
+- Preserve the highest-priority chunk when duplicates are detected
+- Provide deterministic deduplication ordering regardless of provider insertion order

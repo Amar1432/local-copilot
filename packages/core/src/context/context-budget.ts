@@ -4,21 +4,84 @@
 
 import type { ContextBudget, ContextChunk } from "./context.types";
 
+// ---------------------------------------------------------------------------
+// Budget presets
+// ---------------------------------------------------------------------------
+
 /**
- * Default context budget constraints
+ * Named budget configurations for different completion latency tiers.
+ * Each preset defines total token budget, reservation for prompt/prefix/suffix,
+ * and chunk-level limits.
  */
-export const DEFAULT_CONTEXT_BUDGET: ContextBudget = {
+export interface ContextBudgetPreset {
+  readonly name: string;
+  readonly maxTokens: number;
+  readonly reservedTokens: number;
+  readonly maxChunks: number;
+  readonly maxLines: number;
+  readonly maxLinesPerChunk: number;
+  readonly maxTokensPerChunk: number;
+}
+
+/** Fast path — small context, minimal latency budget. */
+export const FAST_BUDGET: ContextBudgetPreset = {
+  name: "fast",
+  maxTokens: 512,
+  reservedTokens: 256,
+  maxChunks: 4,
+  maxLines: 60,
+  maxLinesPerChunk: 20,
+  maxTokensPerChunk: 128,
+};
+
+/** Balanced — default context budget for typical completions. */
+export const BALANCED_BUDGET: ContextBudgetPreset = {
+  name: "balanced",
   maxTokens: 1024,
+  reservedTokens: 512,
   maxChunks: 10,
   maxLines: 200,
   maxLinesPerChunk: 50,
   maxTokensPerChunk: 300,
-  reservedTokens: 512,
 };
 
-/**
- * Fast character-heuristic token estimator (~4 chars per token for code).
- */
+/** Rich path — larger context for slower completions. */
+export const RICH_BUDGET: ContextBudgetPreset = {
+  name: "rich",
+  maxTokens: 2048,
+  reservedTokens: 512,
+  maxChunks: 16,
+  maxLines: 400,
+  maxLinesPerChunk: 60,
+  maxTokensPerChunk: 400,
+};
+
+/** Lookup table for preset name to configuration. */
+export const BUDGET_PRESETS: ReadonlyMap<string, ContextBudgetPreset> = new Map([
+  [FAST_BUDGET.name, FAST_BUDGET],
+  [BALANCED_BUDGET.name, BALANCED_BUDGET],
+  [RICH_BUDGET.name, RICH_BUDGET],
+]);
+
+// ---------------------------------------------------------------------------
+// Default budget (legacy — prefer presets)
+// ---------------------------------------------------------------------------
+
+/** Default context budget constraints (equivalent to BALANCED). */
+export const DEFAULT_CONTEXT_BUDGET: ContextBudget = {
+  maxTokens: BALANCED_BUDGET.maxTokens,
+  maxChunks: BALANCED_BUDGET.maxChunks,
+  maxLines: BALANCED_BUDGET.maxLines,
+  maxLinesPerChunk: BALANCED_BUDGET.maxLinesPerChunk,
+  maxTokensPerChunk: BALANCED_BUDGET.maxTokensPerChunk,
+  reservedTokens: BALANCED_BUDGET.reservedTokens,
+};
+
+// ---------------------------------------------------------------------------
+// Token estimation
+// ---------------------------------------------------------------------------
+
+/** Fast character-heuristic token estimator (~4 chars per token for code). */
 export function estimateTokenCount(text: string): number {
   if (!text) {
     return 0;
@@ -26,9 +89,7 @@ export function estimateTokenCount(text: string): number {
   return Math.ceil(text.length / 4);
 }
 
-/**
- * Truncate text to fit within a given token budget.
- */
+/** Truncate text to fit within a given token budget. */
 export function truncateToTokenBudget(text: string, maxTokens: number): string {
   if (!text || maxTokens <= 0) {
     return "";
@@ -41,9 +102,59 @@ export function truncateToTokenBudget(text: string, maxTokens: number): string {
   return text.slice(0, maxChars);
 }
 
+// ---------------------------------------------------------------------------
+// Effective budget computation
+// ---------------------------------------------------------------------------
+
+/** Parameters for computing an effective context budget given a prompt layout. */
+export interface EffectiveBudgetParams {
+  readonly totalTokens: number;
+  readonly promptTemplateTokens: number;
+  readonly prefixTokens: number;
+  readonly suffixTokens: number;
+  readonly maxChunks?: number;
+  readonly maxLines?: number;
+  readonly maxLinesPerChunk?: number;
+  readonly maxTokensPerChunk?: number;
+}
+
+/**
+ * Compute a ContextBudget from the total token budget and the prompt layout.
+ * reservedTokens is set to the sum of template + prefix + suffix, and
+ * maxTokens is set to the total budget. The effective context capacity is
+ * (maxTokens - reservedTokens).
+ */
+export function computeEffectiveBudget(params: EffectiveBudgetParams): ContextBudget {
+  const reservedTokens =
+    params.promptTemplateTokens + params.prefixTokens + params.suffixTokens;
+  return {
+    maxTokens: Math.max(0, params.totalTokens),
+    maxChunks: params.maxChunks ?? BALANCED_BUDGET.maxChunks,
+    maxLines: params.maxLines ?? BALANCED_BUDGET.maxLines,
+    maxLinesPerChunk: params.maxLinesPerChunk ?? BALANCED_BUDGET.maxLinesPerChunk,
+    maxTokensPerChunk: params.maxTokensPerChunk ?? BALANCED_BUDGET.maxTokensPerChunk,
+    reservedTokens,
+  };
+}
+
+/**
+ * Compute the effective context capacity available for context chunks.
+ * This is maxTokens minus reservedTokens.
+ */
+export function effectiveCapacity(budget: ContextBudget): number {
+  return Math.max(0, budget.maxTokens - (budget.reservedTokens ?? 0));
+}
+
+// ---------------------------------------------------------------------------
+// Chunk ranking and budget filtering
+// ---------------------------------------------------------------------------
+
 /**
  * Rank context chunks by priority score (descending) and filter them
  * according to the provided budget constraints.
+ *
+ * reservedTokens is treated as excluded capacity: only
+ * (maxTokens - reservedTokens) tokens are available for actual context chunks.
  */
 export function rankAndFilterChunks(
   chunks: readonly ContextChunk[],
@@ -52,6 +163,8 @@ export function rankAndFilterChunks(
   if (!chunks || chunks.length === 0) {
     return [];
   }
+
+  const capacity = effectiveCapacity(budget);
 
   // Sort by score descending, then by id for determinism
   const sorted = [...chunks].sort((a, b) => {
@@ -87,10 +200,9 @@ export function rankAndFilterChunks(
 
     const chunkLines = content.split("\n").length;
 
-    // Check if adding this chunk exceeds budget constraints
-    if (totalTokens + tokens > budget.maxTokens) {
-      // If we haven't selected anything yet, we can try truncating
-      const remainingTokens = budget.maxTokens - totalTokens;
+    // Check if adding this chunk exceeds the effective capacity
+    if (totalTokens + tokens > capacity) {
+      const remainingTokens = capacity - totalTokens;
       if (remainingTokens >= 16) {
         const truncatedContent = truncateToTokenBudget(content, remainingTokens);
         const truncatedTokens = estimateTokenCount(truncatedContent);
@@ -138,4 +250,30 @@ export function rankAndFilterChunks(
   }
 
   return selected;
+}
+
+// ---------------------------------------------------------------------------
+// Multi-provider assembly
+// ---------------------------------------------------------------------------
+
+/**
+ * Flatten, deduplicate by chunk id, and apply budget constraints to chunks
+ * collected from multiple context providers.
+ */
+export function assembleChunksFromProviders(
+  providerChunks: ReadonlyArray<readonly ContextChunk[]>,
+  budget: ContextBudget
+): ContextChunk[] {
+  const seen = new Set<string>();
+  const flat: ContextChunk[] = [];
+
+  for (const chunks of providerChunks) {
+    for (const chunk of chunks) {
+      if (seen.has(chunk.id)) continue;
+      seen.add(chunk.id);
+      flat.push(chunk);
+    }
+  }
+
+  return rankAndFilterChunks(flat, budget);
 }
