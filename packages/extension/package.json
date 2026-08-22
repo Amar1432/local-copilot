@@ -1,0 +1,172 @@
+{
+  "name": "@local-copilot/extension",
+  "displayName": "Local Copilot",
+  "description": "Private, Fast, Configurable AI Autocomplete for VS Code",
+  "version": "0.1.0",
+  "publisher": "local-copilot",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets",
+    "Linters"
+  ],
+  "keywords": [
+    "ai",
+    "autocomplete",
+    "copilot",
+    "code-completion",
+    "local",
+    "privacy"
+  ],
+  "activationEvents": [
+    "onLanguage:typescript",
+    "onLanguage:javascript",
+    "onLanguage:typescriptreact",
+    "onLanguage:javascriptreact"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "localCopilot.enable",
+        "title": "Local Copilot: Enable"
+      },
+      {
+        "command": "localCopilot.disable",
+        "title": "Local Copilot: Disable"
+      },
+      {
+        "command": "localCopilot.triggerCompletion",
+        "title": "Local Copilot: Trigger Completion"
+      },
+      {
+        "command": "localCopilot.selectModel",
+        "title": "Local Copilot: Select Model"
+      },
+      {
+        "command": "localCopilot.selectProvider",
+        "title": "Local Copilot: Select Provider"
+      },
+      {
+        "command": "localCopilot.testConnection",
+        "title": "Local Copilot: Test Connection"
+      },
+      {
+        "command": "localCopilot.showDiagnostics",
+        "title": "Local Copilot: Show Diagnostics"
+      },
+      {
+        "command": "localCopilot.clearCache",
+        "title": "Local Copilot: Clear Cache"
+      },
+      {
+        "command": "localCopilot.openSettings",
+        "title": "Local Copilot: Open Settings"
+      }
+    ],
+    "configuration": {
+      "title": "Local Copilot",
+      "properties": {
+        "localCopilot.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable/disable the extension"
+        },
+        "localCopilot.provider": {
+          "type": "string",
+          "enum": [
+            "custom",
+            "ollama",
+            "openai",
+            "lmstudio",
+            "vllm"
+          ],
+          "default": "custom",
+          "description": "Provider type"
+        },
+        "localCopilot.baseUrl": {
+          "type": "string",
+          "default": "http://localhost:11434/v1",
+          "description": "Provider base URL"
+        },
+        "localCopilot.apiKey": {
+          "type": "string",
+          "default": "",
+          "description": "API key (stored in SecretStorage)"
+        },
+        "localCopilot.model": {
+          "type": "string",
+          "default": "",
+          "description": "Model identifier"
+        },
+        "localCopilot.debounceMs": {
+          "type": "number",
+          "default": 150,
+          "minimum": 0,
+          "maximum": 1000,
+          "description": "Debounce delay in milliseconds"
+        },
+        "localCopilot.requestTimeoutMs": {
+          "type": "number",
+          "default": 2000,
+          "minimum": 500,
+          "maximum": 10000,
+          "description": "Request timeout in milliseconds"
+        },
+        "localCopilot.maxOutputTokens": {
+          "type": "number",
+          "default": 128,
+          "minimum": 1,
+          "maximum": 1024,
+          "description": "Maximum output tokens"
+        },
+        "localCopilot.temperature": {
+          "type": "number",
+          "default": 0.1,
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Sampling temperature"
+        },
+        "localCopilot.context.maxLines": {
+          "type": "number",
+          "default": 120,
+          "minimum": 10,
+          "maximum": 500,
+          "description": "Maximum context lines"
+        },
+        "localCopilot.localOnly": {
+          "type": "boolean",
+          "default": true,
+          "description": "Block all remote requests"
+        },
+        "localCopilot.telemetry.enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable anonymous telemetry"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsc -p tsconfig.json --watch",
+    "test": "vitest run",
+    "lint": "eslint src --ext .ts",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.74.0",
+    "@types/node": "^18.0.0",
+    "typescript": "^5.1.0",
+    "vitest": "^0.34.0",
+    "@vscode/vsce": "^2.0.0"
+  },
+  "dependencies": {
+    "@local-copilot/core": "workspace:*",
+    "@local-copilot/shared": "workspace:*"
+  }
+}
