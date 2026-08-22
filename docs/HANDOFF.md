@@ -4,8 +4,8 @@
 
 **Project:** Local Copilot (VS Code AI Autocomplete Extension)
 **Current Sprint:** Sprint 3 — Provider Abstraction & Local Provider
-**Active Ticket:** LC-018: Implement Model Discovery
-**Overall Progress:** 17/38 tickets completed
+**Active Ticket:** LC-019: Implement SecretStorage Integration
+**Overall Progress:** 18/38 tickets completed
 
 ### Key Components
 
@@ -40,10 +40,43 @@
 - [x] LC-015: Implement Provider Router
 - [x] LC-016: Implement OpenAI-Compatible Provider
 - [x] LC-017: Implement FIM Support
+- [x] LC-018: Implement Model Discovery
 
 ---
 
 <!-- Newest session logs are prepended below this line (latest on top) -->
+
+## ⚡ LC-018: Implement Model Discovery
+
+**Date/Time:** 2026-08-22 | **Agent:** Antigravity | **Ticket:** LC-018
+
+### Changes Made
+
+1. Created `packages/core/src/providers/model-discovery.ts`:
+   - `ModelDiscoveryService` querying `/models` via `ProviderRouter` or direct provider fetch
+   - In-memory model caching with configurable TTL (default 5 minutes) and force refresh support
+   - Capability extraction estimating context window (up to 128k/64k/32k/16k/8k/4k), FIM support, and auth requirements
+   - Graceful fallback mechanism generating default `ModelInfo` for manually configured models when discovery fails
+2. Updated VS Code Extension `localCopilot.selectModel` command in `packages/extension/src/extension.ts`:
+   - Dynamically queries available models using `ModelDiscoveryService`
+   - Displays discovered models in a QuickPick with capability indicators (`FIM` / `No FIM` • `local` / `remote`)
+   - Provides a direct fallback option `$(edit) Enter model manually...` for manual input
+3. Exported `ModelDiscoveryService` from `packages/core/src/providers/index.ts` and `packages/core/src/index.ts`
+4. Created unit tests in `packages/core/src/providers/model-discovery.test.ts` (7 tests) covering caching, TTL expiration, force refresh, capability extraction, and fallback mechanisms
+5. Total test suite expanded to 153 passing tests (100% clean typecheck, lint, and build)
+
+### Acceptance Criteria Met
+
+- [x] Provider attempts model discovery on connection
+- [x] Model list is cached and refreshable
+- [x] Model list fallback allows manual entry
+- [x] Model capabilities are extracted from metadata
+
+### Next Steps
+
+LC-019: Implement SecretStorage Integration — Use VS Code SecretStorage for API key management with secure storage and retrieval.
+
+---
 
 ## ⚡ LC-017: Implement FIM Support
 

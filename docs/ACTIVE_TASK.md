@@ -24,21 +24,21 @@
 - [x] LC-015: Implement Provider Router
 - [x] LC-016: Implement OpenAI-Compatible Provider
 - [x] LC-017: Implement FIM Support
-- [ ] LC-018: Implement Model Discovery
+- [x] LC-018: Implement Model Discovery
 - [ ] LC-019: Implement SecretStorage Integration
 - [ ] LC-020: Implement Local-Only Mode
 
 ---
 
-### Next Ticket: **LC-018: Implement Model Discovery**
+### Next Ticket: **LC-019: Implement SecretStorage Integration**
 
 **Sprint:** Sprint 3 — Provider Abstraction & Local Provider  
-**Epic:** Epic 8 — OpenAI-Compatible Provider  
-**Goal:** Add optional model listing via GET /v1/models endpoint for providers that support it.
+**Epic:** Epic 9 — Secret Management  
+**Goal:** Use VS Code SecretStorage for API key management with secure storage and retrieval.
 
 **Acceptance Criteria:**
 
-- Provider attempts model discovery on connection
-- Model list is cached and refreshable
-- Model list fallback allows manual entry
-- Model capabilities are extracted from metadata
+- API keys stored in SecretStorage, not plaintext
+- API keys retrieved securely for provider requests
+- API keys never logged or included in diagnostics
+- API key update flow works correctly

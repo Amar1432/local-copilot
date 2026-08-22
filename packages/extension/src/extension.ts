@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 import { getConfiguration, onConfigurationChanged } from "./configuration";
 import { StatusBarManager } from "./status-bar";
 import { LocalCopilotCompletionProvider } from "./completion-provider";
+import { ModelDiscoveryService } from "@local-copilot/core";
 
 let statusBar: StatusBarManager | undefined;
 let completionProvider: LocalCopilotCompletionProvider | undefined;
@@ -78,15 +79,60 @@ function registerCommands(context: vscode.ExtensionContext, status: StatusBarMan
   context.subscriptions.push(
     vscode.commands.registerCommand("localCopilot.selectModel", async () => {
       const config = getConfiguration();
-      const model = await vscode.window.showInputBox({
-        prompt: "Enter model identifier",
-        placeHolder: "e.g. qwen-coder, deepseek-coder",
-        value: config.model,
-      });
-      if (model !== undefined) {
-        const cfg = vscode.workspace.getConfiguration("localCopilot");
-        await cfg.update("model", model, vscode.ConfigurationTarget.Global);
-        vscode.window.showInformationMessage(`Model set to: ${model}`);
+      const discovery = new ModelDiscoveryService();
+
+      let discoveredModels: Array<{ label: string; description?: string; detail?: string }> = [];
+      try {
+        const models = await discovery.discoverModels(config);
+        discoveredModels = models.map((m) => ({
+          label: m.id,
+          description: `${m.capabilities.fim ? "FIM" : "No FIM"} • ${config.localOnly ? "local" : "remote"}`,
+          detail: m.name !== m.id ? m.name : undefined,
+        }));
+      } catch {
+        // Fallback to manual entry if discovery fails
+      }
+
+      if (discoveredModels.length > 0) {
+        const manualOption = {
+          label: "$(edit) Enter model manually...",
+          description: "Type custom model identifier",
+        };
+        const items = [...discoveredModels, manualOption];
+
+        const selected = await vscode.window.showQuickPick(items, {
+          placeHolder: `Select a model (currently: ${config.model || "none"})`,
+        });
+
+        if (!selected) return;
+
+        if (selected === manualOption) {
+          const custom = await vscode.window.showInputBox({
+            prompt: "Enter model identifier",
+            placeHolder: "e.g. qwen-coder, deepseek-coder",
+            value: config.model,
+          });
+          if (custom !== undefined) {
+            const cfg = vscode.workspace.getConfiguration("localCopilot");
+            await cfg.update("model", custom, vscode.ConfigurationTarget.Global);
+            vscode.window.showInformationMessage(`Model set to: ${custom}`);
+          }
+        } else {
+          const cfg = vscode.workspace.getConfiguration("localCopilot");
+          await cfg.update("model", selected.label, vscode.ConfigurationTarget.Global);
+          vscode.window.showInformationMessage(`Model set to: ${selected.label}`);
+        }
+      } else {
+        const model = await vscode.window.showInputBox({
+          prompt: "Enter model identifier",
+          placeHolder: "e.g. qwen-coder, deepseek-coder",
+          value: config.model,
+        });
+        if (model !== undefined) {
+          const cfg = vscode.workspace.getConfiguration("localCopilot");
+          await cfg.update("model", model, vscode.ConfigurationTarget.Global);
+          vscode.window.showInformationMessage(`Model set to: ${model}`);
+        }
       }
     })
   );
