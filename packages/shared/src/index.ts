@@ -1,4 +1,8 @@
-// Shared package exports
-// Will be populated as types are defined
-
-export {};
+export type {
+  ProviderType,
+  ConnectionStatus,
+  ProviderConfig,
+  CompletionRequest,
+  CompletionResponse,
+  DiagnosticsInfo,
+} from "./types";

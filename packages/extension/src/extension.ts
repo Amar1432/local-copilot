@@ -1,86 +1,148 @@
 import * as vscode from "vscode";
+import { getConfiguration, onConfigurationChanged } from "./configuration";
+import { StatusBarManager } from "./status-bar";
+import { LocalCopilotCompletionProvider } from "./completion-provider";
 
+let statusBar: StatusBarManager | undefined;
+let completionProvider: LocalCopilotCompletionProvider | undefined;
+
+/**
+ * Called when the extension is activated.
+ *
+ * Activation is triggered by the `activationEvents` in package.json
+ * (onLanguage: typescript, javascript, typescriptreact, javascriptreact).
+ */
 export function activate(context: vscode.ExtensionContext): void {
-  console.log("Local Copilot is now active!");
+  const config = getConfiguration();
 
-  // Register commands
-  registerCommands(context);
+  // Status bar
+  statusBar = new StatusBarManager();
+  statusBar.setStatus("disconnected", config.localOnly);
+  context.subscriptions.push(statusBar);
 
-  // Register inline completion provider
-  registerCompletionProvider(context);
-}
+  // Completion provider
+  completionProvider = new LocalCopilotCompletionProvider();
+  registerCompletionProvider(context, completionProvider);
 
-export function deactivate(): void {
-  console.log("Local Copilot is deactivated.");
-}
+  // Commands
+  registerCommands(context, statusBar);
 
-function registerCommands(context: vscode.ExtensionContext): void {
-  // Enable command
+  // Listen for configuration changes
   context.subscriptions.push(
-    vscode.commands.registerCommand("localCopilot.enable", () => {
+    onConfigurationChanged((newConfig) => {
+      completionProvider?.updateConfig(newConfig);
+      statusBar?.setStatus("disconnected", newConfig.localOnly);
+    })
+  );
+
+  console.log("Local Copilot activated.");
+}
+
+/**
+ * Called when the extension is deactivated.
+ */
+export function deactivate(): void {
+  statusBar = undefined;
+  completionProvider = undefined;
+  console.log("Local Copilot deactivated.");
+}
+
+// ---------------------------------------------------------------------------
+// Commands
+// ---------------------------------------------------------------------------
+
+function registerCommands(context: vscode.ExtensionContext, status: StatusBarManager): void {
+  context.subscriptions.push(
+    vscode.commands.registerCommand("localCopilot.enable", async () => {
       const config = vscode.workspace.getConfiguration("localCopilot");
-      config.update("enabled", true, vscode.ConfigurationTarget.Global);
+      await config.update("enabled", true, vscode.ConfigurationTarget.Global);
       vscode.window.showInformationMessage("Local Copilot enabled");
     })
   );
 
-  // Disable command
   context.subscriptions.push(
-    vscode.commands.registerCommand("localCopilot.disable", () => {
+    vscode.commands.registerCommand("localCopilot.disable", async () => {
       const config = vscode.workspace.getConfiguration("localCopilot");
-      config.update("enabled", false, vscode.ConfigurationTarget.Global);
+      await config.update("enabled", false, vscode.ConfigurationTarget.Global);
       vscode.window.showInformationMessage("Local Copilot disabled");
     })
   );
 
-  // Trigger completion command
   context.subscriptions.push(
     vscode.commands.registerCommand("localCopilot.triggerCompletion", () => {
       vscode.commands.executeCommand("editor.action.triggerSuggest");
     })
   );
 
-  // Select model command
   context.subscriptions.push(
     vscode.commands.registerCommand("localCopilot.selectModel", async () => {
-      // TODO: Implement model selection quick pick
-      vscode.window.showInformationMessage("Model selection coming soon");
+      const config = getConfiguration();
+      const model = await vscode.window.showInputBox({
+        prompt: "Enter model identifier",
+        placeHolder: "e.g. qwen-coder, deepseek-coder",
+        value: config.model,
+      });
+      if (model !== undefined) {
+        const cfg = vscode.workspace.getConfiguration("localCopilot");
+        await cfg.update("model", model, vscode.ConfigurationTarget.Global);
+        vscode.window.showInformationMessage(`Model set to: ${model}`);
+      }
     })
   );
 
-  // Select provider command
   context.subscriptions.push(
     vscode.commands.registerCommand("localCopilot.selectProvider", async () => {
-      // TODO: Implement provider selection quick pick
-      vscode.window.showInformationMessage("Provider selection coming soon");
+      const items = [
+        { label: "custom", description: "Custom OpenAI-compatible endpoint" },
+        { label: "ollama", description: "Ollama local runtime" },
+        { label: "openai", description: "OpenAI API" },
+        { label: "lmstudio", description: "LM Studio local runtime" },
+        { label: "vllm", description: "vLLM inference server" },
+      ];
+      const selected = await vscode.window.showQuickPick(items, {
+        placeHolder: "Select a provider",
+      });
+      if (selected) {
+        const cfg = vscode.workspace.getConfiguration("localCopilot");
+        await cfg.update("provider", selected.label, vscode.ConfigurationTarget.Global);
+        vscode.window.showInformationMessage(`Provider set to: ${selected.label}`);
+      }
     })
   );
 
-  // Test connection command
   context.subscriptions.push(
     vscode.commands.registerCommand("localCopilot.testConnection", async () => {
-      // TODO: Implement connection test
-      vscode.window.showInformationMessage("Connection test coming soon");
+      status.setStatus("checking", getConfiguration().localOnly);
+      vscode.window.showInformationMessage("Testing connection...");
+      // TODO: Implement actual connection test in Sprint 2
+      status.setStatus("disconnected", getConfiguration().localOnly);
     })
   );
 
-  // Show diagnostics command
   context.subscriptions.push(
     vscode.commands.registerCommand("localCopilot.showDiagnostics", () => {
-      // TODO: Implement diagnostics view
-      vscode.window.showInformationMessage("Diagnostics view coming soon");
+      const config = getConfiguration();
+      const info = [
+        `Provider: ${config.provider}`,
+        `Model: ${config.model || "(not set)"}`,
+        `Base URL: ${config.baseUrl}`,
+        `Local Only: ${config.localOnly ? "Yes" : "No"}`,
+        `Debounce: ${config.debounceMs}ms`,
+        `Timeout: ${config.requestTimeoutMs}ms`,
+        `Max Tokens: ${config.maxOutputTokens}`,
+        `Temperature: ${config.temperature}`,
+      ].join("\n");
+      vscode.window.showInformationMessage(info, { modal: true });
     })
   );
 
-  // Clear cache command
   context.subscriptions.push(
     vscode.commands.registerCommand("localCopilot.clearCache", () => {
-      // TODO: Implement cache clearing
+      // TODO: Implement actual cache clearing in Sprint 2
       vscode.window.showInformationMessage("Cache cleared");
     })
   );
 
-  // Open settings command
   context.subscriptions.push(
     vscode.commands.registerCommand("localCopilot.openSettings", () => {
       vscode.commands.executeCommand("workbench.action.openSettings", "localCopilot");
@@ -88,7 +150,14 @@ function registerCommands(context: vscode.ExtensionContext): void {
   );
 }
 
-function registerCompletionProvider(context: vscode.ExtensionContext): void {
+// ---------------------------------------------------------------------------
+// Completion Provider
+// ---------------------------------------------------------------------------
+
+function registerCompletionProvider(
+  context: vscode.ExtensionContext,
+  provider: LocalCopilotCompletionProvider
+): void {
   const selector: vscode.DocumentSelector = [
     { language: "typescript" },
     { language: "javascript" },
@@ -96,22 +165,7 @@ function registerCompletionProvider(context: vscode.ExtensionContext): void {
     { language: "javascriptreact" },
   ];
 
-  const provider = new LocalCopilotCompletionProvider();
-
   context.subscriptions.push(
     vscode.languages.registerInlineCompletionItemProvider(selector, provider)
   );
-}
-
-class LocalCopilotCompletionProvider implements vscode.InlineCompletionItemProvider {
-  provideInlineCompletionItems(
-    _document: vscode.TextDocument,
-    _position: vscode.Position,
-    _context: vscode.InlineCompletionContext,
-    _token: vscode.CancellationToken
-  ): vscode.ProviderResult<vscode.InlineCompletionList> {
-    // TODO: Implement completion logic
-    // This will be implemented in Sprint 2
-    return { items: [] };
-  }
 }
