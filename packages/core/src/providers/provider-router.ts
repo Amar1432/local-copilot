@@ -5,6 +5,7 @@ import type {
 } from "@local-copilot/shared";
 import type { CompletionProvider, ModelInfo } from "./provider.types";
 import { ProviderError } from "./provider.types";
+import { validateLocalOnly } from "./privacy";
 
 /**
  * Options for initializing the ProviderRouter
@@ -113,13 +114,7 @@ export class ProviderRouter {
       });
     }
 
-    if (config.localOnly && !this.isLocalUrl(config.baseUrl)) {
-      throw new ProviderError({
-        code: "invalid_request",
-        message: "Local-only mode is enabled, but baseUrl points to a remote endpoint",
-        retryable: false,
-      });
-    }
+    validateLocalOnly(config.baseUrl, config.localOnly);
 
     const provider = this.selectProvider(config);
     await provider.validateConfig(config);
@@ -133,6 +128,7 @@ export class ProviderRouter {
     signal?: AbortSignal
   ): Promise<ModelInfo[]> {
     try {
+      validateLocalOnly(config.baseUrl, config.localOnly);
       const provider = this.selectProvider(config);
       return await provider.getModels(signal);
     } catch (error) {
@@ -160,6 +156,7 @@ export class ProviderRouter {
     signal: AbortSignal
   ): Promise<CompletionResponse | null> {
     try {
+      validateLocalOnly(config.baseUrl, config.localOnly);
       const provider = this.selectProvider(config);
       return await provider.complete(request, signal);
     } catch (error) {
@@ -186,29 +183,5 @@ export class ProviderRouter {
    */
   get currentProviderId(): string | null {
     return this.activeProviderId;
-  }
-
-  /**
-   * Check if a URL points to a local endpoint.
-   */
-  private isLocalUrl(url: string): boolean {
-    try {
-      const parsed = new URL(url);
-      const hostname = parsed.hostname.toLowerCase();
-      return (
-        hostname === "localhost" ||
-        hostname === "127.0.0.1" ||
-        hostname === "0.0.0.0" ||
-        hostname === "[::1]" ||
-        hostname.endsWith(".local")
-      );
-    } catch {
-      return (
-        url.startsWith("http://localhost") ||
-        url.startsWith("http://127.0.0.1") ||
-        url.startsWith("http://0.0.0.0") ||
-        url.startsWith("http://[::1]")
-      );
-    }
   }
 }

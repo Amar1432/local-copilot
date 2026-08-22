@@ -3,9 +3,9 @@
 ## Project State Summary
 
 **Project:** Local Copilot (VS Code AI Autocomplete Extension)
-**Current Sprint:** Sprint 3 — Provider Abstraction & Local Provider
-**Active Ticket:** LC-020: Implement Local-Only Mode
-**Overall Progress:** 19/38 tickets completed
+**Current Sprint:** Sprint 4 — Context Engine & Multi-File Support
+**Active Ticket:** LC-021: Define Context Provider Interface
+**Overall Progress:** 20/38 tickets completed
 
 ### Key Components
 
@@ -42,10 +42,47 @@
 - [x] LC-017: Implement FIM Support
 - [x] LC-018: Implement Model Discovery
 - [x] LC-019: Implement SecretStorage Integration
+- [x] LC-020: Implement Local-Only Mode
 
 ---
 
 <!-- Newest session logs are prepended below this line (latest on top) -->
+
+## ⚡ LC-020: Implement Local-Only Mode
+
+**Date/Time:** 2026-08-22 | **Agent:** Antigravity | **Ticket:** LC-020
+
+### Changes Made
+
+1. Created `packages/core/src/providers/privacy.ts`:
+   - `isLocalEndpoint(urlOrHost)` checking for allowed local network and loopback addresses:
+     - `localhost` and `*.localhost`
+     - IPv4 loopback (`127.0.0.1` and `127.0.0.0/8` range)
+     - `0.0.0.0`
+     - IPv6 loopback (`::1`, `[::1]`, `0:0:0:0:0:0:0:1`)
+     - mDNS LAN hostnames (`*.local`)
+   - `validateLocalOnly(url, localOnly)` throwing a descriptive `ProviderError` when a non-local URL is passed while `localOnly: true`
+2. Enforced privacy boundary across core provider systems:
+   - `ProviderRouter.validateConfig`, `getModels`, and `complete`
+   - `OpenAICompatibleProvider.validateConfig`, `getModels`, `complete`, and `completeStream`
+3. Verified status bar and diagnostics presentation for `localOnly` mode:
+   - Status bar displays `$(plug) AI: Local Only` when connected and `$(warning) AI: Local Only` when disconnected
+   - Diagnostics modal displays `Local Only: Yes / No`
+4. Created unit tests in `packages/core/src/providers/privacy.test.ts` (9 tests) and updated `packages/core/src/providers/openai-compatible-provider.test.ts`
+5. Sprint 3 completed! Total test suite: **178 passing tests** across `shared` (6), `core` (60), and `extension` (112) with 100% clean typecheck and lint
+
+### Acceptance Criteria Met
+
+- [x] localOnly setting blocks non-local URLs
+- [x] Allowed local patterns: localhost, 127.0.0.1, 0.0.0.0, [::1], *.local
+- [x] Provider connections to non-local endpoints fail with clear error
+- [x] Diagnostics display local-only enforcement status
+
+### Next Steps
+
+Sprint 4 — Context Engine & Multi-File Support: LC-021: Define Context Provider Interface.
+
+---
 
 ## ⚡ LC-019: Implement SecretStorage Integration
 

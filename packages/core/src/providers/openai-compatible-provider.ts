@@ -10,6 +10,7 @@ import type {
 } from "./provider.types";
 import { ProviderError } from "./provider.types";
 import { formatFimPrompt, isFimSupported } from "./fim";
+import { validateLocalOnly } from "./privacy";
 
 /**
  * Options for configuring OpenAICompatibleProvider
@@ -94,6 +95,8 @@ export class OpenAICompatibleProvider implements CompletionProvider {
         retryable: false,
       });
     }
+
+    validateLocalOnly(config.baseUrl, config.localOnly);
   }
 
   /**
@@ -108,6 +111,8 @@ export class OpenAICompatibleProvider implements CompletionProvider {
         retryable: false,
       });
     }
+
+    validateLocalOnly(config.baseUrl, config.localOnly);
 
     const modelsUrl = this.resolveModelsUrl(config.baseUrl);
     const headers: Record<string, string> = {
@@ -190,6 +195,8 @@ export class OpenAICompatibleProvider implements CompletionProvider {
     if (!config.model) {
       return null;
     }
+
+    validateLocalOnly(config.baseUrl, config.localOnly);
 
     const url = this.resolveChatUrl(config.baseUrl);
     const startTime = Date.now();
@@ -318,6 +325,8 @@ export class OpenAICompatibleProvider implements CompletionProvider {
     if (!config || !config.model) {
       return;
     }
+
+    validateLocalOnly(config.baseUrl, config.localOnly);
 
     const url = this.resolveChatUrl(config.baseUrl);
     const headers: Record<string, string> = {

@@ -50,8 +50,25 @@ describe("OpenAICompatibleProvider", () => {
       ).resolves.toBeUndefined();
 
       await expect(
-        provider.validateConfig(createMockConfig({ baseUrl: "https://api.openai.com/v1" }))
+        provider.validateConfig(
+          createMockConfig({
+            baseUrl: "https://api.openai.com/v1",
+            localOnly: false,
+          })
+        )
       ).resolves.toBeUndefined();
+    });
+
+    it("should reject remote URLs when localOnly is enabled", async () => {
+      const provider = new OpenAICompatibleProvider();
+      await expect(
+        provider.validateConfig(
+          createMockConfig({
+            baseUrl: "https://api.openai.com/v1",
+            localOnly: true,
+          })
+        )
+      ).rejects.toThrow(ProviderError);
     });
 
     it("should reject empty or invalid baseUrl", async () => {
