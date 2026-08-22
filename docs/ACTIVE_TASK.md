@@ -22,7 +22,7 @@
 ### Progress
 
 - [x] LC-021: Define Context Provider Interface
-- [ ] LC-022: Implement File Context Extractor
+- [x] LC-022: Implement File Context Extractor
 - [ ] LC-023: Implement Recent Files Provider
 - [ ] LC-024: Implement Import/Definition Resolver
 - [ ] LC-025: Implement Context Window Budgeting
@@ -31,15 +31,15 @@
 
 ---
 
-### Next Ticket: **LC-022: Implement File Context Extractor**
+### Next Ticket: **LC-023: Implement Recent Files Provider**
 
 **Sprint:** Sprint 4 — Context Engine & Multi-File Support  
 **Epic:** Epic 11 — Context Interface  
-**Goal:** Extract semantic context chunks from the active file, such as imports, current enclosing function/class scopes, and nearby declarations.
+**Goal:** Track recently opened and edited files in an in-memory LRU buffer and extract relevant snippets as context chunks.
 
 **Acceptance Criteria:**
 
-- Context extractor extracts active file imports and declarations
-- Context extractor extracts enclosing function or class definitions
-- Context extractor produces typed ContextChunk objects with priority scoring
-- Context extractor operates within strict latency boundaries (<20ms)
+- Track recently active/opened documents with an LRU buffer and recency timestamps
+- Extract top-level symbols or relevant chunks from recent files matching current language/domain
+- Assign priority scores based on recency and lexical relevance
+- Provide non-blocking async context retrieval

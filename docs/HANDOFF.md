@@ -4,8 +4,8 @@
 
 **Project:** Local Copilot (VS Code AI Autocomplete Extension)
 **Current Sprint:** Sprint 4 — Context Engine & Multi-File Support
-**Active Ticket:** LC-022: Implement File Context Extractor
-**Overall Progress:** 21/38 tickets completed
+**Active Ticket:** LC-023: Implement Recent Files Provider
+**Overall Progress:** 22/38 tickets completed
 
 ### Key Components
 
@@ -44,10 +44,40 @@
 - [x] LC-019: Implement SecretStorage Integration
 - [x] LC-020: Implement Local-Only Mode
 - [x] LC-021: Define Context Provider Interface
+- [x] LC-022: Implement File Context Extractor
 
 ---
 
 <!-- Newest session logs are prepended below this line (latest on top) -->
+
+## ⚡ LC-022: Implement File Context Extractor
+
+**Date/Time:** 2026-08-22 | **Agent:** Antigravity | **Ticket:** LC-022
+
+### Changes Made
+
+1. Created `packages/core/src/context/file-context-extractor.ts`:
+   - `FileContextExtractor` implementing `ContextProvider` with `id: "file"`, `priority: ContextPriority.HIGH` (75)
+   - `extractImportsFromLines(lines, language)` scanning imports, requires, packages, and uses across TypeScript, JavaScript, Python, Go, Rust, Java, and C/C++
+   - `extractEnclosingScope(lines, cursorLine)` extracting function, method, arrow function, class, and type scope headers above the cursor position
+   - `extractNearbyDeclarations(lines, cursorLine, maxCount)` extracting nearby interfaces, types, classes, structs, and enums with distance-based score decay
+   - Strict latency guarantee (<20ms execution overhead)
+2. Exported `FileContextExtractor`, `extractImportsFromLines`, `extractEnclosingScope`, and `extractNearbyDeclarations` from `packages/core/src/context/index.ts`
+3. Created unit tests in `packages/core/src/context/file-context-extractor.test.ts` (7 tests) covering import extraction across languages, enclosing scope detection, nearby declaration extraction, performance benchmark (<20ms), and empty target handling
+4. Total test suite expanded to **203 passing tests** across `shared` (6), `core` (85), and `extension` (112) with 100% clean typecheck, lint, and build
+
+### Acceptance Criteria Met
+
+- [x] Context extractor extracts active file imports and declarations
+- [x] Context extractor extracts enclosing function or class definitions
+- [x] Context extractor produces typed ContextChunk objects with priority scoring
+- [x] Context extractor operates within strict latency boundaries (<20ms)
+
+### Next Steps
+
+Sprint 4 — Context Engine & Multi-File Support: LC-023: Implement Recent Files Provider.
+
+---
 
 ## ⚡ LC-021: Define Context Provider Interface
 
