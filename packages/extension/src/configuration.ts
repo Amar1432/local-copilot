@@ -22,6 +22,7 @@ export function getConfiguration(): ProviderConfig {
     contextMaxLines: config.get<number>("context.maxLines", 120),
     localOnly: config.get<boolean>("localOnly", true),
     telemetryEnabled: config.get<boolean>("telemetry.enabled", false),
+    contextBudgetPreset: config.get<string>("context.budgetPreset", "balanced"),
   };
 }
 

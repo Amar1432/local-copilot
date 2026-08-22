@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import type { ProviderConfig } from "@local-copilot/shared";
+import type { ContextProvider } from "@local-copilot/core";
 import { CompletionOrchestrator } from "./completion-orchestrator";
 
 /**
@@ -11,8 +12,8 @@ import { CompletionOrchestrator } from "./completion-orchestrator";
 export class LocalCopilotCompletionProvider implements vscode.InlineCompletionItemProvider {
   private orchestrator: CompletionOrchestrator;
 
-  constructor(config: ProviderConfig) {
-    this.orchestrator = new CompletionOrchestrator(config);
+  constructor(config: ProviderConfig, contextProviders: ContextProvider[] = []) {
+    this.orchestrator = new CompletionOrchestrator(config, undefined, contextProviders);
   }
 
   /**

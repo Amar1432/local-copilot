@@ -1,5 +1,13 @@
 import * as vscode from "vscode";
 import type { ProviderConfig } from "@local-copilot/shared";
+import type { ContextProvider } from "@local-copilot/core";
+import {
+  FileContextExtractor,
+  RecentFilesBuffer,
+  RecentFilesProvider,
+  ImportDefinitionResolver,
+  type ImportFileAccess,
+} from "@local-copilot/core";
 import { getConfiguration, onConfigurationChanged } from "./configuration";
 import { StatusBarManager } from "./status-bar";
 import { LocalCopilotCompletionProvider } from "./completion-provider";
@@ -9,6 +17,7 @@ import { ModelDiscoveryService } from "@local-copilot/core";
 let statusBar: StatusBarManager | undefined;
 let completionProvider: LocalCopilotCompletionProvider | undefined;
 let secretManager: SecretManager | undefined;
+let recentFilesBuffer: RecentFilesBuffer | undefined;
 
 /**
  * Retrieve effective configuration with securely retrieved API key.
@@ -43,12 +52,19 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   statusBar.setStatus("disconnected", config.localOnly);
   context.subscriptions.push(statusBar);
 
+  // Initialize context providers for multi-file context gathering
+  const contextProviders = createContextProviders();
+
   // Completion provider
-  completionProvider = new LocalCopilotCompletionProvider(config);
+  completionProvider = new LocalCopilotCompletionProvider(config, contextProviders);
   registerCompletionProvider(context, completionProvider);
 
   // Commands
   registerCommands(context, statusBar, secretManager);
+
+  // Track recently opened documents for context gathering
+  recentFilesBuffer = new RecentFilesBuffer();
+  trackRecentDocuments(context, recentFilesBuffer);
 
   // Listen for configuration changes
   context.subscriptions.push(
@@ -321,4 +337,122 @@ function registerCompletionProvider(
   context.subscriptions.push(
     vscode.languages.registerInlineCompletionItemProvider(selector, provider)
   );
+}
+
+// ---------------------------------------------------------------------------
+// Context Providers
+// ---------------------------------------------------------------------------
+
+/**
+ * Create the set of context providers for multi-file context gathering.
+ */
+function createContextProviders(): ContextProvider[] {
+  const providers: ContextProvider[] = [];
+
+  // 1. Active file context extractor (imports, enclosing scope, declarations)
+  providers.push(new FileContextExtractor());
+
+  // 2. Recent files provider (top-level symbols from recently opened documents)
+  if (recentFilesBuffer) {
+    providers.push(new RecentFilesProvider(recentFilesBuffer));
+  }
+
+  // 3. Import/definition resolver (resolve relative imports to workspace files)
+  const fileAccess: ImportFileAccess = {
+    async findExisting(uris: readonly string[]): Promise<readonly string[]> {
+      const existing: string[] = [];
+      for (const uri of uris) {
+        try {
+          const parsed = vscode.Uri.parse(uri);
+          try {
+            await vscode.workspace.fs.stat(parsed);
+            existing.push(uri);
+          } catch {
+            // File doesn't exist
+          }
+        } catch {
+          // Invalid URI
+        }
+      }
+      return existing;
+    },
+    async readText(uri: string): Promise<string | null> {
+      try {
+        const parsed = vscode.Uri.parse(uri);
+        const bytes = await vscode.workspace.fs.readFile(parsed);
+        return new TextDecoder().decode(bytes);
+      } catch {
+        return null;
+      }
+    },
+  };
+  providers.push(new ImportDefinitionResolver(fileAccess));
+
+  return providers;
+}
+
+/**
+ * Set up listeners to track recently opened/changed documents.
+ */
+function trackRecentDocuments(
+  context: vscode.ExtensionContext,
+  buffer: RecentFilesBuffer
+): void {
+  // Track when documents are opened
+  context.subscriptions.push(
+    vscode.workspace.onDidOpenTextDocument((document) => {
+      if (isTrackedLanguage(document.languageId) && !document.isUntitled) {
+        buffer.record({
+          uri: document.uri.toString(),
+          language: document.languageId,
+          text: document.getText(),
+        });
+      }
+    })
+  );
+
+  // Track when documents are changed
+  context.subscriptions.push(
+    vscode.workspace.onDidChangeTextDocument((event) => {
+      const document = event.document;
+      if (isTrackedLanguage(document.languageId) && !document.isUntitled) {
+        buffer.record({
+          uri: document.uri.toString(),
+          language: document.languageId,
+          text: document.getText(),
+        });
+      }
+    })
+  );
+
+  // Track when documents are closed
+  context.subscriptions.push(
+    vscode.workspace.onDidCloseTextDocument((document) => {
+      buffer.remove(document.uri.toString());
+    })
+  );
+
+  // Record any already-open documents
+  for (const document of vscode.workspace.textDocuments) {
+    if (isTrackedLanguage(document.languageId) && !document.isUntitled) {
+      buffer.record({
+        uri: document.uri.toString(),
+        language: document.languageId,
+        text: document.getText(),
+      });
+    }
+  }
+}
+
+/**
+ * Check if a language ID should be tracked for recent files context.
+ */
+function isTrackedLanguage(languageId: string): boolean {
+  const tracked = [
+    "typescript",
+    "javascript",
+    "typescriptreact",
+    "javascriptreact",
+  ];
+  return tracked.includes(languageId);
 }

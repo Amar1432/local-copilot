@@ -94,6 +94,7 @@ export const mockConfig: Record<string, unknown> = {
   maxOutputTokens: 128,
   temperature: 0.1,
   "context.maxLines": 120,
+  "context.budgetPreset": "balanced",
   localOnly: true,
   "telemetry.enabled": false,
 };
@@ -168,6 +169,7 @@ export function resetMocks(): void {
   mockConfig.maxOutputTokens = 128;
   mockConfig.temperature = 0.1;
   mockConfig["context.maxLines"] = 120;
+  mockConfig["context.budgetPreset"] = "balanced";
   mockConfig.localOnly = true;
   mockConfig["telemetry.enabled"] = false;
 }
@@ -175,6 +177,28 @@ export function resetMocks(): void {
 // ---------------------------------------------------------------------------
 // workspace namespace
 // ---------------------------------------------------------------------------
+
+export class Uri {
+  static parse(uri: string): Uri {
+    return new Uri(uri);
+  }
+  static file(path: string): Uri {
+    return new Uri(`file://${path}`);
+  }
+  constructor(public readonly fsPath: string) {}
+  toString(): string {
+    return this.fsPath;
+  }
+}
+
+const mockFs = {
+  stat: async (_uri: Uri): Promise<void> => {
+    throw new Error("File not found (mock)");
+  },
+  readFile: async (_uri: Uri): Promise<Uint8Array> => {
+    throw new Error("File not found (mock)");
+  },
+};
 
 export const workspace = {
   getConfiguration: (_section?: string) => ({
@@ -194,6 +218,17 @@ export const workspace = {
   onDidChangeConfiguration: (_listener: unknown): MockDisposable => {
     return new MockDisposable();
   },
+  onDidOpenTextDocument: (_listener: unknown): MockDisposable => {
+    return new MockDisposable();
+  },
+  onDidChangeTextDocument: (_listener: unknown): MockDisposable => {
+    return new MockDisposable();
+  },
+  onDidCloseTextDocument: (_listener: unknown): MockDisposable => {
+    return new MockDisposable();
+  },
+  textDocuments: [] as unknown[],
+  fs: mockFs,
 };
 
 // ---------------------------------------------------------------------------

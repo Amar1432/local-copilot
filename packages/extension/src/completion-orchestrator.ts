@@ -4,13 +4,27 @@
  * 1. Receive editor completion request
  * 2. Check if request should be processed
  * 3. Schedule with debounce + cancellation
- * 4. Build context from document
- * 5. Call provider to get completion
- * 6. Normalize the output
- * 7. Return clean completion items
+ * 4. Gather multi-file context from registered providers
+ * 5. Deduplicate and apply budget constraints
+ * 6. Build context from document
+ * 7. Call provider to get completion
+ * 8. Normalize the output
+ * 9. Return clean completion items
  */
 
 import type { ProviderConfig } from "@local-copilot/shared";
+import type {
+  ContextProvider,
+  ContextTarget,
+  ContextBudget,
+  ContextChunk,
+} from "@local-copilot/core";
+import {
+  BUDGET_PRESETS,
+  deduplicateChunks,
+  rankAndFilterChunks,
+  serializeContextChunks,
+} from "@local-copilot/core";
 import { buildCompletionRequest, computeFingerprint, generateRequestId } from "./context-engine";
 import { complete, testConnection } from "./openai-provider";
 import { normalizeCompletion } from "./completion-normalizer";
@@ -31,11 +45,17 @@ export class CompletionOrchestrator {
   private config: ProviderConfig;
   private state: OrchestratorState = "idle";
   private lastLatencyMs: number | null = null;
+  private contextProviders: ContextProvider[];
 
-  constructor(config: ProviderConfig, cacheOptions?: { maxSize?: number; defaultTtlMs?: number }) {
+  constructor(
+    config: ProviderConfig,
+    cacheOptions?: { maxSize?: number; defaultTtlMs?: number },
+    contextProviders: ContextProvider[] = []
+  ) {
     this.config = config;
     this.scheduler = new RequestScheduler(config.debounceMs);
     this.cache = new RequestCache<string>(cacheOptions);
+    this.contextProviders = [...contextProviders];
   }
 
   /**
@@ -45,6 +65,13 @@ export class CompletionOrchestrator {
     this.config = config;
     this.scheduler.dispose();
     this.scheduler = new RequestScheduler(config.debounceMs);
+  }
+
+  /**
+   * Set the context providers used for multi-file context gathering.
+   */
+  setContextProviders(providers: ContextProvider[]): void {
+    this.contextProviders = [...providers];
   }
 
   /**
@@ -59,6 +86,78 @@ export class CompletionOrchestrator {
    */
   get latencyMs(): number | null {
     return this.lastLatencyMs;
+  }
+
+  /**
+   * Gather context chunks from all registered providers, deduplicate,
+   * apply budget constraints, and serialize into a prompt-ready string.
+   *
+   * Returns the serialized context text, or null if no context was gathered.
+   */
+  private async gatherContext(
+    target: ContextTarget,
+    budget: ContextBudget,
+    signal?: AbortSignal
+  ): Promise<string | null> {
+    if (this.contextProviders.length === 0) {
+      return null;
+    }
+
+    // Collect chunks from all providers concurrently
+    const providerResults = await Promise.all(
+      this.contextProviders.map(async (provider) => {
+        try {
+          if (provider.isAvailable) {
+            const available = await provider.isAvailable(target);
+            if (!available) return [];
+          }
+          return await provider.getContext(target, budget, signal);
+        } catch {
+          return [];
+        }
+      })
+    );
+
+    // Flatten all chunks
+    const allChunks: ContextChunk[] = providerResults.flat();
+
+    if (allChunks.length === 0) {
+      return null;
+    }
+
+    // Step 1: Deduplicate chunks (symbol-based + content similarity)
+    const deduplicated = deduplicateChunks(allChunks);
+
+    // Step 2: Apply budget constraints (rank by score, enforce token/chunk limits)
+    const budgeted = rankAndFilterChunks(deduplicated, budget);
+
+    if (budgeted.length === 0) {
+      return null;
+    }
+
+    // Step 3: Serialize into prompt-ready text
+    return serializeContextChunks(budgeted, {
+      format: "xml",
+      wrapInBlock: true,
+      includeMetadata: false,
+    });
+  }
+
+  /**
+   * Resolve the context budget from the configured preset name.
+   */
+  private resolveBudget(): ContextBudget {
+    const presetName = this.config.contextBudgetPreset ?? "balanced";
+    const preset = BUDGET_PRESETS.get(presetName) ?? BUDGET_PRESETS.get("balanced")!;
+
+    return {
+      maxTokens: preset.maxTokens,
+      maxChunks: preset.maxChunks,
+      maxLines: preset.maxLines,
+      maxLinesPerChunk: preset.maxLinesPerChunk,
+      maxTokensPerChunk: preset.maxTokensPerChunk,
+      reservedTokens: preset.reservedTokens,
+    };
   }
 
   /**
@@ -136,8 +235,28 @@ export class CompletionOrchestrator {
         return null;
       }
 
+      // Gather multi-file context from registered providers
+      const budget = this.resolveBudget();
+      const target: ContextTarget = {
+        documentUri: params.documentUri,
+        documentVersion: params.documentVersion,
+        language: params.language,
+        position: { line: params.cursorLine, character: params.cursorCharacter },
+        prefix: request.prefix,
+        suffix: request.suffix,
+        fullText: params.fullText,
+      };
+
+      const contextText = await this.gatherContext(target, budget, abortSignal);
+
+      // Build the request with context included
+      const enrichedRequest = {
+        ...request,
+        contextText: contextText ?? undefined,
+      };
+
       // Call the provider
-      const result = await complete(request, this.config, abortSignal);
+      const result = await complete(enrichedRequest, this.config, abortSignal);
 
       // Mark request as completed
       this.scheduler.markCompleted(requestId);

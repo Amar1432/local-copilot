@@ -159,6 +159,16 @@
           "maximum": 500,
           "description": "Maximum context lines"
         },
+        "localCopilot.context.budgetPreset": {
+          "type": "string",
+          "enum": [
+            "fast",
+            "balanced",
+            "rich"
+          ],
+          "default": "balanced",
+          "description": "Context budget preset: fast (512 tokens, 4 chunks), balanced (1024 tokens, 10 chunks), rich (2048 tokens, 16 chunks)"
+        },
         "localCopilot.localOnly": {
           "type": "boolean",
           "default": true,

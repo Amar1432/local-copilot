@@ -17,7 +17,7 @@ import type { CompletionRequest } from "@local-copilot/shared";
 export function buildStandardMessages(
   request: CompletionRequest
 ): Array<{ readonly role: string; readonly content: string }> {
-  const systemPrompt = [
+  const systemParts = [
     "You are a code completion engine.",
     "",
     `Language: ${request.language}`,
@@ -26,7 +26,16 @@ export function buildStandardMessages(
     "Do not explain. Do not repeat existing text.",
     "Return only code that should be inserted.",
     "Do not include markdown fences or backticks.",
-  ].join("\n");
+  ];
+
+  // Inject serialized multi-file context chunks when available
+  if (request.contextText) {
+    systemParts.push("");
+    systemParts.push("Use the following relevant code context to inform your completion:");
+    systemParts.push(request.contextText);
+  }
+
+  const systemPrompt = systemParts.join("\n");
 
   const userContent = [
     request.prefix ? `<PREFIX>\n${request.prefix}</PREFIX>` : "",

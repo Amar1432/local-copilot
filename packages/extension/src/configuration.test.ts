@@ -103,4 +103,27 @@ describe("configuration", () => {
       expect(config.model).toBe("");
     });
   });
+
+  // -----------------------------------------------------------------------
+  // Context budget preset
+  // -----------------------------------------------------------------------
+
+  describe("context budget preset", () => {
+    it("should return balanced as default budget preset", () => {
+      const config = getConfiguration();
+      expect(config.contextBudgetPreset).toBe("balanced");
+    });
+
+    it("should read custom budget preset from mock config", () => {
+      mockConfig["context.budgetPreset"] = "fast";
+      const config = getConfiguration();
+      expect(config.contextBudgetPreset).toBe("fast");
+    });
+
+    it("should read rich budget preset from mock config", () => {
+      mockConfig["context.budgetPreset"] = "rich";
+      const config = getConfiguration();
+      expect(config.contextBudgetPreset).toBe("rich");
+    });
+  });
 });

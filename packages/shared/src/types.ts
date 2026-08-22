@@ -26,6 +26,8 @@ export interface ProviderConfig {
   readonly telemetryEnabled: boolean;
   readonly useFim?: boolean;
   readonly fimTemplate?: string;
+  /** Budget preset name: "fast" | "balanced" | "rich" */
+  readonly contextBudgetPreset?: string;
 }
 
 /**
@@ -39,6 +41,8 @@ export interface CompletionRequest {
   readonly suffix: string;
   readonly position: { readonly line: number; readonly character: number };
   readonly useFim?: boolean;
+  /** Serialized multi-file context chunks to include in the prompt */
+  readonly contextText?: string;
 }
 
 /**

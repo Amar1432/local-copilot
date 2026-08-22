@@ -68,6 +68,23 @@ describe("prompt-builder", () => {
       const messages = buildStandardMessages(createRequest());
       expect(messages[0].content).toContain("markdown fences");
     });
+
+    it("should include context text in system prompt when provided", () => {
+      const contextText = '<context>\n<chunk type="file" file="helper.ts">\nfunction helper() {}\n</chunk>\n</context>';
+      const messages = buildStandardMessages(createRequest({ contextText }));
+      expect(messages[0].content).toContain(contextText);
+      expect(messages[0].content).toContain("relevant code context");
+    });
+
+    it("should not include context section when contextText is undefined", () => {
+      const messages = buildStandardMessages(createRequest());
+      expect(messages[0].content).not.toContain("relevant code context");
+    });
+
+    it("should not include context section when contextText is empty", () => {
+      const messages = buildStandardMessages(createRequest({ contextText: "" }));
+      expect(messages[0].content).not.toContain("relevant code context");
+    });
   });
 
   // -----------------------------------------------------------------------
