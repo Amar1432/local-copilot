@@ -6,13 +6,14 @@
 
 ### Workflow Steps
 
-1. Read docs in mandatory order (see Reading Order below)
+1. Consult `graphify-out/GRAPH_REPORT.md` and read docs in mandatory order (see Reading Order below)
 2. Work ONLY the ticket named in `docs/ACTIVE_TASK.md`
 3. Implement changes
 4. Run build/lint/tests until green
-5. Commit with ticket ID: `feat|fix|test|chore(scope): [<TICKET_ID>] <message>`
-6. Prepend entry to `docs/HANDOFF.md` (newest on top, immediately below the Project State Summary header)
-7. Update `docs/ACTIVE_TASK.md` to next ticket
+5. Run `graphify update .` to update the knowledge graph
+6. Commit with ticket ID: `feat|fix|test|chore(scope): [<TICKET_ID>] <message>`
+7. Prepend entry to `docs/HANDOFF.md` (newest on top, immediately below the Project State Summary header)
+8. Update `docs/ACTIVE_TASK.md` to next ticket
 
 ### Scope Discipline
 
@@ -27,6 +28,7 @@
 
 - Node.js 18+
 - pnpm 8+
+- Python 3 / graphifyy (for knowledge graph generation)
 - VS Code (for testing)
 
 ### Commands
@@ -52,6 +54,12 @@ pnpm typecheck
 
 # Package extension
 pnpm package
+
+# Update Graphify knowledge graph
+graphify update .
+
+# Query Graphify knowledge graph
+graphify query "<question>"
 ```
 
 ### Package-Specific Commands
@@ -71,14 +79,15 @@ pnpm --filter @local-copilot/core build
 
 **Humans AND agents MUST read docs in this exact order before modifying code:**
 
-1. `PRD.md` — Product requirements
-2. `ARCHITECTURE.md` — System design
-3. `API.md` — Provider interfaces and contracts
-4. `docs/DESIGN_SYSTEM.md` — UI guidelines
-5. `docs/DEPLOYMENT.md` — Build and deployment
-6. `docs/ACTIVE_TASK.md` — Current focus
-7. `docs/HANDOFF.md` — Session history
-8. `DECISIONS.md` — Architectural decisions
+1. `graphify-out/GRAPH_REPORT.md` — Codebase knowledge graph, community structure, and god nodes
+2. `PRD.md` — Product requirements
+3. `ARCHITECTURE.md` — System design
+4. `API.md` — Provider interfaces and contracts
+5. `docs/DESIGN_SYSTEM.md` — UI guidelines
+6. `docs/DEPLOYMENT.md` — Build and deployment
+7. `docs/ACTIVE_TASK.md` — Current focus
+8. `docs/HANDOFF.md` — Session history
+9. `DECISIONS.md` — Architectural decisions
 
 ## 4. Architecture & Coding Conventions
 
@@ -161,7 +170,8 @@ test(provider): [LC-016] Add OpenAI provider tests
 2. Run `pnpm lint` — must pass
 3. Run `pnpm test` — must pass
 4. Verify no TypeScript errors
-5. Test in VS Code (if UI changes)
+5. Run `graphify update .` — keep knowledge graph synchronized
+6. Test in VS Code (if UI changes)
 
 ### Documentation Updates
 
@@ -175,9 +185,10 @@ test(provider): [LC-016] Add OpenAI provider tests
 ### Starting a Session
 
 1. Read `AI.md` (this file)
-2. Read `docs/ACTIVE_TASK.md` for current ticket
-3. Read relevant documentation based on ticket scope
-4. Understand the acceptance criteria before coding
+2. Consult `graphify-out/GRAPH_REPORT.md` (and use Graphify tools/MCP if available for architecture queries)
+3. Read `docs/ACTIVE_TASK.md` for current ticket
+4. Read relevant documentation based on ticket scope
+5. Understand the acceptance criteria before coding
 
 ### During a Session
 
@@ -189,10 +200,11 @@ test(provider): [LC-016] Add OpenAI provider tests
 ### Ending a Session
 
 1. Ensure all changes compile and tests pass
-2. Commit with proper message format
-3. Prepend entry to `docs/HANDOFF.md` (newest on top, immediately below Project State Summary)
-4. Update `docs/ACTIVE_TASK.md`
-5. Do NOT leave partially completed work
+2. Run `graphify update .`
+3. Commit with proper message format
+4. Prepend entry to `docs/HANDOFF.md` (newest on top, immediately below Project State Summary)
+5. Update `docs/ACTIVE_TASK.md`
+6. Do NOT leave partially completed work
 
 ### Self-Maintenance
 

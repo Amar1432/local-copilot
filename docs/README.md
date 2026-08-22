@@ -4,25 +4,27 @@
 
 ## Reading Order
 
-1. **`PRD.md`** — Product requirements, user stories, acceptance criteria
-2. **`ARCHITECTURE.md`** — System design, component responsibilities, data flows
-3. **`API.md`** — Provider interfaces, VS Code extension APIs, configuration schema
-4. **`docs/DESIGN_SYSTEM.md`** — UI guidelines, component patterns, accessibility
-5. **`docs/DEPLOYMENT.md`** — Build commands, environment setup, troubleshooting
-6. **`docs/ACTIVE_TASK.md`** — Current focus and progress
-7. **`docs/HANDOFF.md`** — Session history and changes
-8. **`DECISIONS.md`** — Architectural decisions and rationale
+1. **`graphify-out/GRAPH_REPORT.md`** — Codebase knowledge graph, community structure, and god nodes
+2. **`PRD.md`** — Product requirements, user stories, acceptance criteria
+3. **`ARCHITECTURE.md`** — System design, component responsibilities, data flows
+4. **`API.md`** — Provider interfaces, VS Code extension APIs, configuration schema
+5. **`docs/DESIGN_SYSTEM.md`** — UI guidelines, component patterns, accessibility
+6. **`docs/DEPLOYMENT.md`** — Build commands, environment setup, troubleshooting
+7. **`docs/ACTIVE_TASK.md`** — Current focus and progress
+8. **`docs/HANDOFF.md`** — Session history and changes
+9. **`DECISIONS.md`** — Architectural decisions and rationale
 
 ## Why This Order?
 
-1. **PRD.md first** — Understand what we're building and why
-2. **Architecture second** — Understand how components fit together
-3. **API third** — Understand the contracts and interfaces
-4. **Design System fourth** — Understand UI requirements and patterns
-5. **Deployment fifth** — Understand how to build and run
-6. **Active Task sixth** — Understand what to work on now
-7. **Handoff seventh** — Understand recent changes and context
-8. **Decisions last** — Understand past architectural choices
+1. **Knowledge Graph first** — Understand the actual code topology and module clusters
+2. **PRD.md second** — Understand what we're building and why
+3. **Architecture third** — Understand how components fit together
+4. **API fourth** — Understand the contracts and interfaces
+5. **Design System fifth** — Understand UI requirements and patterns
+6. **Deployment sixth** — Understand how to build and run
+7. **Active Task seventh** — Understand what to work on now
+8. **Handoff eighth** — Understand recent changes and context
+9. **Decisions last** — Understand past architectural choices
 
 ## For New Contributors
 

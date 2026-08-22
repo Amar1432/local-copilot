@@ -53,6 +53,26 @@
 
 <!-- Newest session logs are prepended below this line (latest on top) -->
 
+## ⚡ Setup: Graphify Integration & Workflow Updates
+
+**Date/Time:** 2026-08-22 | **Agent:** Antigravity | **Ticket:** INFRA-GRAPHIFY
+
+### Changes Made
+
+- Initialized Graphify knowledge graph extraction for codebase (284 nodes, 369 edges, 57 communities).
+- Installed git hooks (`.git/hooks/post-commit`, `.git/hooks/post-checkout`) to automatically maintain the knowledge graph.
+- Configured `.agent/rules/graphify.md` and `.agent/workflows/graphify.md` for agent architecture queries.
+- Added `graphify-out/` to `.gitignore`.
+- Updated `AI.md`, `docs/README.md`, and all agent kickoff prompts in `prompts/handoff/` (`antigravity.md`, `claude.md`, `command.md`, `freebuff.md`, `opencode.md`) to integrate Graphify into the exploration, reading order, tool protocols, and completion checklists.
+
+### Verification
+
+- `graphify update .` successfully generates graph artifacts in `graphify-out/`.
+- Git hooks verified executable.
+- Workflow instructions aligned across all docs.
+
+---
+
 ## ⚡ LC-027: Integrate Multi-File Context with Orchestrator
 
 **Date/Time:** 2026-08-22 | **Agent:** Buffy (Freebuff) | **Ticket:** LC-027
