@@ -105,10 +105,10 @@ function registerCompletionProvider(context: vscode.ExtensionContext): void {
 
 class LocalCopilotCompletionProvider implements vscode.InlineCompletionItemProvider {
   provideInlineCompletionItems(
-    document: vscode.TextDocument,
-    position: vscode.Position,
-    context: vscode.InlineCompletionContext,
-    token: vscode.CancellationToken
+    _document: vscode.TextDocument,
+    _position: vscode.Position,
+    _context: vscode.InlineCompletionContext,
+    _token: vscode.CancellationToken
   ): vscode.ProviderResult<vscode.InlineCompletionList> {
     // TODO: Implement completion logic
     // This will be implemented in Sprint 2

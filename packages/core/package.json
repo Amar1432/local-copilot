@@ -6,8 +6,8 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "dev": "tsc -p tsconfig.json --watch",
+    "build": "tsup",
+    "dev": "tsup --watch",
     "test": "vitest run",
     "lint": "eslint src --ext .ts",
     "typecheck": "tsc --noEmit",
@@ -16,7 +16,8 @@
   "devDependencies": {
     "@types/node": "^18.0.0",
     "typescript": "^5.1.0",
-    "vitest": "^0.34.0"
+    "vitest": "^0.34.0",
+    "tsup": "^8.0.0"
   },
   "dependencies": {
     "@local-copilot/shared": "workspace:*"
