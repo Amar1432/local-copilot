@@ -1,9 +1,13 @@
 {
-  "name": "@local-copilot/extension",
+  "name": "local-copilot",
   "displayName": "Local Copilot",
   "description": "Private, Fast, Configurable AI Autocomplete for VS Code",
   "version": "0.1.0",
   "publisher": "local-copilot",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/local-copilot/local-copilot"
+  },
   "engines": {
     "vscode": "^1.74.0"
   },
@@ -156,7 +160,7 @@
     "lint": "eslint src --ext .ts",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist",
-    "package": "vsce package"
+    "package": "vsce package --no-dependencies"
   },
   "devDependencies": {
     "@types/vscode": "^1.74.0",
@@ -166,7 +170,7 @@
     "@vscode/vsce": "^2.0.0",
     "esbuild": "^0.28.0"
   },
-  "dependencies": {
+  "peerDependencies": {
     "@local-copilot/core": "workspace:*",
     "@local-copilot/shared": "workspace:*"
   }
