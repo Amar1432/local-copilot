@@ -25,15 +25,14 @@
 - [x] LC-002: Configure Build Tooling
 - [x] LC-003: Create VS Code Extension Skeleton
 - [x] LC-004: Set Up Vitest Testing
-- [ ] LC-005: Create Test Fixtures and Mocks
+- [x] LC-005: Create Test Fixtures and Mocks
 - [ ] LC-006: Configure CI Pipeline
 
-### Next Ticket**LC-005: Create Test Fixtures and Mocks**
+### Next Ticket**LC-006: Configure CI Pipeline**
 
-Build reusable test fixtures, mock factories, and test utilities for provider and context testing.
+Set up GitHub Actions for automated build, lint, and test on pull requests and pushes.
 
 **Acceptance Criteria:**
-- Mock factories for VS Code APIs exist
-- Test fixtures for completion scenarios exist
-- Test utilities reduce boilerplate in test files
-- All existing tests still pass
+- CI workflow runs on PR and push to main
+- Build, lint, typecheck, and tests all pass in CI
+- CI workflow is documented in HANDOFF.md

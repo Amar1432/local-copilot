@@ -1,7 +1,16 @@
 /**
- * Minimal vscode mock for unit testing.
- * Only mocks the APIs actually used by our extension modules.
+ * Configurable vscode mock for unit testing.
+ *
+ * Usage:
+ *   import { mockWorkspace, resetMocks } from "__mocks__/vscode";
+ *   mockWorkspace.config = { model: "custom-model" };
+ *   // ... test ...
+ *   resetMocks();
  */
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
 
 export enum StatusBarAlignment {
   Left = 1,
@@ -13,6 +22,10 @@ export enum ConfigurationTarget {
   Workspace = 2,
   WorkspaceFolder = 3,
 }
+
+// ---------------------------------------------------------------------------
+// Classes
+// ---------------------------------------------------------------------------
 
 export class Position {
   constructor(
@@ -28,34 +41,49 @@ export class Range {
   ) {}
 }
 
-class MockStatusBarItem {
+export class ThemeColor {
+  constructor(public readonly id: string) {}
+}
+
+// ---------------------------------------------------------------------------
+// Mock disposables — track calls for assertions
+// ---------------------------------------------------------------------------
+
+export class MockDisposable {
+  disposed = false;
+  dispose(): void {
+    this.disposed = true;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Mock status bar item — tracks text, tooltip, visibility
+// ---------------------------------------------------------------------------
+
+export class MockStatusBarItem {
   text = "";
   tooltip = "";
   command = "";
   color: unknown = undefined;
+  visible = false;
+  disposed = false;
 
-  show(): void {}
-  hide(): void {}
-  dispose(): void {}
-}
-
-class MockInputBox {
-  show(): Promise<string | undefined> {
-    return Promise.resolve(undefined);
+  show(): void {
+    this.visible = true;
+  }
+  hide(): void {
+    this.visible = false;
+  }
+  dispose(): void {
+    this.disposed = true;
   }
 }
 
-class MockQuickPick {
-  show(): Promise<unknown> {
-    return Promise.resolve(undefined);
-  }
-}
+// ---------------------------------------------------------------------------
+// Mutable mock config — tests can override per-test
+// ---------------------------------------------------------------------------
 
-class MockDisposable {
-  dispose(): void {}
-}
-
-const mockConfig: Record<string, unknown> = {
+export const mockConfig: Record<string, unknown> = {
   enabled: true,
   provider: "custom",
   baseUrl: "http://localhost:11434/v1",
@@ -70,24 +98,82 @@ const mockConfig: Record<string, unknown> = {
   "telemetry.enabled": false,
 };
 
+// ---------------------------------------------------------------------------
+// Spy trackers — record calls for assertions
+// ---------------------------------------------------------------------------
+
+export const spy = {
+  informationMessages: [] as string[],
+  commands: [] as { command: string; args: unknown[] }[],
+  configurationUpdates: [] as {
+    section: string;
+    key: string;
+    value: unknown;
+    target: unknown;
+  }[],
+  statusBarItem: null as MockStatusBarItem | null,
+};
+
+/**
+ * Reset all spies and config to defaults.
+ */
+export function resetMocks(): void {
+  spy.informationMessages = [];
+  spy.commands = [];
+  spy.configurationUpdates = [];
+  spy.statusBarItem = null;
+
+  mockConfig.enabled = true;
+  mockConfig.provider = "custom";
+  mockConfig.baseUrl = "http://localhost:11434/v1";
+  mockConfig.apiKey = "";
+  mockConfig.model = "qwen-coder";
+  mockConfig.debounceMs = 150;
+  mockConfig.requestTimeoutMs = 2000;
+  mockConfig.maxOutputTokens = 128;
+  mockConfig.temperature = 0.1;
+  mockConfig["context.maxLines"] = 120;
+  mockConfig.localOnly = true;
+  mockConfig["telemetry.enabled"] = false;
+}
+
+// ---------------------------------------------------------------------------
+// workspace namespace
+// ---------------------------------------------------------------------------
+
 export const workspace = {
   getConfiguration: (_section?: string) => ({
     get: <T>(key: string, defaultValue: T): T => {
       const val = mockConfig[key];
       return (val !== undefined ? val : defaultValue) as T;
     },
-    update: async (): Promise<void> => {},
+    update: async (key: string, value: unknown, target?: unknown): Promise<void> => {
+      spy.configurationUpdates.push({
+        section: _section ?? "",
+        key,
+        value,
+        target,
+      });
+    },
   }),
   onDidChangeConfiguration: (_listener: unknown): MockDisposable => {
     return new MockDisposable();
   },
 };
 
+// ---------------------------------------------------------------------------
+// window namespace
+// ---------------------------------------------------------------------------
+
 export const window = {
   createStatusBarItem: (_alignment?: StatusBarAlignment, _priority?: number): MockStatusBarItem => {
-    return new MockStatusBarItem();
+    const item = new MockStatusBarItem();
+    spy.statusBarItem = item;
+    return item;
   },
-  showInformationMessage: (_message: string, _options?: unknown): void => {},
+  showInformationMessage: (message: string, _options?: unknown): void => {
+    spy.informationMessages.push(message);
+  },
   showInputBox: async (): Promise<string | undefined> => {
     return undefined;
   },
@@ -96,15 +182,23 @@ export const window = {
   },
 };
 
+// ---------------------------------------------------------------------------
+// commands namespace
+// ---------------------------------------------------------------------------
+
 export const commands = {
-  registerCommand: (
-    _command: string,
-    _callback: (...args: unknown[]) => unknown
-  ): MockDisposable => {
+  registerCommand: (command: string, callback: (...args: unknown[]) => unknown): MockDisposable => {
+    spy.commands.push({ command, args: [] });
     return new MockDisposable();
   },
-  executeCommand: async (_command: string): Promise<void> => {},
+  executeCommand: async (command: string, ...args: unknown[]): Promise<void> => {
+    spy.commands.push({ command, args });
+  },
 };
+
+// ---------------------------------------------------------------------------
+// languages namespace
+// ---------------------------------------------------------------------------
 
 export const languages = {
   registerInlineCompletionItemProvider: (
@@ -114,7 +208,3 @@ export const languages = {
     return new MockDisposable();
   },
 };
-
-export class ThemeColor {
-  constructor(public readonly id: string) {}
-}

@@ -4,8 +4,8 @@
 
 **Project:** Local Copilot (VS Code AI Autocomplete Extension)
 **Current Sprint:** Sprint 1 — Foundation & Infrastructure
-**Active Ticket:** LC-005 — Create Test Fixtures and Mocks
-**Overall Progress:** 4/38 tickets completed
+**Active Ticket:** LC-006 — Configure CI Pipeline
+**Overall Progress:** 5/38 tickets completed
 
 ### Key Components
 
@@ -27,7 +27,7 @@
 - [x] LC-002: Build tooling configured
 - [x] LC-003: Extension skeleton created
 - [x] LC-004: Testing framework set up
-- [ ] LC-005: Test fixtures created
+- [x] LC-005: Test fixtures created
 - [ ] LC-006: CI/CD configured
 
 ---
@@ -168,16 +168,55 @@ LC-004: Set Up Vitest Testing — Configure test framework and write initial tes
 
 ### Test Summary
 
-| Package | Tests | Status |
-|---------|-------|--------|
-| shared | 6 | ✅ |
-| core | 1 | ✅ |
-| extension | 11 | ✅ |
+| Package   | Tests  | Status |
+| --------- | ------ | ------ |
+| shared    | 6      | ✅     |
+| core      | 1      | ✅     |
+| extension | 11     | ✅     |
 | **Total** | **18** | **✅** |
 
 ### Next Steps
 
 LC-005: Create Test Fixtures and Mocks — Build reusable test fixtures and mock factories
+
+---
+
+---
+
+## 🧪 LC-005: Create Test Fixtures and Mocks
+
+**Date/Time:** 2024-01-01 | **Agent:** Buffy | **Ticket:** LC-005
+
+### Changes Made
+
+1. Enhanced `__mocks__/vscode.ts` — Added spy trackers (`spy.informationMessages`, `spy.commands`, `spy.configurationUpdates`), `resetMocks()` function, `MockStatusBarItem` with visibility/disposed tracking, configurable `mockConfig` object
+2. Created `__fixtures__/completion-scenarios.ts` — 8 predefined scenarios: function body, variable assignment, object property, JSX return, Python function, empty document, inside comment, inside string
+3. Created `__fixtures__/test-utils.ts` — Helper functions: `createMockDocument()` (with `|` cursor marker), `createMockDocumentFromScenario()`, `createPosition()`, `createRange()`, `createMockCancellationToken()`, `createMockCompletionContext()`, `createDefaultConfig()`
+4. Created `__fixtures__/index.ts` — Barrel export for clean imports
+5. Refactored `completion-provider.test.ts` — Expanded from 4 to 14 tests: disabled state, no model, cancellation, comment/string detection (parametric), all completion scenarios, config update behavior
+6. Refactored `status-bar.test.ts` — Expanded from 5 to 15 tests: show/hide lifecycle, all 6 status combinations, tooltip verification, dispose tracking
+7. Refactored `configuration.test.ts` — Expanded from 2 to 9 tests: defaults, custom values, fallback behavior
+8. Total tests grew from 18 to 45 (+150%)
+
+### Acceptance Criteria Met
+
+- [x] Mock factories for VS Code APIs exist (configurable with spy tracking)
+- [x] Test fixtures for completion scenarios exist (8 scenarios)
+- [x] Test utilities reduce boilerplate (createMockDocument, createDefaultConfig, etc.)
+- [x] All existing tests still pass (45/45)
+
+### Test Summary
+
+| Package | Tests | Status |
+|---------|-------|--------|
+| shared | 6 | ✅ |
+| core | 1 | ✅ |
+| extension | 38 | ✅ |
+| **Total** | **45** | **✅** |
+
+### Next Steps
+
+LC-006: Configure CI Pipeline — Set up GitHub Actions for automated build, lint, and test
 
 ---
 
