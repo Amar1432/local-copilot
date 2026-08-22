@@ -4,8 +4,8 @@
 
 **Project:** Local Copilot (VS Code AI Autocomplete Extension)
 **Current Sprint:** Sprint 3 — Provider Abstraction & Local Provider
-**Active Ticket:** LC-014: Define CompletionProvider Interface
-**Overall Progress:** 13/38 tickets completed
+**Active Ticket:** LC-015: Implement Provider Router
+**Overall Progress:** 14/38 tickets completed
 
 ### Key Components
 
@@ -34,8 +34,37 @@
 - [x] LC-009: Debounce Logic implemented
 - [x] LC-010: Request Cancellation implemented
 - [x] LC-011: Request Versioning implemented
-- [x] LC-012: Request Deduplication implemented
-- [x] LC-013: L1 Request Cache implemented
+- [x] LC-012: Implement Request Deduplication
+- [x] LC-013: Implement L1 Request Cache
+- [x] LC-014: Define CompletionProvider Interface
+
+---
+
+## ⚡ LC-014: Define CompletionProvider Interface
+
+**Date/Time:** 2026-08-22 | **Agent:** Antigravity | **Ticket:** LC-014
+
+### Changes Made
+
+1. Created `packages/core/src/providers/provider.types.ts`:
+   - `CompletionProvider` interface with `id`, `capabilities`, `validateConfig(config)`, `getModels(signal)`, and `complete(request, signal)` methods
+   - `ProviderCapabilities` interface specifying `streaming`, `fim`, `stopSequences`, `modelListing`, `contextWindow`, `maxOutputTokens`, and `auth`
+   - `ModelInfo` and `ModelCapabilities` interfaces specifying metadata, token budgets, and capabilities per model
+   - `ProviderError` domain error class with error code taxonomy (`authentication`, `not_found`, `timeout`, `rate_limit`, `network`, `invalid_request`, `unknown`), `retryable` flag, and `statusCode`
+2. Created `packages/core/src/providers/index.ts` and updated `packages/core/src/index.ts` barrel exports.
+3. Created comprehensive unit tests in `packages/core/src/providers/provider.types.test.ts` (4 tests) and updated `packages/core/src/index.test.ts` (1 test).
+4. Verified that all 108 tests across the monorepo pass cleanly, and that lint, typecheck, and build steps succeed without warnings.
+
+### Acceptance Criteria Met
+
+- [x] Interface defines `id`, `validateConfig`, `getModels`, `complete` methods
+- [x] `ProviderCapabilities` interface defined
+- [x] `ModelInfo` interface defined for model metadata
+- [x] Interface is extensible for future providers
+
+### Next Steps
+
+LC-015: Implement Provider Router — Create a router that selects the appropriate provider based on configuration and manages provider lifecycle.
 
 ---
 

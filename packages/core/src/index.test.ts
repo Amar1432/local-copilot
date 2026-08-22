@@ -1,8 +1,9 @@
 import { describe, it, expect } from "vitest";
+import * as core from "./index";
 
-describe("core package", () => {
-  it("should be importable", () => {
-    // Placeholder test — will be expanded when core modules are implemented
-    expect(true).toBe(true);
+describe("core package exports", () => {
+  it("should export ProviderError and provider type definitions", () => {
+    expect(core.ProviderError).toBeDefined();
+    expect(typeof core.ProviderError).toBe("function");
   });
 });
