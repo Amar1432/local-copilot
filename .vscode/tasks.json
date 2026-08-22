@@ -1,0 +1,44 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Local Copilot: Debug Build",
+      "type": "shell",
+      "command": "pnpm --filter @local-copilot/shared --filter @local-copilot/core build && node build.mjs",
+      "options": {
+        "cwd": "${workspaceFolder}/packages/extension"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Local Copilot: Watch",
+      "type": "shell",
+      "command": "node build.mjs --watch",
+      "options": {
+        "cwd": "${workspaceFolder}/packages/extension"
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "esbuild",
+        "fileLocation": ["relative", "${workspaceFolder}/packages/extension"],
+        "pattern": {
+          "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "severity": 4,
+          "message": 5
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^Watching for changes",
+          "endsPattern": "^dist/extension\\.js.*done|Build complete"
+        }
+      }
+    }
+  ]
+}

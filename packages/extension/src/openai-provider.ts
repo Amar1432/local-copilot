@@ -75,7 +75,7 @@ export async function complete(
       return null;
     }
 
-    const data: OpenAICompletionResponse = await response.json();
+    const data = (await response.json()) as OpenAICompletionResponse;
     const latencyMs = Date.now() - startTime;
 
     // Extract text from the response

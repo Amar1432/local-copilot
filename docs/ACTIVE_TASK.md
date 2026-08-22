@@ -1,43 +1,49 @@
 # Active Task
 
-## Sprint 1 — Foundation & Infrastructure
+## Sprint 2 — Core Completion Engine
 
-**Active focus:** Setting up the monorepo structure, build tooling, and VS Code extension skeleton. This is the foundation for all subsequent development.
+**Active focus:** Implementing the core completion pipeline, request scheduling, debounce/cancellation, fingerprinting, and in-memory L1 request caching.
 
 ### Scope
 
-- Initialize pnpm workspace monorepo
-- Configure TypeScript and build tooling
-- Create VS Code extension package skeleton
-- Set up testing framework
-- Create CI/CD configuration
+- Completion orchestrator coordinating the lifecycle
+- Context extraction (prefix/suffix) & fingerprinting
+- Request scheduler with debounce and cancellation
+- Fill-in-the-Middle (FIM) and standard prompt builders
+- Completion normalizer for output cleanup
+- L1 Request Cache with LRU eviction and TTL
 
 ### Out of Scope
 
-- Completion engine logic
-- Provider implementations
-- UI components
-- Performance optimization
+- Multi-provider abstraction and discovery (Sprint 3)
+- Multi-file repository context (Sprint 4)
+- Webview UI or advanced diagnostics view (Sprint 5)
 
 ### Progress
 
-- [x] LC-001: Initialize Monorepo Structure
-- [x] LC-002: Configure Build Tooling
-- [x] LC-003: Create VS Code Extension Skeleton
-- [x] LC-004: Set Up Vitest Testing
-- [x] LC-005: Create Test Fixtures and Mocks
-- [x] LC-006: Configure CI Pipeline
+- [x] LC-007: Implement Completion Orchestrator
+- [x] LC-008: Implement Request Fingerprinting
+- [x] LC-009: Implement Debounce Logic
+- [x] LC-010: Implement Request Cancellation
+- [x] LC-011: Implement Request Versioning
+- [x] LC-012: Implement Request Deduplication
+- [x] LC-013: Implement L1 Request Cache
 
-### Sprint 1 Complete! 🎉
+### Sprint 2 Complete! 🎉
 
-All foundation and infrastructure tickets are done. Ready for Sprint 2.
+All core completion engine and scheduling tickets are done. Ready for Sprint 3.
 
-### Next Ticket**LC-006: Configure CI Pipeline**
+---
 
-Set up GitHub Actions for automated build, lint, and test on pull requests and pushes.
+### Next Ticket: **LC-014: Define CompletionProvider Interface**
+
+**Sprint:** Sprint 3 — Provider Abstraction & Local Provider  
+**Epic:** Epic 7 — Provider Interface  
+**Goal:** Create the TypeScript interface for completion providers with validation, model listing, and completion methods in `@local-copilot/core` / shared types.
 
 **Acceptance Criteria:**
 
-- CI workflow runs on PR and push to main
-- Build, lint, typecheck, and tests all pass in CI
-- CI workflow is documented in HANDOFF.md
+- Interface defines `id`, `validateConfig`, `getModels`, `complete` methods
+- `ProviderCapabilities` interface defined
+- `ModelInfo` interface defined for model metadata
+- Interface is extensible for future providers

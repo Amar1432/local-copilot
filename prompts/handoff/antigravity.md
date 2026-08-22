@@ -1,4 +1,4 @@
-# Codex Agent Kickoff
+# Antigravity Agent Kickoff
 
 ## Instructions
 

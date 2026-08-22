@@ -134,6 +134,7 @@ function registerCommands(context: vscode.ExtensionContext, status: StatusBarMan
   context.subscriptions.push(
     vscode.commands.registerCommand("localCopilot.showDiagnostics", () => {
       const config = getConfiguration();
+      const stats = completionProvider?.orchestratorInstance.cacheStats;
       const info = [
         `Provider: ${config.provider}`,
         `Model: ${config.model || "(not set)"}`,
@@ -143,6 +144,9 @@ function registerCommands(context: vscode.ExtensionContext, status: StatusBarMan
         `Timeout: ${config.requestTimeoutMs}ms`,
         `Max Tokens: ${config.maxOutputTokens}`,
         `Temperature: ${config.temperature}`,
+        stats
+          ? `Cache: ${stats.size}/${stats.maxSize} entries (Hits: ${stats.hits}, Misses: ${stats.misses})`
+          : "Cache: N/A",
       ].join("\n");
       vscode.window.showInformationMessage(info, { modal: true });
     })
@@ -150,7 +154,7 @@ function registerCommands(context: vscode.ExtensionContext, status: StatusBarMan
 
   context.subscriptions.push(
     vscode.commands.registerCommand("localCopilot.clearCache", () => {
-      // TODO: Implement actual cache clearing in Sprint 2
+      completionProvider?.clearCache();
       vscode.window.showInformationMessage("Cache cleared");
     })
   );

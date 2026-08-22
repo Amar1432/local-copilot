@@ -29,6 +29,13 @@ export class LocalCopilotCompletionProvider implements vscode.InlineCompletionIt
     return this.orchestrator;
   }
 
+  /**
+   * Clear the completion cache.
+   */
+  clearCache(): void {
+    this.orchestrator.clearCache();
+  }
+
   provideInlineCompletionItems(
     document: vscode.TextDocument,
     position: vscode.Position,

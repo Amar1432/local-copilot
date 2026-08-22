@@ -11,10 +11,11 @@
  */
 
 import type { ProviderConfig } from "@local-copilot/shared";
-import { buildCompletionRequest, generateRequestId } from "./context-engine";
+import { buildCompletionRequest, computeFingerprint, generateRequestId } from "./context-engine";
 import { complete, testConnection } from "./openai-provider";
 import { normalizeCompletion } from "./completion-normalizer";
 import { RequestScheduler } from "./request-scheduler";
+import { RequestCache, type CacheStats } from "./request-cache";
 
 /**
  * The orchestrator's connection state.
@@ -26,13 +27,15 @@ export type OrchestratorState = "idle" | "connected" | "disconnected" | "checkin
  */
 export class CompletionOrchestrator {
   private scheduler: RequestScheduler;
+  private cache: RequestCache<string>;
   private config: ProviderConfig;
   private state: OrchestratorState = "idle";
   private lastLatencyMs: number | null = null;
 
-  constructor(config: ProviderConfig) {
+  constructor(config: ProviderConfig, cacheOptions?: { maxSize?: number; defaultTtlMs?: number }) {
     this.config = config;
     this.scheduler = new RequestScheduler(config.debounceMs);
+    this.cache = new RequestCache<string>(cacheOptions);
   }
 
   /**
@@ -94,6 +97,22 @@ export class CompletionOrchestrator {
       maxLines: this.config.contextMaxLines,
     });
 
+    // Compute request fingerprint for cache lookup & deduplication
+    const fingerprint = computeFingerprint({
+      documentVersion: params.documentVersion,
+      line: params.cursorLine,
+      character: params.cursorCharacter,
+      prefix: request.prefix,
+      suffix: request.suffix,
+      model: this.config.model,
+    });
+
+    // Check L1 Request Cache
+    const cached = this.cache.get(fingerprint);
+    if (cached !== null) {
+      return cached;
+    }
+
     // Schedule with debounce + cancellation
     const requestId = generateRequestId();
     const signal = this.scheduler.schedule({
@@ -131,11 +150,30 @@ export class CompletionOrchestrator {
       // Normalize the output
       const normalized = normalizeCompletion(result.text, request.prefix, request.suffix);
 
+      // Store in L1 Request Cache if valid
+      if (normalized !== null) {
+        this.cache.set(fingerprint, normalized);
+      }
+
       return normalized;
     } catch {
       this.scheduler.markCompleted(requestId);
       return null;
     }
+  }
+
+  /**
+   * Clear the in-memory completion cache.
+   */
+  clearCache(): void {
+    this.cache.clear();
+  }
+
+  /**
+   * Get L1 cache statistics.
+   */
+  get cacheStats(): CacheStats {
+    return this.cache.stats;
   }
 
   /**
