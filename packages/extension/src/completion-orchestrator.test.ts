@@ -485,4 +485,91 @@ describe("CompletionOrchestrator", () => {
       expect(orchestrator.cacheStats.hits).toBe(1);
     });
   });
+
+  // -----------------------------------------------------------------------
+  // Metrics tracking integration
+  // -----------------------------------------------------------------------
+
+  describe("metrics tracking", () => {
+    it("should track request metrics and latencies on completions", async () => {
+      vi.mocked(openaiProvider.complete).mockResolvedValueOnce({
+        text: "  return 42;\n}",
+        latencyMs: 85,
+      });
+
+      const orchestrator = new CompletionOrchestrator(mockConfig);
+
+      await orchestrator.requestCompletion({
+        documentUri: "file:///test.ts",
+        documentVersion: 1,
+        language: "typescript",
+        fullText: "function getAnswer() {",
+        cursorLine: 0,
+        cursorCharacter: 22,
+      });
+
+      const metrics = orchestrator.metrics.getSummary();
+      expect(metrics.totalRequests).toBe(1);
+      expect(metrics.successfulCompletions).toBe(1);
+      expect(metrics.latency.p50Ms).toBe(85);
+      expect(metrics.languages.typescript.requests).toBe(1);
+      expect(metrics.languages.typescript.completions).toBe(1);
+    });
+
+    it("should track cache hits in metrics", async () => {
+      vi.mocked(openaiProvider.complete).mockResolvedValueOnce({
+        text: "  return 42;\n}",
+        latencyMs: 90,
+      });
+
+      const orchestrator = new CompletionOrchestrator(mockConfig);
+
+      // First call
+      await orchestrator.requestCompletion({
+        documentUri: "file:///test.ts",
+        documentVersion: 1,
+        language: "typescript",
+        fullText: "function getAnswer() {",
+        cursorLine: 0,
+        cursorCharacter: 22,
+      });
+
+      // Second call (cache hit)
+      await orchestrator.requestCompletion({
+        documentUri: "file:///test.ts",
+        documentVersion: 1,
+        language: "typescript",
+        fullText: "function getAnswer() {",
+        cursorLine: 0,
+        cursorCharacter: 22,
+      });
+
+      const metrics = orchestrator.metrics.getSummary();
+      expect(metrics.totalRequests).toBe(2);
+      expect(metrics.cacheHits).toBe(1);
+      expect(metrics.cacheMisses).toBe(1);
+      expect(metrics.cacheHitRate).toBe(0.5);
+    });
+
+    it("should track errors in metrics when provider throws", async () => {
+      vi.mocked(openaiProvider.complete).mockRejectedValueOnce(new Error("Network timeout"));
+
+      const orchestrator = new CompletionOrchestrator(mockConfig);
+
+      const result = await orchestrator.requestCompletion({
+        documentUri: "file:///test.ts",
+        documentVersion: 1,
+        language: "typescript",
+        fullText: "function getAnswer() {",
+        cursorLine: 0,
+        cursorCharacter: 22,
+      });
+
+      expect(result).toBeNull();
+      const metrics = orchestrator.metrics.getSummary();
+      expect(metrics.totalRequests).toBe(1);
+      expect(metrics.failedRequests).toBe(1);
+      expect(metrics.recentErrors[0].message).toBe("Network timeout");
+    });
+  });
 });

@@ -139,6 +139,7 @@ async function buildDiagnosticsSnapshot(extensionVersion: string): Promise<Diagn
     connectionState: orchestrator?.connectionState ?? "idle",
     latencyMs: orchestrator?.latencyMs ?? null,
     cacheStats: orchestrator?.cacheStats ?? null,
+    metrics: orchestrator?.metrics.getSummary() ?? null,
   };
 }
 
@@ -339,6 +340,37 @@ function registerCommands(
   context.subscriptions.push(
     vscode.commands.registerCommand("localCopilot.showDiagnostics", async () => {
       await diagnosticsPanel?.show();
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand("localCopilot.viewMetrics", async () => {
+      await diagnosticsPanel?.show();
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "localCopilot.completionAccepted",
+      (options?: {
+        readonly id?: string;
+        readonly text?: string;
+        readonly language?: string;
+        readonly latencyMs?: number;
+        readonly charCount?: number;
+        readonly lineCount?: number;
+      }) => {
+        if (options) {
+          completionProvider?.recordAcceptance(options);
+        }
+      }
+    )
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand("localCopilot.resetMetrics", () => {
+      completionProvider?.orchestratorInstance.metrics.reset();
+      vscode.window.showInformationMessage("Completion metrics reset");
     })
   );
 

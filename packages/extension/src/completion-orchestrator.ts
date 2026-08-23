@@ -24,6 +24,7 @@ import {
   deduplicateChunks,
   rankAndFilterChunks,
   serializeContextChunks,
+  CompletionMetricsTracker,
 } from "@local-copilot/core";
 import { buildCompletionRequest, computeFingerprint, generateRequestId } from "./context-engine";
 import { complete, testConnection } from "./openai-provider";
@@ -46,16 +47,19 @@ export class CompletionOrchestrator {
   private state: OrchestratorState = "idle";
   private lastLatencyMs: number | null = null;
   private contextProviders: ContextProvider[];
+  private metricsTracker: CompletionMetricsTracker;
 
   constructor(
     config: ProviderConfig,
     cacheOptions?: { maxSize?: number; defaultTtlMs?: number },
-    contextProviders: ContextProvider[] = []
+    contextProviders: ContextProvider[] = [],
+    metricsTracker?: CompletionMetricsTracker
   ) {
     this.config = config;
     this.scheduler = new RequestScheduler(config.debounceMs);
     this.cache = new RequestCache<string>(cacheOptions);
     this.contextProviders = [...contextProviders];
+    this.metricsTracker = metricsTracker ?? new CompletionMetricsTracker();
   }
 
   /**
@@ -86,6 +90,13 @@ export class CompletionOrchestrator {
    */
   get latencyMs(): number | null {
     return this.lastLatencyMs;
+  }
+
+  /**
+   * Get the completion metrics tracker instance.
+   */
+  get metrics(): CompletionMetricsTracker {
+    return this.metricsTracker;
   }
 
   /**
@@ -180,8 +191,15 @@ export class CompletionOrchestrator {
       return null;
     }
 
+    this.metricsTracker.recordRequest({
+      language: params.language,
+      provider: this.config.provider,
+      model: this.config.model,
+    });
+
     // Skip if already cancelled
     if (params.cancellationToken?.isCancellationRequested) {
+      this.metricsTracker.recordCancellation({ language: params.language });
       return null;
     }
 
@@ -209,8 +227,18 @@ export class CompletionOrchestrator {
     // Check L1 Request Cache
     const cached = this.cache.get(fingerprint);
     if (cached !== null) {
+      this.metricsTracker.recordCacheHit({ language: params.language, latencyMs: 0 });
+      this.metricsTracker.recordSuccess({
+        latencyMs: 0,
+        text: cached,
+        language: params.language,
+        provider: this.config.provider,
+        model: this.config.model,
+        cached: true,
+      });
       return cached;
     }
+    this.metricsTracker.recordCacheMiss({ language: params.language });
 
     // Schedule with debounce + cancellation
     const requestId = generateRequestId();
@@ -224,7 +252,10 @@ export class CompletionOrchestrator {
       model: this.config.model,
     });
 
-    if (signal === null) return null;
+    if (signal === null) {
+      this.metricsTracker.recordCancellation({ language: params.language });
+      return null;
+    }
 
     try {
       // Wait for the debounced signal, then call the provider
@@ -232,6 +263,7 @@ export class CompletionOrchestrator {
 
       // Check cancellation after debounce
       if (abortSignal.aborted || params.cancellationToken?.isCancellationRequested) {
+        this.metricsTracker.recordCancellation({ language: params.language });
         return null;
       }
 
@@ -261,7 +293,14 @@ export class CompletionOrchestrator {
       // Mark request as completed
       this.scheduler.markCompleted(requestId);
 
-      if (result === null) return null;
+      if (result === null) {
+        this.metricsTracker.recordFailure({
+          message: "No completion returned from provider",
+          language: params.language,
+          provider: this.config.provider,
+        });
+        return null;
+      }
 
       // Track latency
       this.lastLatencyMs = result.latencyMs;
@@ -283,11 +322,26 @@ export class CompletionOrchestrator {
       // Store in L1 Request Cache if valid
       if (normalized !== null) {
         this.cache.set(fingerprint, normalized);
+        this.metricsTracker.recordSuccess({
+          latencyMs: result.latencyMs,
+          text: normalized,
+          language: params.language,
+          provider: this.config.provider,
+          model: this.config.model,
+          cached: false,
+        });
+      } else {
+        this.metricsTracker.recordDismissal({ language: params.language });
       }
 
       return normalized;
-    } catch {
+    } catch (err) {
       this.scheduler.markCompleted(requestId);
+      this.metricsTracker.recordFailure({
+        message: err instanceof Error ? err.message : String(err),
+        language: params.language,
+        provider: this.config.provider,
+      });
       return null;
     }
   }

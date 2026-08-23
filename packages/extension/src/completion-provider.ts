@@ -37,6 +37,27 @@ export class LocalCopilotCompletionProvider implements vscode.InlineCompletionIt
   }
 
   /**
+   * Get the metrics tracker instance.
+   */
+  get metrics() {
+    return this.orchestrator.metrics;
+  }
+
+  /**
+   * Record that a completion was accepted by the user.
+   */
+  recordAcceptance(options: {
+    readonly id?: string;
+    readonly text?: string;
+    readonly language?: string;
+    readonly latencyMs?: number;
+    readonly charCount?: number;
+    readonly lineCount?: number;
+  }): void {
+    this.orchestrator.metrics.recordAcceptance(options);
+  }
+
+  /**
    * Clear the completion cache.
    */
   clearCache(): void {
@@ -105,6 +126,19 @@ export class LocalCopilotCompletionProvider implements vscode.InlineCompletionIt
         {
           insertText: result,
           range: new vscode.Range(position, position),
+          command: {
+            title: "Local Copilot Completion Accepted",
+            command: "localCopilot.completionAccepted",
+            arguments: [
+              {
+                text: result,
+                language: document.languageId,
+                latencyMs,
+                charCount: result.length,
+                lineCount: result.split("\n").length,
+              },
+            ],
+          },
         },
       ],
     };

@@ -222,6 +222,26 @@ describe("LocalCopilotCompletionProvider", () => {
   });
 
   // -----------------------------------------------------------------------
+  // Metrics & Acceptance
+  // -----------------------------------------------------------------------
+
+  describe("metrics & acceptance", () => {
+    it("should expose metrics tracker and record acceptance", () => {
+      expect(provider.metrics).toBeDefined();
+      expect(provider.metrics.getSummary().acceptedCompletions).toBe(0);
+
+      provider.recordAcceptance({
+        text: "const a = 1;",
+        language: "typescript",
+        latencyMs: 80,
+      });
+
+      expect(provider.metrics.getSummary().acceptedCompletions).toBe(1);
+      expect(provider.metrics.getSummary().languages.typescript.accepted).toBe(1);
+    });
+  });
+
+  // -----------------------------------------------------------------------
   // Dispose
   // -----------------------------------------------------------------------
 

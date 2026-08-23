@@ -4,8 +4,8 @@
 
 **Project:** Local Copilot (VS Code AI Autocomplete Extension)
 **Current Sprint:** Sprint 5 — Extension UI & Diagnostics
-**Active Ticket:** LC-030 — Completion Metrics Tracker
-**Overall Progress:** 29/38 tickets completed
+**Active Ticket:** LC-031 — Expanded Language Support
+**Overall Progress:** 30/38 tickets completed
 
 ### Key Components
 
@@ -50,10 +50,66 @@
 - [x] LC-027: Integrate Multi-File Context with Orchestrator
 - [x] LC-028: Webview Diagnostics Panel
 - [x] LC-029: Status Bar Enhancements
+- [x] LC-030: Completion Metrics Tracker
 
 ---
 
 <!-- Newest session logs are prepended below this line (latest on top) -->
+
+## ✅ LC-030 — Completion Metrics Tracker
+
+**Date/Time:** 2026-08-23 | **Agent:** Antigravity | **Ticket:** LC-030
+
+### Summary
+
+Implemented a comprehensive in-memory completion metrics tracking engine (`CompletionMetricsTracker`) in `@local-copilot/core`, fully integrated with `CompletionOrchestrator`, `LocalCopilotCompletionProvider`, `DiagnosticsPanel`, and registered VS Code commands (`localCopilot.completionAccepted`, `localCopilot.viewMetrics`, `localCopilot.resetMetrics`).
+
+### Changes Made
+
+- **Created `packages/core/src/metrics/metrics-tracker.ts` & `packages/core/src/metrics/index.ts`**
+  - Implemented `CompletionMetricsTracker` providing exact metrics aggregation:
+    - Requests & completions count (total, success, failed, cancelled)
+    - Cache hit and miss counts with real-time `cacheHitRate` calculation
+    - Acceptance tracking (accepted vs dismissed counts, `acceptanceRate`)
+    - Latency statistics (P50, P90, P95, P99, average, min, max, last)
+    - Code volume (characters and lines generated vs accepted)
+    - Per-language metrics breakdown
+    - Bounded recent errors log with timestamps and context
+  - Exported from `@local-copilot/core`.
+- **Integrated with `packages/extension/src/completion-orchestrator.ts`**
+  - Added `CompletionMetricsTracker` instance to `CompletionOrchestrator`.
+  - Instrumented `requestCompletion` across all code branches: records requests, cancellations, cache hits/misses, provider successes, normalization results, dismissals, and failures with context.
+  - Exposed `get metrics()` getter.
+- **Integrated with `packages/extension/src/completion-provider.ts`**
+  - Attached acceptance tracking command (`localCopilot.completionAccepted`) to `InlineCompletionItem` returned to VS Code editor.
+  - Added `recordAcceptance()` and `get metrics` on `LocalCopilotCompletionProvider`.
+- **Enhanced `packages/extension/src/diagnostics-panel.ts`**
+  - Added `metrics?: MetricsSummary | null` to `DiagnosticsSnapshot`.
+  - Added **Completion Metrics** section to the webview diagnostics panel displaying Acceptance Rate %, Total Requests, Completions Generated/Accepted, Failed/Cancelled, Latency (P50/P95/Avg), and Code Volume (Chars/Lines Gen vs Acc).
+- **Updated `packages/extension/src/extension.ts` & `package.json`**
+  - Registered `localCopilot.completionAccepted`, `localCopilot.viewMetrics`, and `localCopilot.resetMetrics` commands.
+  - Populated live metrics in `buildDiagnosticsSnapshot`.
+- **Added Comprehensive Unit Tests across Packages**
+  - Added `metrics-tracker.test.ts` (9 unit tests in `@local-copilot/core`).
+  - Added metrics tracking tests in `completion-orchestrator.test.ts`, `completion-provider.test.ts`, `diagnostics-panel.test.ts`, and `extension.test.ts`.
+
+### Acceptance Criteria
+
+- [x] In-memory metrics tracking for total requests, successes, failures, cancellations, and cache hits/misses
+- [x] Acceptance rate tracking via VS Code inline completion acceptance command
+- [x] Accurate latency percentiles calculation (P50, P90, P95, P99, average, min, max)
+- [x] Code volume tracking (characters & lines generated vs accepted)
+- [x] Per-language metrics breakdown and recent error logging
+- [x] Real-time display in Diagnostics webview panel
+- [x] Reset metrics and view metrics commands registered and functional
+
+### Verification
+
+- `pnpm build` ✅ · `pnpm lint` ✅ · `pnpm typecheck` ✅
+- Full test suite: 345 passing tests (shared: 6, core: 164, extension: 175)
+- Knowledge graph updated (`graphify update .` → 340 nodes, 463 edges, 59 communities)
+
+---
 
 ## ✅ LC-029 — Status Bar Enhancements
 

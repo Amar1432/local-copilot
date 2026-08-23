@@ -41,7 +41,9 @@
     "onCommand:localCopilot.openSettings",
     "onCommand:localCopilot.setApiKey",
     "onCommand:localCopilot.deleteApiKey",
-    "onCommand:localCopilot.statusBarMenu"
+    "onCommand:localCopilot.statusBarMenu",
+    "onCommand:localCopilot.viewMetrics",
+    "onCommand:localCopilot.resetMetrics"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -49,6 +51,14 @@
       {
         "command": "localCopilot.statusBarMenu",
         "title": "Local Copilot: Status Bar Menu"
+      },
+      {
+        "command": "localCopilot.viewMetrics",
+        "title": "Local Copilot: View Completion Metrics"
+      },
+      {
+        "command": "localCopilot.resetMetrics",
+        "title": "Local Copilot: Reset Completion Metrics"
       },
       {
         "command": "localCopilot.enable",

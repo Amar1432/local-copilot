@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import type { ProviderConfig } from "@local-copilot/shared";
+import type { MetricsSummary } from "@local-copilot/core";
 
 const PANEL_VIEW_TYPE = "localCopilot.diagnostics";
 const PANEL_TITLE = "Local Copilot Diagnostics";
@@ -24,6 +25,7 @@ export interface DiagnosticsSnapshot {
         readonly maxSize: number;
       }
     | null;
+  readonly metrics?: MetricsSummary | null;
 }
 
 /**
@@ -130,7 +132,7 @@ export class DiagnosticsPanel implements vscode.Disposable {
  * panel adapts automatically to light/dark/high-contrast themes.
  */
 export function renderDiagnosticsHtml(snapshot: DiagnosticsSnapshot): string {
-  const { config } = snapshot;
+  const { config, metrics } = snapshot;
   const statusClass =
     snapshot.connectionState === "connected"
       ? "connected"
@@ -153,6 +155,14 @@ export function renderDiagnosticsHtml(snapshot: DiagnosticsSnapshot): string {
   const cacheEntries = snapshot.cacheStats
     ? `${snapshot.cacheStats.size} / ${snapshot.cacheStats.maxSize}`
     : "—";
+
+  const acceptanceRateText = metrics
+    ? `${(metrics.acceptanceRate * 100).toFixed(1)}% (${metrics.acceptedCompletions} / ${metrics.successfulCompletions || metrics.acceptedCompletions + metrics.dismissedCompletions})`
+    : "—";
+
+  const p50Text = metrics?.latency.p50Ms !== null && metrics?.latency.p50Ms !== undefined ? `${metrics.latency.p50Ms} ms` : "—";
+  const p95Text = metrics?.latency.p95Ms !== null && metrics?.latency.p95Ms !== undefined ? `${metrics.latency.p95Ms} ms` : "—";
+  const avgLatencyText = metrics?.latency.avgMs !== null && metrics?.latency.avgMs !== undefined ? `${metrics.latency.avgMs} ms` : "—";
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -255,6 +265,20 @@ export function renderDiagnosticsHtml(snapshot: DiagnosticsSnapshot): string {
       <tr><th>Context Max Lines</th><td>${config.contextMaxLines}</td></tr>
       <tr><th>Context Budget Preset</th><td>${escapeHtml(config.contextBudgetPreset ?? "balanced")}</td></tr>
       <tr><th>Telemetry</th><td>${config.telemetryEnabled ? "Enabled" : "Disabled"}</td></tr>
+    </table>
+  </section>
+
+  <section aria-labelledby="metrics-heading">
+    <h2 id="metrics-heading">Completion Metrics</h2>
+    <table>
+      <tr><th>Acceptance Rate</th><td>${escapeHtml(acceptanceRateText)}</td></tr>
+      <tr><th>Total Requests</th><td>${metrics ? metrics.totalRequests : "—"}</td></tr>
+      <tr><th>Completions Generated</th><td>${metrics ? metrics.successfulCompletions : "—"}</td></tr>
+      <tr><th>Completions Accepted</th><td>${metrics ? metrics.acceptedCompletions : "—"}</td></tr>
+      <tr><th>Failed / Cancelled</th><td>${metrics ? `${metrics.failedRequests} / ${metrics.cancelledRequests}` : "—"}</td></tr>
+      <tr><th>Latency (P50 / P95 / Avg)</th><td>${escapeHtml(`${p50Text} / ${p95Text} / ${avgLatencyText}`)}</td></tr>
+      <tr><th>Characters (Gen / Acc)</th><td>${metrics ? `${metrics.totalCharsGenerated} / ${metrics.totalCharsAccepted}` : "—"}</td></tr>
+      <tr><th>Lines (Gen / Acc)</th><td>${metrics ? `${metrics.totalLinesGenerated} / ${metrics.totalLinesAccepted}` : "—"}</td></tr>
     </table>
   </section>
 

@@ -133,4 +133,33 @@ describe("Extension Commands & selectModel", () => {
     expect(html).toContain("sk-...cdef");
     expect(html).not.toContain("sk-1234567890abcdef");
   });
+
+  it("should open diagnostics webview when localCopilot.viewMetrics is executed", async () => {
+    await activate(mockContext as unknown as vscode.ExtensionContext);
+
+    const handler = commandHandlers.get("localCopilot.viewMetrics");
+    expect(handler).toBeDefined();
+    await handler!();
+
+    expect(spy.webviewPanels).toHaveLength(1);
+    expect(spy.webviewPanels[0].viewType).toBe("localCopilot.diagnostics");
+  });
+
+  it("should handle localCopilot.completionAccepted and localCopilot.resetMetrics", async () => {
+    await activate(mockContext as unknown as vscode.ExtensionContext);
+
+    const acceptHandler = commandHandlers.get("localCopilot.completionAccepted");
+    expect(acceptHandler).toBeDefined();
+    await acceptHandler!({
+      text: "const x = 10;",
+      language: "typescript",
+      latencyMs: 100,
+    });
+
+    const resetHandler = commandHandlers.get("localCopilot.resetMetrics");
+    expect(resetHandler).toBeDefined();
+    await resetHandler!();
+
+    expect(spy.informationMessages).toContain("Completion metrics reset");
+  });
 });

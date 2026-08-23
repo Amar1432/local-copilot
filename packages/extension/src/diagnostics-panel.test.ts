@@ -210,6 +210,54 @@ describe("DiagnosticsPanel", () => {
     expect(mockPanel.webview.html).toContain("20 ms");
   });
 
+  it("should render completion metrics section with acceptance rate and latency percentiles", async () => {
+    snapshotLoader.mockResolvedValue(
+      makeSnapshot({
+        metrics: {
+          totalRequests: 10,
+          successfulCompletions: 8,
+          failedRequests: 1,
+          cancelledRequests: 1,
+          cacheHits: 4,
+          cacheMisses: 6,
+          cacheHitRate: 0.4,
+          acceptedCompletions: 6,
+          dismissedCompletions: 2,
+          acceptanceRate: 0.75,
+          totalCharsGenerated: 500,
+          totalCharsAccepted: 400,
+          totalLinesGenerated: 25,
+          totalLinesAccepted: 20,
+          latency: {
+            count: 8,
+            minMs: 50,
+            maxMs: 250,
+            avgMs: 120,
+            p50Ms: 100,
+            p90Ms: 200,
+            p95Ms: 220,
+            p99Ms: 250,
+            lastMs: 110,
+          },
+          languages: {},
+          recentErrors: [],
+        },
+      })
+    );
+
+    await panel.show();
+    const html = spy.webviewPanels[0].webview.html;
+    expect(html).toContain("Completion Metrics");
+    expect(html).toContain("75.0%");
+    expect(html).toContain(">10</td>"); // Total Requests
+    expect(html).toContain(">8</td>"); // Completions Generated
+    expect(html).toContain(">6</td>"); // Completions Accepted
+    expect(html).toContain("1 / 1"); // Failed / Cancelled
+    expect(html).toContain("100 ms / 220 ms / 120 ms"); // P50 / P95 / Avg
+    expect(html).toContain("500 / 400"); // Chars
+    expect(html).toContain("25 / 20"); // Lines
+  });
+
   it("should ignore unrecognized messages from the webview", async () => {
     await panel.show();
     const mockPanel = spy.webviewPanels[0];
