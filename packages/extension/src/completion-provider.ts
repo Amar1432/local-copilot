@@ -11,9 +11,15 @@ import { CompletionOrchestrator } from "./completion-orchestrator";
  */
 export class LocalCopilotCompletionProvider implements vscode.InlineCompletionItemProvider {
   private orchestrator: CompletionOrchestrator;
+  private readonly onLatencyUpdate?: (latencyMs: number | null) => void;
 
-  constructor(config: ProviderConfig, contextProviders: ContextProvider[] = []) {
+  constructor(
+    config: ProviderConfig,
+    contextProviders: ContextProvider[] = [],
+    onLatencyUpdate?: (latencyMs: number | null) => void
+  ) {
     this.orchestrator = new CompletionOrchestrator(config, undefined, contextProviders);
+    this.onLatencyUpdate = onLatencyUpdate;
   }
 
   /**
@@ -73,6 +79,10 @@ export class LocalCopilotCompletionProvider implements vscode.InlineCompletionIt
       cursorCharacter: position.character,
       cancellationToken: token,
     });
+
+    if (this.orchestrator.latencyMs !== null && this.onLatencyUpdate) {
+      this.onLatencyUpdate(this.orchestrator.latencyMs);
+    }
 
     if (!result || token.isCancellationRequested) {
       return { items: [] };

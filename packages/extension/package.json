@@ -40,11 +40,16 @@
     "onCommand:localCopilot.clearCache",
     "onCommand:localCopilot.openSettings",
     "onCommand:localCopilot.setApiKey",
-    "onCommand:localCopilot.deleteApiKey"
+    "onCommand:localCopilot.deleteApiKey",
+    "onCommand:localCopilot.statusBarMenu"
   ],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
+      {
+        "command": "localCopilot.statusBarMenu",
+        "title": "Local Copilot: Status Bar Menu"
+      },
       {
         "command": "localCopilot.enable",
         "title": "Local Copilot: Enable"

@@ -23,11 +23,11 @@
 ### Planned Tickets
 
 - [x] LC-028: Webview Diagnostics Panel
-- [ ] LC-029: Status Bar Enhancements
+- [x] LC-029: Status Bar Enhancements
 - [ ] LC-030: Completion Metrics Tracker
 - [ ] LC-031: Expanded Language Support
 - [ ] LC-032: Toggle Command & Quick Settings
 - [ ] LC-033: Setup Wizard Command
 - [ ] LC-034: Diagnostics Command Improvements
 
-**Next Ticket:** LC-029 — Status Bar Enhancements
+**Next Ticket:** LC-030 — Completion Metrics Tracker

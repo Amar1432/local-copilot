@@ -9,7 +9,7 @@ import {
   type ImportFileAccess,
 } from "@local-copilot/core";
 import { getConfiguration, onConfigurationChanged } from "./configuration";
-import { StatusBarManager } from "./status-bar";
+import { StatusBarManager, showStatusBarQuickMenu } from "./status-bar";
 import { LocalCopilotCompletionProvider } from "./completion-provider";
 import { SecretManager } from "./secret-manager";
 import { ModelDiscoveryService } from "@local-copilot/core";
@@ -50,15 +50,24 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   const config = await getEffectiveConfig(secretManager);
 
   // Status bar
-  statusBar = new StatusBarManager();
-  statusBar.setStatus("disconnected", config.localOnly);
+  statusBar = new StatusBarManager({
+    status: "disconnected",
+    localOnly: config.localOnly,
+    model: config.model,
+    provider: config.provider,
+    enabled: config.enabled,
+  });
   context.subscriptions.push(statusBar);
 
   // Initialize context providers for multi-file context gathering
   const contextProviders = createContextProviders();
 
-  // Completion provider
-  completionProvider = new LocalCopilotCompletionProvider(config, contextProviders);
+  // Completion provider (passes latency updates to the status bar)
+  completionProvider = new LocalCopilotCompletionProvider(
+    config,
+    contextProviders,
+    (latencyMs) => statusBar?.setLatency(latencyMs)
+  );
   registerCompletionProvider(context, completionProvider);
 
   // Commands
@@ -79,7 +88,13 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     onConfigurationChanged(async (newConfig) => {
       const effective = await getEffectiveConfig(secretManager);
       completionProvider?.updateConfig(effective);
-      statusBar?.setStatus("disconnected", newConfig.localOnly);
+      statusBar?.update({
+        status: "disconnected",
+        localOnly: newConfig.localOnly,
+        model: newConfig.model,
+        provider: newConfig.provider,
+        enabled: newConfig.enabled,
+      });
       await diagnosticsPanel?.update();
     })
   );
@@ -293,23 +308,31 @@ function registerCommands(
 
   context.subscriptions.push(
     vscode.commands.registerCommand("localCopilot.testConnection", async () => {
-      status.setStatus("checking", getConfiguration().localOnly);
+      const cfg = getConfiguration();
+      status.setStatus("checking", cfg.localOnly, cfg.model);
       vscode.window.showInformationMessage("Testing connection...");
       try {
         const connected = await completionProvider?.orchestratorInstance.testProviderConnection();
+        const latency = completionProvider?.orchestratorInstance.latencyMs;
         if (connected) {
-          status.setStatus("connected", getConfiguration().localOnly);
+          status.setStatus("connected", cfg.localOnly, cfg.model, latency);
           vscode.window.showInformationMessage("Connection successful!");
         } else {
-          status.setStatus("disconnected", getConfiguration().localOnly);
+          status.setStatus("disconnected", cfg.localOnly, cfg.model);
           vscode.window.showErrorMessage("Connection failed. Check your provider settings.");
         }
       } catch {
-        status.setStatus("disconnected", getConfiguration().localOnly);
+        status.setStatus("disconnected", cfg.localOnly, cfg.model);
         vscode.window.showErrorMessage("Connection test failed.");
       } finally {
         await diagnosticsPanel?.update();
       }
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand("localCopilot.statusBarMenu", async () => {
+      await showStatusBarQuickMenu();
     })
   );
 

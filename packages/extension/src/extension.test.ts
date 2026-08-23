@@ -32,6 +32,7 @@ describe("Extension Commands & selectModel", () => {
     expect(commandHandlers.has("localCopilot.showDiagnostics")).toBe(true);
     expect(commandHandlers.has("localCopilot.setApiKey")).toBe(true);
     expect(commandHandlers.has("localCopilot.deleteApiKey")).toBe(true);
+    expect(commandHandlers.has("localCopilot.statusBarMenu")).toBe(true);
   });
 
   it("should open QuickPick with popular models and allow selecting a model", async () => {

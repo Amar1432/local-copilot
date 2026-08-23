@@ -4,8 +4,8 @@
 
 **Project:** Local Copilot (VS Code AI Autocomplete Extension)
 **Current Sprint:** Sprint 5 — Extension UI & Diagnostics
-**Active Ticket:** LC-029 — Status Bar Enhancements
-**Overall Progress:** 28/38 tickets completed
+**Active Ticket:** LC-030 — Completion Metrics Tracker
+**Overall Progress:** 29/38 tickets completed
 
 ### Key Components
 
@@ -48,10 +48,55 @@
 - [x] LC-025: Implement Context Window Budgeting
 - [x] LC-026: Implement Cross-File Deduplication
 - [x] LC-027: Integrate Multi-File Context with Orchestrator
+- [x] LC-028: Webview Diagnostics Panel
+- [x] LC-029: Status Bar Enhancements
 
 ---
 
 <!-- Newest session logs are prepended below this line (latest on top) -->
+
+## ✅ LC-029 — Status Bar Enhancements
+
+**Date/Time:** 2026-08-23 | **Agent:** Antigravity | **Ticket:** LC-029
+
+### Summary
+
+Enhanced the status bar manager with active model display, dynamic latency indicators, rich multi-line tooltips, comprehensive state management, and an interactive Quick Actions menu (`localCopilot.statusBarMenu`).
+
+### Changes Made
+
+- **Enhanced `packages/extension/src/status-bar.ts`**
+  - Added `StatusBarState` interface and full state-tracking capabilities (status, localOnly, model, provider, latencyMs, enabled).
+  - Enhanced text formatting: displays active model name (e.g. `$(plug) AI: Local (qwen-coder)`) and latency (e.g. `$(plug) AI: Local (qwen-coder) (145ms)` or `$(check) AI: Connected (gpt-4o) (280ms)`), with fallback for disabled (`$(circle-slash) AI: Disabled`) and offline states.
+  - Implemented rich multi-line tooltips detailing status, provider, model name, and request latency.
+  - Implemented `showStatusBarQuickMenu()` action menu presenting toggle enable/disable, model selection, provider selection, API key configuration, connection testing, diagnostics panel, cache clearing, and settings.
+  - Added helper methods: `update()`, `setLatency()`, `setModel()`, `setProvider()`, `setEnabled()`, and `getState()`.
+- **Wired into `packages/extension/src/extension.ts` & `completion-provider.ts`**
+  - Registered `localCopilot.statusBarMenu` command.
+  - Linked completion provider latency callbacks to update the status bar dynamically upon completion.
+  - Updated configuration change listeners and connection test workflows to refresh model and latency state in the status bar.
+- **Updated `packages/extension/package.json`**
+  - Declared `localCopilot.statusBarMenu` in `activationEvents` and `contributes.commands`.
+- **Added Comprehensive Unit Tests in `status-bar.test.ts` & `extension.test.ts`**
+  - Expanded `status-bar.test.ts` to 31 tests covering lifecycle, model formatting, latency indicators, rich tooltips, quick menu execution, and state manipulation methods.
+  - Added command registration verification in `extension.test.ts`.
+
+### Acceptance Criteria
+
+- [x] Status bar displays active model name when configured
+- [x] Status bar displays last request latency indicator
+- [x] Status bar item opens interactive Quick Actions menu
+- [x] Status bar reflects local-only, remote, checking, offline, and disabled states
+- [x] Tooltip displays rich metadata (provider, model, latency, status)
+- [x] Backward compatibility preserved for existing status bar consumers
+
+### Verification
+
+- `pnpm build` ✅ · `pnpm lint` ✅ · `pnpm typecheck` ✅
+- Full test suite: 329 passing tests (shared: 6, core: 155, extension: 168)
+- Knowledge graph updated (`graphify update .` → 314 nodes, 416 edges, 57 communities)
+
+---
 
 ## ✅ LC-028 — Webview Diagnostics Panel
 
