@@ -3,9 +3,9 @@
 ## Project State Summary
 
 **Project:** Local Copilot (VS Code AI Autocomplete Extension)
-**Current Sprint:** Sprint 5 — Extension UI & Diagnostics
-**Active Ticket:** — (Sprint 5 complete — awaiting next sprint/backlog)
-**Overall Progress:** 38/38 tickets completed
+**Current Sprint:** Sprint 6 — Testing, Evaluation & Polish
+**Active Ticket:** LC-036 — Implement Online Metrics
+**Overall Progress:** 39/42 tickets completed
 
 ### Key Components
 
@@ -52,10 +52,54 @@
 - [x] LC-029: Status Bar Enhancements
 - [x] LC-030: Completion Metrics Tracker
 - [x] LC-031: Expanded Language Support
+- [x] LC-032: Toggle Command & Quick Settings
+- [x] LC-033: Setup Wizard Command
+- [x] LC-034: Diagnostics Command Improvements
+- [x] LC-035: Build Benchmark Tooling
 
 ---
 
 <!-- Newest session logs are prepended below this line (latest on top) -->
+
+## ✅ LC-035 — Build Benchmark Tooling
+
+**Date/Time:** 2026-08-23 | **Agent:** Antigravity | **Ticket:** LC-035
+
+### Summary
+
+Built the automated evaluation and benchmark framework in `@local-copilot/core`, measuring P50/P90/P95/P99 latencies, exact/prefix match rates, Levenshtein edit distance, normalized similarity, token Jaccard similarity, and language/category breakdowns against a curated multi-language test corpus.
+
+### Changes Made
+
+- **`packages/core/src/evaluation/evaluation.types.ts`**
+  - Defined `BenchmarkCase`, `BenchmarkScenarioResult`, `PercentileMetrics`, `AccuracyMetrics`, `GroupMetrics`, `BenchmarkSummary`, `BenchmarkOptions`, and `CompletionExecutor`.
+- **`packages/core/src/evaluation/similarity.ts`**
+  - Implemented `computeLevenshteinDistance`, `computeNormalizedSimilarity` (0.0 to 1.0), `isExactMatch`, `isPrefixMatch`, `computeTokenJaccard`, and `computePercentiles` (P50, P90, P95, P99, mean, median, min, max).
+- **`packages/core/src/evaluation/datasets/default-dataset.ts`**
+  - Curated multi-language benchmark cases across TypeScript, JavaScript, Python, Go, Rust, and Java covering function bodies, control flow, type definitions, and algorithmic idioms.
+- **`packages/core/src/evaluation/benchmark-runner.ts`**
+  - Created `BenchmarkRunner` class supporting case filtering (by language, category, tags), warmup runs, multiple iterations per case, error isolation, language/category breakdowns, and formatted report generators (`formatMarkdownReport`, `formatJsonReport`).
+- **`packages/core/src/index.ts` & `package.json`**
+  - Re-exported evaluation tools from core root. Added `pnpm benchmark` script in root `package.json`.
+- **`benchmarks/run-benchmark.ts`**
+  - Created standalone CLI benchmark runner script with live endpoint / mock completion execution modes.
+- **Unit Tests (`packages/core/src/evaluation/benchmark.test.ts`)**
+  - Added 19 comprehensive unit tests verifying distance, similarity, percentiles, runner execution, filters, warmup, and report generation (100% passing).
+
+### Acceptance Criteria
+
+- [x] Benchmark runs against test corpus
+- [x] Benchmark reports P50/P95/P99 latency profile
+- [x] Benchmark measures acceptance-like score (exact match, prefix match, normalized similarity)
+- [x] Benchmark produces repeatable results and structured reports
+
+### Verification
+
+- `pnpm test` ✅ (386 passing tests: shared 6, core 191, extension 189)
+- `pnpm lint` ✅ · `pnpm typecheck` ✅ · `pnpm build` ✅
+- Knowledge graph updated (`graphify update .` → 365 nodes, 502 edges, 63 communities)
+
+---
 
 ## ✅ LC-034 — Diagnostics Command Improvements
 

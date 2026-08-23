@@ -29,9 +29,15 @@
 - [x] LC-033: Setup Wizard Command
 - [x] LC-034: Diagnostics Command Improvements
 
----
+## Sprint 6 — Testing, Evaluation & Polish
 
-## Up Next
+**Status:** IN PROGRESS
 
-All planned Sprint 5 tickets are complete (32/38 → 38/38 overall). New work can be
-planned for Sprint 6 or opened as follow-up tickets.
+### Planned Tickets
+
+- [x] LC-035: Build Benchmark Tooling
+- [ ] LC-036: Implement Online Metrics
+- [ ] LC-037: Performance Optimization
+- [ ] LC-038: Documentation & Packaging
+
+**Next Ticket:** LC-036 — Implement Online Metrics
