@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Amar1432/local-copilot.git"
+  },
   "description": "Private, Fast, Configurable AI Autocomplete for VS Code",
   "engines": {
     "node": ">=18.0.0",

@@ -6,7 +6,7 @@
   "publisher": "local-copilot",
   "repository": {
     "type": "git",
-    "url": "https://github.com/local-copilot/local-copilot"
+    "url": "https://github.com/Amar1432/local-copilot.git"
   },
   "license": "MIT",
   "engines": {
