@@ -52,7 +52,9 @@
     "onCommand:localCopilot.resetMetrics",
     "onCommand:localCopilot.toggle",
     "onCommand:localCopilot.quickSettings",
-    "onCommand:localCopilot.setupWizard"
+    "onCommand:localCopilot.setupWizard",
+    "onCommand:localCopilot.refreshDiagnostics",
+    "onCommand:localCopilot.exportDiagnostics"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -124,6 +126,14 @@
       {
         "command": "localCopilot.setupWizard",
         "title": "Local Copilot: Setup Wizard"
+      },
+      {
+        "command": "localCopilot.refreshDiagnostics",
+        "title": "Local Copilot: Refresh Diagnostics"
+      },
+      {
+        "command": "localCopilot.exportDiagnostics",
+        "title": "Local Copilot: Export Diagnostics to Clipboard"
       }
     ],
     "configuration": {

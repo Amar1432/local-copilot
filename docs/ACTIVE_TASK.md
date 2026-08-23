@@ -18,15 +18,20 @@
 
 ## Sprint 5 — Extension UI & Diagnostics
 
-**Status:** IN PROGRESS
+**Status:** ✅ COMPLETE
 
-### Planned Tickets
+### Completed Tickets
 
 - [x] LC-028: Webview Diagnostics Panel
 - [x] LC-029: Status Bar Enhancements
 - [x] LC-031: Expanded Language Support
 - [x] LC-032: Toggle Command & Quick Settings
 - [x] LC-033: Setup Wizard Command
-- [ ] LC-034: Diagnostics Command Improvements
+- [x] LC-034: Diagnostics Command Improvements
 
-**Next Ticket:** LC-034 — Diagnostics Command Improvements
+---
+
+## Up Next
+
+All planned Sprint 5 tickets are complete (32/38 → 38/38 overall). New work can be
+planned for Sprint 6 or opened as follow-up tickets.

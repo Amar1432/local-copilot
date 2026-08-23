@@ -86,12 +86,31 @@ export class DiagnosticsPanel implements vscode.Disposable {
     panel.webview.onDidReceiveMessage(
       (message: unknown) => {
         if (
-          typeof message === "object" &&
-          message !== null &&
-          "command" in message &&
-          (message as { command: unknown }).command === "refresh"
+          typeof message !== "object" ||
+          message === null ||
+          !("command" in message)
         ) {
-          void this.refresh();
+          return;
+        }
+        const command = (message as { command: unknown }).command;
+        switch (command) {
+          case "refresh":
+            void this.refresh();
+            break;
+          case "clearCache":
+            void vscode.commands.executeCommand("localCopilot.clearCache");
+            break;
+          case "resetMetrics":
+            void vscode.commands.executeCommand("localCopilot.resetMetrics");
+            break;
+          case "export":
+            void vscode.commands.executeCommand("localCopilot.exportDiagnostics");
+            break;
+          case "openSettings":
+            void vscode.commands.executeCommand("localCopilot.openSettings");
+            break;
+          default:
+            break;
         }
       },
       null,
@@ -234,6 +253,18 @@ export function renderDiagnosticsHtml(snapshot: DiagnosticsSnapshot): string {
   .dot.connected { background-color: var(--lc-connected); }
   .dot.checking { background-color: var(--lc-warning); }
   .dot.disconnected { background-color: var(--lc-error); }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .actions button {
+    background-color: var(--vscode-button-background, #007acc);
+    color: var(--vscode-button-foreground, #ffffff);
+    border: none;
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-family: inherit;
+    font-size: inherit;
+    cursor: pointer;
+  }
+  .actions button:hover { background-color: var(--vscode-button-hoverBackground, #0a6ebd); }
 </style>
 </head>
 <body aria-label="Local Copilot Diagnostics">
@@ -299,6 +330,17 @@ export function renderDiagnosticsHtml(snapshot: DiagnosticsSnapshot): string {
     </table>
   </section>
 
+  <section aria-labelledby="actions-heading">
+    <h2 id="actions-heading">Actions</h2>
+    <div class="actions">
+      <button type="button" data-action="refresh">Refresh</button>
+      <button type="button" data-action="clearCache">Clear Cache</button>
+      <button type="button" data-action="resetMetrics">Reset Metrics</button>
+      <button type="button" data-action="export">Export JSON</button>
+      <button type="button" data-action="openSettings">Open Settings</button>
+    </div>
+  </section>
+
 <script>
 (function () {
   var vscodeApi = acquireVsCodeApi();
@@ -306,6 +348,11 @@ export function renderDiagnosticsHtml(snapshot: DiagnosticsSnapshot): string {
     if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'r') {
       vscodeApi.postMessage({ command: 'refresh' });
     }
+  });
+  document.querySelectorAll('button[data-action]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      vscodeApi.postMessage({ command: btn.getAttribute('data-action') });
+    });
   });
 })();
 </script>

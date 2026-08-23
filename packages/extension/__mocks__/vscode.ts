@@ -212,6 +212,7 @@ export class MockWebviewPanel {
 export const spy = {
   informationMessages: [] as string[],
   commands: [] as { command: string; args: unknown[] }[],
+  clipboardText: "" as string,
   configurationUpdates: [] as {
     section: string;
     key: string;
@@ -230,6 +231,7 @@ export const spy = {
 export function resetMocks(): void {
   spy.informationMessages = [];
   spy.commands = [];
+  spy.clipboardText = "";
   spy.configurationUpdates = [];
   spy.statusBarItem = null;
   spy.webviewPanels = [];
@@ -345,6 +347,14 @@ export const window = {
 // ---------------------------------------------------------------------------
 // commands namespace
 // ---------------------------------------------------------------------------
+
+export const env = {
+  clipboard: {
+    writeText: async (text: string): Promise<void> => {
+      spy.clipboardText = text;
+    },
+  },
+};
 
 export const commands = {
   registerCommand: (command: string, callback: (...args: unknown[]) => unknown): MockDisposable => {

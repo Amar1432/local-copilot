@@ -4,8 +4,8 @@
 
 **Project:** Local Copilot (VS Code AI Autocomplete Extension)
 **Current Sprint:** Sprint 5 — Extension UI & Diagnostics
-**Active Ticket:** LC-034 — Diagnostics Command Improvements
-**Overall Progress:** 33/38 tickets completed
+**Active Ticket:** — (Sprint 5 complete — awaiting next sprint/backlog)
+**Overall Progress:** 38/38 tickets completed
 
 ### Key Components
 
@@ -56,6 +56,45 @@
 ---
 
 <!-- Newest session logs are prepended below this line (latest on top) -->
+
+## ✅ LC-034 — Diagnostics Command Improvements
+
+**Date/Time:** 2026-08-23 | **Agent:** Ryan (ryan-mt5cdet4) | **Ticket:** LC-034
+
+### Summary
+
+Improved diagnostics UX by wiring webview action messages (Refresh, Clear Cache, Reset Metrics, Export JSON, Open Settings) to helper commands and adding an interactive action-button bar to the diagnostics panel. Added two new commands: `localCopilot.refreshDiagnostics` and `localCopilot.exportDiagnostics` (copies the full diagnostics snapshot JSON to the clipboard via `vscode.env.clipboard.writeText`).
+
+### Changes Made
+
+- **`packages/extension/src/diagnostics-panel.ts`**
+  - Replaced the single `refresh` message handler with a `switch` routing webview messages to helper commands: `refresh` → re-render, `clearCache`/`resetMetrics`/`export`/`openSettings` → corresponding `localCopilot.*` commands.
+  - Added an **Actions** section with buttons (`data-action="refresh|clearCache|resetMetrics|export|openSettings"`), button styling via VS Code theme variables, and click listeners in the webview script that `postMessage` the action.
+- **`packages/extension/src/extension.ts`**
+  - Registered `localCopilot.refreshDiagnostics` (re-renders the panel) and `localCopilot.exportDiagnostics` (builds snapshot JSON, writes to clipboard, notifies).
+- **`packages/extension/package.json`**
+  - Declared `localCopilot.refreshDiagnostics` and `localCopilot.exportDiagnostics` in `contributes.commands` + `activationEvents` (`onCommand:`).
+- **`packages/extension/__mocks__/vscode.ts`**
+  - Added `env.clipboard.writeText` (records to `spy.clipboardText`) and reset it in `resetMocks` so the export command is testable.
+- **Tests**
+  - `diagnostics-panel.test.ts`: 6 new tests — webview messages route to the correct commands, refresh still re-renders, and the panel renders all five action buttons.
+  - `extension.test.ts`: asserts both new commands register, `exportDiagnostics` writes snapshot JSON to clipboard, and `refreshDiagnostics` refreshes without error.
+
+### Acceptance Criteria
+
+- [x] Webview message actions for Refresh, Clear Cache, Reset Metrics, Export, Open Settings
+- [x] Helper commands registered (refreshDiagnostics, exportDiagnostics); existing clearCache/resetMetrics/openSettings reused
+- [x] Export writes diagnostics JSON to clipboard via `vscode.env.clipboard.writeText`
+- [x] Unit tests in diagnostics-panel.test.ts and extension.test.ts
+
+### Verification
+
+- `pnpm test` ✅ · `pnpm lint` ✅ · `pnpm typecheck` ✅ · `pnpm build` ✅
+- Full extension suite: 189 passing tests (12 files)
+- Knowledge graph updated (`graphify update .` → 344 nodes, 477 edges, 59 communities)
+- Sprint 5 marked COMPLETE (38/38 tickets overall)
+
+---
 
 ## ✅ LC-033 — Setup Wizard Command
 

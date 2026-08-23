@@ -37,6 +37,29 @@ describe("Extension Commands & selectModel", () => {
     expect(commandHandlers.has("localCopilot.toggle")).toBe(true);
     expect(commandHandlers.has("localCopilot.quickSettings")).toBe(true);
     expect(commandHandlers.has("localCopilot.setupWizard")).toBe(true);
+    expect(commandHandlers.has("localCopilot.refreshDiagnostics")).toBe(true);
+    expect(commandHandlers.has("localCopilot.exportDiagnostics")).toBe(true);
+  });
+
+  it("should export diagnostics JSON to the clipboard via localCopilot.exportDiagnostics", async () => {
+    await activate(mockContext as unknown as vscode.ExtensionContext);
+
+    const handler = commandHandlers.get("localCopilot.exportDiagnostics");
+    expect(handler).toBeDefined();
+    await handler!();
+
+    expect(spy.clipboardText).toContain("extensionVersion");
+    expect(spy.clipboardText).toContain("config");
+    expect(spy.informationMessages).toContain("Diagnostics exported to clipboard.");
+  });
+
+  it("should refresh diagnostics without throwing via localCopilot.refreshDiagnostics", async () => {
+    await activate(mockContext as unknown as vscode.ExtensionContext);
+
+    const handler = commandHandlers.get("localCopilot.refreshDiagnostics");
+    expect(handler).toBeDefined();
+    await expect(handler!()).resolves.toBeUndefined();
+    expect(spy.informationMessages).toContain("Diagnostics refreshed.");
   });
 
   it("should run setup wizard and apply provider/baseUrl/model and save API key", async () => {

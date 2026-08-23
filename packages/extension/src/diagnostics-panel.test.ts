@@ -267,4 +267,79 @@ describe("DiagnosticsPanel", () => {
 
     expect(snapshotLoader.mock.calls.length).toBe(callsBefore);
   });
+
+  // -----------------------------------------------------------------------
+  // Webview action messages route to helper commands
+  // -----------------------------------------------------------------------
+
+  it("should route a clearCache webview message to the localCopilot.clearCache command", async () => {
+    await panel.show();
+    spy.webviewPanels[0].webview.post({ command: "clearCache" });
+
+    expect(
+      spy.commands.some((c) => c.command === "localCopilot.clearCache")
+    ).toBe(true);
+  });
+
+  it("should route a resetMetrics webview message to the localCopilot.resetMetrics command", async () => {
+    await panel.show();
+    spy.webviewPanels[0].webview.post({ command: "resetMetrics" });
+
+    expect(
+      spy.commands.some((c) => c.command === "localCopilot.resetMetrics")
+    ).toBe(true);
+  });
+
+  it("should route an export webview message to the localCopilot.exportDiagnostics command", async () => {
+    await panel.show();
+    spy.webviewPanels[0].webview.post({ command: "export" });
+
+    expect(
+      spy.commands.some((c) => c.command === "localCopilot.exportDiagnostics")
+    ).toBe(true);
+  });
+
+  it("should route an openSettings webview message to the localCopilot.openSettings command", async () => {
+    await panel.show();
+    spy.webviewPanels[0].webview.post({ command: "openSettings" });
+
+    expect(
+      spy.commands.some((c) => c.command === "localCopilot.openSettings")
+    ).toBe(true);
+  });
+
+  it("should still refresh when the webview posts a refresh message", async () => {
+    let counter = 0;
+    snapshotLoader.mockImplementation(async () => {
+      counter += 1;
+      return makeSnapshot({ latencyMs: counter * 7 });
+    });
+
+    await panel.show();
+    const mockPanel = spy.webviewPanels[0];
+
+    mockPanel.webview.post({ command: "refresh" });
+    await vi.waitFor(() => {
+      expect(mockPanel.webview.html).toContain("14 ms");
+    });
+  });
+
+  // -----------------------------------------------------------------------
+  // Action buttons (UX)
+  // -----------------------------------------------------------------------
+
+  it("should render action buttons for all diagnostics actions", async () => {
+    await panel.show();
+    const html = spy.webviewPanels[0].webview.html;
+
+    for (const action of [
+      "refresh",
+      "clearCache",
+      "resetMetrics",
+      "export",
+      "openSettings",
+    ]) {
+      expect(html).toContain(`data-action="${action}"`);
+    }
+  });
 });

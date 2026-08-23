@@ -388,6 +388,24 @@ function registerCommands(
   );
 
   context.subscriptions.push(
+    vscode.commands.registerCommand("localCopilot.refreshDiagnostics", async () => {
+      await diagnosticsPanel?.update();
+      vscode.window.showInformationMessage("Diagnostics refreshed.");
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand("localCopilot.exportDiagnostics", async () => {
+      const snapshot = await buildDiagnosticsSnapshot(
+        context.extension?.packageJSON?.version ?? "unknown"
+      );
+      const json = JSON.stringify(snapshot, null, 2);
+      await vscode.env.clipboard.writeText(json);
+      vscode.window.showInformationMessage("Diagnostics exported to clipboard.");
+    })
+  );
+
+  context.subscriptions.push(
     vscode.commands.registerCommand("localCopilot.toggle", async () => {
       const cfg = vscode.workspace.getConfiguration("localCopilot");
       const current = cfg.get<boolean>("enabled", true);
