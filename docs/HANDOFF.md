@@ -3,9 +3,9 @@
 ## Project State Summary
 
 **Project:** Local Copilot (VS Code AI Autocomplete Extension)
-**Current Sprint:** Sprint 4 — Context Engine & Multi-File Support
-**Active Ticket:** Sprint 5 — Next Ticket TBD
-**Overall Progress:** 27/38 tickets completed
+**Current Sprint:** Sprint 5 — Extension UI & Diagnostics
+**Active Ticket:** LC-029 — Status Bar Enhancements
+**Overall Progress:** 28/38 tickets completed
 
 ### Key Components
 
@@ -52,6 +52,69 @@
 ---
 
 <!-- Newest session logs are prepended below this line (latest on top) -->
+
+## ✅ LC-028 — Webview Diagnostics Panel
+
+**Date/Time:** 2026-08-23 | **Agent:** OpenCode | **Ticket:** LC-028
+
+### Summary
+
+Replaced the modal diagnostics dialog (`vscode.window.showInformationMessage` with `{ modal: true }`) with a real-time VS Code **webview panel** that opens via the existing `Local Copilot: Show Diagnostics` command.
+
+### Changes Made
+
+- **Created `packages/extension/src/diagnostics-panel.ts`**
+  - `DiagnosticsPanel` class: shows/reveals a single webview panel (`localCopilot.diagnostics`), pulls a fresh `DiagnosticsSnapshot` on every `show()`/`update()`, and listens for a `refresh` message from the webview to re-render.
+  - `renderDiagnosticsHtml()` builds accessible, semantic HTML styled **exclusively with VS Code theme variables** (per `docs/DESIGN_SYSTEM.md` theming rules), with status colors falling back to the design-system palette via CSS variables. Sensitive values are escaped via `escapeHtml()`.
+  - Panel sections: Provider (version/provider/model/base URL/masked API key/local-only), Configuration (debounce/timeout/tokens/temperature/context/telemetry), Last Request (status + latency), Cache Stats (hits/misses/entries).
+- **Wired into `packages/extension/src/extension.ts`**
+  - `localCopilot.showDiagnostics` now opens the panel instead of a modal.
+  - Panel is `context.subscriptions`-owned and disposed on deactivate.
+  - Re-renders in real time on configuration changes and after `testConnection` (via `diagnosticsPanel.update()`).
+- **Extended `__mocks__/vscode.ts`** with `ViewColumn` enum and a `MockWebviewPanel`/`MockWebview` (tracking html, visibility, dispose, and `onDidReceiveMessage`/`post`).
+- **Added `packages/extension/src/diagnostics-panel.test.ts`** (15 tests covering lifecycle, content, masking, real-time updates, message handling) and updated `extension.test.ts` to assert the webview opens with the masked key.
+
+### Acceptance Criteria
+
+- [x] `Show Diagnostics` opens a webview panel (not a modal)
+- [x] Panel shows provider and model info
+- [x] Panel shows last request latency and connection status
+- [x] Panel shows cache hit/miss counts
+- [x] Panel masks sensitive API key values
+- [x] Panel updates in real time (config change) without reopening
+
+### Verification
+
+- `pnpm build` ✅ · `pnpm lint` ✅ · `pnpm typecheck` ✅
+- Full suite: shared 6, core 155, extension 152 tests passing
+- Knowledge graph updated (`graphify update .` → 307 nodes, 402 edges)
+
+---
+
+## 📋 Sprint 5 Planning — Extension UI & Diagnostics
+
+**Date/Time:** 2026-08-23 | **Agent:** Freebuff | **Ticket:** SPRINT-5-PLAN
+
+### Sprint 5 Scope (7 tickets)
+
+| Ticket | Title | Description |
+|--------|-------|-------------|
+| LC-028 | Webview Diagnostics Panel | Replace modal diagnostics with a real-time webview panel |
+| LC-029 | Status Bar Enhancements | Model name in status bar, latency indicator, right-click menu |
+| LC-030 | Completion Metrics Tracker | Track acceptance rate, latency, cache hits, errors |
+| LC-031 | Expanded Language Support | Add Python, Go, Rust, Java to tracked languages |
+| LC-032 | Toggle Command & Quick Settings | Inline toggle + quick-pick for common settings |
+| LC-033 | Setup Wizard Command | Guided first-time setup flow |
+| LC-034 | Diagnostics Command Improvements | Better UX for existing commands |
+
+### Key Design Decisions
+
+- Diagnostics panel uses VS Code webview API (not modal info message)
+- Status bar retains existing click-to-open-settings behavior, adds right-click menu
+- Metrics tracker integrates with `CompletionOrchestrator` and VS Code acceptance APIs
+- Language expansion includes FIM token updates in core package
+
+---
 
 ## ⚡ Fix: Inline Context Slicing, Ghost Text Repetition & FIM Support
 

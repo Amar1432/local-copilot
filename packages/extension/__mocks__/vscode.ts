@@ -23,6 +23,14 @@ export enum ConfigurationTarget {
   WorkspaceFolder = 3,
 }
 
+export enum ViewColumn {
+  Active = -1,
+  Beside = -2,
+  One = 1,
+  Two = 2,
+  Three = 3,
+}
+
 // ---------------------------------------------------------------------------
 // Classes
 // ---------------------------------------------------------------------------
@@ -133,6 +141,71 @@ export class MockSecretStorage {
 }
 
 // ---------------------------------------------------------------------------
+// Mock webview panel — tracks html, visibility, dispose, messages
+// ---------------------------------------------------------------------------
+
+export interface MockWebviewMessage {
+  command: string;
+}
+
+export class MockWebview {
+  html = "";
+  private messageListeners: Array<(message: unknown) => void> = [];
+
+  onDidReceiveMessage(listener: (message: unknown) => void): MockDisposable {
+    this.messageListeners.push(listener);
+    return new MockDisposable();
+  }
+
+  post(message: unknown): void {
+    for (const listener of this.messageListeners) {
+      listener(message);
+    }
+  }
+}
+
+export class MockWebviewPanel {
+  title = "";
+  viewType = "";
+  visible = false;
+  disposed = false;
+  webview = new MockWebview();
+  private disposeListeners: Array<() => void> = [];
+  private viewStateListeners: Array<() => void> = [];
+
+  reveal(_column?: ViewColumn, _preserveFocus?: boolean): void {
+    this.visible = true;
+    for (const listener of this.viewStateListeners) {
+      listener();
+    }
+  }
+
+  onDidDispose(listener: () => void): MockDisposable {
+    this.disposeListeners.push(listener);
+    return new MockDisposable();
+  }
+
+  onDidChangeViewState(_listener: () => void): MockDisposable {
+    return new MockDisposable();
+  }
+
+  dispose(): void {
+    if (this.disposed) return;
+    const wasVisible = this.visible;
+    this.disposed = true;
+    this.visible = false;
+    for (const listener of this.disposeListeners) {
+      listener();
+    }
+    if (wasVisible) {
+      for (const listener of this.viewStateListeners) {
+        listener();
+      }
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Spy trackers — record calls for assertions
 // ---------------------------------------------------------------------------
 
@@ -146,6 +219,7 @@ export const spy = {
     target: unknown;
   }[],
   statusBarItem: null as MockStatusBarItem | null,
+  webviewPanels: [] as MockWebviewPanel[],
   secrets: new MockSecretStorage(),
 };
 
@@ -157,6 +231,7 @@ export function resetMocks(): void {
   spy.commands = [];
   spy.configurationUpdates = [];
   spy.statusBarItem = null;
+  spy.webviewPanels = [];
   spy.secrets.clear();
 
   mockConfig.enabled = true;
@@ -240,6 +315,19 @@ export const window = {
     const item = new MockStatusBarItem();
     spy.statusBarItem = item;
     return item;
+  },
+  createWebviewPanel: (
+    viewType: string,
+    title: string,
+    _column?: ViewColumn,
+    _options?: unknown
+  ): MockWebviewPanel => {
+    const panel = new MockWebviewPanel();
+    panel.viewType = viewType;
+    panel.title = title;
+    panel.visible = true;
+    spy.webviewPanels.push(panel);
+    return panel;
   },
   showInformationMessage: (message: string, _options?: unknown): void => {
     spy.informationMessages.push(message);

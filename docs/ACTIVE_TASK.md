@@ -18,13 +18,16 @@
 
 ## Sprint 5 — Extension UI & Diagnostics
 
-**Status:** PLANNING
+**Status:** IN PROGRESS
 
-### Planned Scope
+### Planned Tickets
 
-- Webview diagnostics panel
-- Status bar enhancements
-- Configuration UI improvements
-- Command palette commands expansion
+- [x] LC-028: Webview Diagnostics Panel
+- [ ] LC-029: Status Bar Enhancements
+- [ ] LC-030: Completion Metrics Tracker
+- [ ] LC-031: Expanded Language Support
+- [ ] LC-032: Toggle Command & Quick Settings
+- [ ] LC-033: Setup Wizard Command
+- [ ] LC-034: Diagnostics Command Improvements
 
-**Next Ticket:** TBD — awaiting sprint planning
+**Next Ticket:** LC-029 — Status Bar Enhancements

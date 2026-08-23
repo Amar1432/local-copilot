@@ -13,11 +13,13 @@ import { StatusBarManager } from "./status-bar";
 import { LocalCopilotCompletionProvider } from "./completion-provider";
 import { SecretManager } from "./secret-manager";
 import { ModelDiscoveryService } from "@local-copilot/core";
+import { DiagnosticsPanel, type DiagnosticsSnapshot } from "./diagnostics-panel";
 
 let statusBar: StatusBarManager | undefined;
 let completionProvider: LocalCopilotCompletionProvider | undefined;
 let secretManager: SecretManager | undefined;
 let recentFilesBuffer: RecentFilesBuffer | undefined;
+let diagnosticsPanel: DiagnosticsPanel | undefined;
 
 /**
  * Retrieve effective configuration with securely retrieved API key.
@@ -62,6 +64,12 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   // Commands
   registerCommands(context, statusBar, secretManager);
 
+  // Real-time diagnostics webview panel (replaces the old modal dialog)
+  diagnosticsPanel = new DiagnosticsPanel(() =>
+    buildDiagnosticsSnapshot(context.extension?.packageJSON?.version ?? "unknown")
+  );
+  context.subscriptions.push(diagnosticsPanel);
+
   // Track recently opened documents for context gathering
   recentFilesBuffer = new RecentFilesBuffer();
   trackRecentDocuments(context, recentFilesBuffer);
@@ -72,6 +80,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
       const effective = await getEffectiveConfig(secretManager);
       completionProvider?.updateConfig(effective);
       statusBar?.setStatus("disconnected", newConfig.localOnly);
+      await diagnosticsPanel?.update();
     })
   );
 
@@ -93,10 +102,29 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
  */
 export function deactivate(): void {
   completionProvider?.dispose();
+  diagnosticsPanel?.dispose();
   statusBar = undefined;
   completionProvider = undefined;
   secretManager = undefined;
+  diagnosticsPanel = undefined;
   console.log("Local Copilot deactivated.");
+}
+
+/**
+ * Collect the current diagnostics snapshot from configuration,
+ * orchestrator state, and cache statistics.
+ */
+async function buildDiagnosticsSnapshot(extensionVersion: string): Promise<DiagnosticsSnapshot> {
+  const config = await getEffectiveConfig(secretManager);
+  const orchestrator = completionProvider?.orchestratorInstance;
+  return {
+    extensionVersion,
+    config,
+    apiKeyMasked: SecretManager.maskApiKey(config.apiKey),
+    connectionState: orchestrator?.connectionState ?? "idle",
+    latencyMs: orchestrator?.latencyMs ?? null,
+    cacheStats: orchestrator?.cacheStats ?? null,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -279,29 +307,15 @@ function registerCommands(
       } catch {
         status.setStatus("disconnected", getConfiguration().localOnly);
         vscode.window.showErrorMessage("Connection test failed.");
+      } finally {
+        await diagnosticsPanel?.update();
       }
     })
   );
 
   context.subscriptions.push(
     vscode.commands.registerCommand("localCopilot.showDiagnostics", async () => {
-      const config = await getEffectiveConfig(secrets);
-      const stats = completionProvider?.orchestratorInstance.cacheStats;
-      const info = [
-        `Provider: ${config.provider}`,
-        `Model: ${config.model || "(not set)"}`,
-        `Base URL: ${config.baseUrl}`,
-        `API Key: ${SecretManager.maskApiKey(config.apiKey)}`,
-        `Local Only: ${config.localOnly ? "Yes" : "No"}`,
-        `Debounce: ${config.debounceMs}ms`,
-        `Timeout: ${config.requestTimeoutMs}ms`,
-        `Max Tokens: ${config.maxOutputTokens}`,
-        `Temperature: ${config.temperature}`,
-        stats
-          ? `Cache: ${stats.size}/${stats.maxSize} entries (Hits: ${stats.hits}, Misses: ${stats.misses})`
-          : "Cache: N/A",
-      ].join("\n");
-      vscode.window.showInformationMessage(info, { modal: true });
+      await diagnosticsPanel?.show();
     })
   );
 

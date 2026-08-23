@@ -115,22 +115,21 @@ describe("Extension Commands & selectModel", () => {
     expect(stored).toBeUndefined();
   });
 
-  it("should display masked API key in diagnostics", async () => {
+  it("should display masked API key in diagnostics webview panel", async () => {
     await spy.secrets.store("localCopilot.apiKey.custom", "sk-1234567890abcdef");
 
     await activate(mockContext as unknown as vscode.ExtensionContext);
-
-    let modalInfo = "";
-    vi.spyOn(vscode.window, "showInformationMessage").mockImplementation((info: unknown) => {
-      modalInfo = String(info);
-      return Promise.resolve(undefined);
-    });
 
     const handler = commandHandlers.get("localCopilot.showDiagnostics");
     expect(handler).toBeDefined();
     await handler!();
 
-    expect(modalInfo).toContain("API Key: sk-...cdef");
-    expect(modalInfo).not.toContain("sk-1234567890abcdef");
+    // Diagnostics opens a real-time webview panel instead of a modal dialog
+    expect(spy.webviewPanels).toHaveLength(1);
+    expect(spy.webviewPanels[0].viewType).toBe("localCopilot.diagnostics");
+
+    const html = spy.webviewPanels[0].webview.html;
+    expect(html).toContain("sk-...cdef");
+    expect(html).not.toContain("sk-1234567890abcdef");
   });
 });
