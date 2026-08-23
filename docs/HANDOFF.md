@@ -4,8 +4,8 @@
 
 **Project:** Local Copilot (VS Code AI Autocomplete Extension)
 **Current Sprint:** Sprint 5 — Extension UI & Diagnostics
-**Active Ticket:** LC-032 — Toggle Command & Quick Settings
-**Overall Progress:** 31/38 tickets completed
+**Active Ticket:** LC-033 — Setup Wizard Command
+**Overall Progress:** 32/38 tickets completed
 
 ### Key Components
 
@@ -56,6 +56,43 @@
 ---
 
 <!-- Newest session logs are prepended below this line (latest on top) -->
+
+## ✅ LC-032 — Toggle Command & Quick Settings
+
+**Date/Time:** 2026-08-23 | **Agent:** Ryan (ryan-mt5cdet4) | **Ticket:** LC-032
+
+### Summary
+
+Implemented the inline `localCopilot.toggle` command (flips `localCopilot.enabled` and shows a notification) and the interactive `localCopilot.quickSettings` QuickPick menu for adjusting the most common settings in one place. Commands declared in `packages/extension/package.json` and covered by new unit tests.
+
+### Changes Made
+
+- **`packages/extension/src/extension.ts`**
+  - Registered `localCopilot.toggle` — reads current `enabled`, flips it via `workspace.getConfiguration("localCopilot").update`, and shows `Local Copilot enabled/disabled`.
+  - Registered `localCopilot.quickSettings` which opens an interactive menu (`showQuickSettingsMenu`).
+  - Added `QUICK_SETTINGS` registry covering: enabled, provider, model, localOnly, debounceMs, requestTimeoutMs, temperature, maxOutputTokens, contextBudgetPreset.
+  - Added `promptForSettingValue` (boolean → QuickPick true/false, enum → option QuickPick, number → validated InputBox, string → InputBox) and `formatSettingValue` helpers. The menu re-opens after each change until the user cancels (Esc).
+- **`packages/extension/package.json`**
+  - Added `onCommand:localCopilot.toggle` and `onCommand:localCopilot.quickSettings` to `activationEvents`.
+  - Added `localCopilot.toggle` ("Local Copilot: Toggle Enable/Disable") and `localCopilot.quickSettings` ("Local Copilot: Quick Settings") to `contributes.commands`.
+- **`packages/extension/src/extension.test.ts`**
+  - Asserts both commands register on activation.
+  - Added `toggle` test (flips `enabled` to `false`, notifies) and `quickSettings` test (opens menu, applies a selected setting).
+
+### Acceptance Criteria
+
+- [x] `localCopilot.toggle` command registered and toggles `enabled` with a notification
+- [x] `localCopilot.quickSettings` command registered and opens an interactive QuickPick for enabled, provider, model, localOnly, debounceMs, requestTimeoutMs, temperature, maxOutputTokens, contextBudgetPreset
+- [x] Commands declared in `packages/extension/package.json`
+- [x] Unit tests added in `packages/extension/src/extension.test.ts`
+
+### Verification
+
+- `pnpm test` ✅ · `pnpm lint` ✅ · `pnpm typecheck` ✅ · `pnpm build` ✅
+- Full extension suite: 179 passing tests (12 files)
+- Knowledge graph updated (`graphify update .` → 343 nodes, 471 edges, 59 communities)
+
+---
 
 ## ✅ LC-031 — Expanded Language Support
 

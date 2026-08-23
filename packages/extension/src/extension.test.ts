@@ -33,6 +33,62 @@ describe("Extension Commands & selectModel", () => {
     expect(commandHandlers.has("localCopilot.setApiKey")).toBe(true);
     expect(commandHandlers.has("localCopilot.deleteApiKey")).toBe(true);
     expect(commandHandlers.has("localCopilot.statusBarMenu")).toBe(true);
+    expect(commandHandlers.has("localCopilot.toggle")).toBe(true);
+    expect(commandHandlers.has("localCopilot.quickSettings")).toBe(true);
+  });
+
+  it("should toggle localCopilot.enabled via localCopilot.toggle", async () => {
+    await activate(mockContext as unknown as vscode.ExtensionContext);
+    expect(spy.configurationUpdates).toHaveLength(0);
+
+    const handler = commandHandlers.get("localCopilot.toggle");
+    expect(handler).toBeDefined();
+    await handler!();
+
+    expect(spy.configurationUpdates).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ key: "enabled", value: false }),
+      ])
+    );
+    expect(spy.informationMessages).toContain("Local Copilot disabled");
+  });
+
+  it("should open quick settings menu and apply a selected setting", async () => {
+    await activate(mockContext as unknown as vscode.ExtensionContext);
+
+    let call = 0;
+    const showQuickPickSpy = vi
+      .spyOn(vscode.window, "showQuickPick")
+      .mockImplementation(async (items) => {
+        call += 1;
+        if (call === 1) {
+          // Top-level menu: pick the "Local Only" setting
+          const topLevel = items as Array<{ setting?: string }>;
+          const localOnly = topLevel.find((i) => i.setting === "localOnly");
+          return (localOnly ?? undefined) as unknown as vscode.QuickPickItem;
+        }
+        if (call === 2) {
+          // Boolean value prompt: choose "true"
+          return { label: "true", value: true } as unknown as vscode.QuickPickItem;
+        }
+        // Third call (back in the menu loop): exit
+        return undefined;
+      });
+
+    const handler = commandHandlers.get("localCopilot.quickSettings");
+    expect(handler).toBeDefined();
+    await handler!();
+
+    // top-level pick + boolean value prompt must have opened QuickPick twice
+    expect(showQuickPickSpy.mock.calls.length).toBeGreaterThanOrEqual(2);
+    expect(spy.configurationUpdates).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ key: "localOnly", value: true }),
+      ])
+    );
+    expect(
+      spy.informationMessages.some((m) => m.includes("Local Only"))
+    ).toBe(true);
   });
 
   it("should register inline completion item provider for all expanded languages", async () => {

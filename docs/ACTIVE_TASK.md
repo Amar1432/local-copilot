@@ -25,8 +25,8 @@
 - [x] LC-028: Webview Diagnostics Panel
 - [x] LC-029: Status Bar Enhancements
 - [x] LC-031: Expanded Language Support
-- [ ] LC-032: Toggle Command & Quick Settings
+- [x] LC-032: Toggle Command & Quick Settings
 - [ ] LC-033: Setup Wizard Command
 - [ ] LC-034: Diagnostics Command Improvements
 
-**Next Ticket:** LC-032 — Toggle Command & Quick Settings
+**Next Ticket:** LC-033 — Setup Wizard Command

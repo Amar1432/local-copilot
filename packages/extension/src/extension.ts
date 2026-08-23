@@ -386,6 +386,180 @@ function registerCommands(
       vscode.commands.executeCommand("workbench.action.openSettings", "localCopilot");
     })
   );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand("localCopilot.toggle", async () => {
+      const cfg = vscode.workspace.getConfiguration("localCopilot");
+      const current = cfg.get<boolean>("enabled", true);
+      const next = !current;
+      await cfg.update("enabled", next, vscode.ConfigurationTarget.Global);
+      vscode.window.showInformationMessage(`Local Copilot ${next ? "enabled" : "disabled"}`);
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand("localCopilot.quickSettings", async () => {
+      await showQuickSettingsMenu();
+    })
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Quick Settings menu (localCopilot.quickSettings)
+// ---------------------------------------------------------------------------
+
+type QuickSettingKey =
+  | "enabled"
+  | "provider"
+  | "model"
+  | "localOnly"
+  | "debounceMs"
+  | "requestTimeoutMs"
+  | "temperature"
+  | "maxOutputTokens"
+  | "contextBudgetPreset";
+
+type QuickSettingKind = "boolean" | "enum" | "number" | "string";
+
+interface QuickSettingDef {
+  readonly key: QuickSettingKey;
+  readonly label: string;
+  readonly kind: QuickSettingKind;
+  readonly options?: readonly string[];
+  readonly prompt?: string;
+}
+
+const QUICK_SETTINGS: readonly QuickSettingDef[] = [
+  { key: "enabled", label: "Enabled", kind: "boolean" },
+  {
+    key: "provider",
+    label: "Provider",
+    kind: "enum",
+    options: ["custom", "ollama", "openai", "lmstudio", "vllm"],
+  },
+  { key: "model", label: "Model", kind: "string", prompt: "Enter model identifier" },
+  { key: "localOnly", label: "Local Only", kind: "boolean" },
+  {
+    key: "debounceMs",
+    label: "Debounce (ms)",
+    kind: "number",
+    prompt: "Debounce delay in milliseconds (0-1000)",
+  },
+  {
+    key: "requestTimeoutMs",
+    label: "Request Timeout (ms)",
+    kind: "number",
+    prompt: "Request timeout in milliseconds (500-10000)",
+  },
+  {
+    key: "temperature",
+    label: "Temperature",
+    kind: "number",
+    prompt: "Sampling temperature (0-1)",
+  },
+  {
+    key: "maxOutputTokens",
+    label: "Max Output Tokens",
+    kind: "number",
+    prompt: "Maximum output tokens (1-1024)",
+  },
+  {
+    key: "contextBudgetPreset",
+    label: "Context Budget Preset",
+    kind: "enum",
+    options: ["fast", "balanced", "rich"],
+  },
+];
+
+function formatSettingValue(value: unknown): string {
+  if (typeof value === "boolean") return value ? "true" : "false";
+  if (value === undefined || value === null || value === "") return "(unset)";
+  return String(value);
+}
+
+/**
+ * Prompt the user for a new value for a single quick setting and return it.
+ * Returns `undefined` if the user cancelled the value prompt (so the menu
+ * stays open for another choice).
+ */
+async function promptForSettingValue(
+  def: QuickSettingDef,
+  config: vscode.WorkspaceConfiguration
+): Promise<unknown> {
+  if (def.kind === "boolean") {
+    const current = config.get<boolean>(def.key, false);
+    const picked = await vscode.window.showQuickPick(
+      [
+        { label: "true", value: true },
+        { label: "false", value: false },
+      ] as unknown as vscode.QuickPickItem[],
+      { placeHolder: `${def.label} (currently ${current})` }
+    );
+    return picked ? (picked as unknown as { value: boolean }).value : undefined;
+  }
+
+  if (def.kind === "enum" && def.options) {
+    const current = config.get<string>(def.key, "");
+    const picked = await vscode.window.showQuickPick(
+      def.options.map((o) => ({ label: o })),
+      { placeHolder: `${def.label} (currently ${current})` }
+    );
+    return picked ? (picked as { label: string }).label : undefined;
+  }
+
+  if (def.kind === "number") {
+    const current = config.get<number>(def.key, 0);
+    const input = await vscode.window.showInputBox({
+      prompt: def.prompt ?? def.label,
+      value: String(current),
+      validateInput: (raw) =>
+        /^\d+(\.\d+)?$/.test(raw.trim()) ? null : "Please enter a number",
+    });
+    if (input === undefined) return undefined;
+    const parsed = Number(input.trim());
+    return Number.isNaN(parsed) ? undefined : parsed;
+  }
+
+  const current = config.get<string>(def.key, "");
+  const input = await vscode.window.showInputBox({
+    prompt: def.prompt ?? def.label,
+    value: current,
+  });
+  return input === undefined ? undefined : input.trim();
+}
+
+/**
+ * Interactive QuickPick loop letting the user adjust common settings. Re-opens
+ * after each change until the user cancels (Esc) at the top-level menu.
+ */
+async function showQuickSettingsMenu(): Promise<void> {
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    const config = vscode.workspace.getConfiguration("localCopilot");
+    const items = QUICK_SETTINGS.map((s) => ({
+      setting: s.key,
+      label: `$(gear) ${s.label}`,
+      description: `Currently: ${formatSettingValue(config.get(s.key))}`,
+    })) as unknown as vscode.QuickPickItem[];
+
+    const picked = await vscode.window.showQuickPick(items, {
+      placeHolder: "Quick Settings — select a setting to change (Esc to finish)",
+    });
+    if (!picked) return;
+
+    const def = QUICK_SETTINGS.find(
+      (s) => s.key === (picked as unknown as { setting: QuickSettingKey }).setting
+    );
+    if (!def) return;
+
+    const updated = await promptForSettingValue(def, config);
+    if (updated === undefined) continue;
+
+    await config.update(def.key, updated, vscode.ConfigurationTarget.Global);
+    vscode.window.showInformationMessage(
+      `${def.label} set to ${formatSettingValue(updated)}`
+    );
+  }
 }
 
 // ---------------------------------------------------------------------------
