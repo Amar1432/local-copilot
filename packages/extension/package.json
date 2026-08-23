@@ -1,9 +1,9 @@
 {
-  "name": "local-copilot",
-  "displayName": "Local Copilot",
+  "name": "private-copilot",
+  "displayName": "Private Copilot",
   "description": "Private, Fast, Configurable AI Autocomplete for VS Code",
   "version": "0.1.0",
-  "publisher": "local-copilot",
+  "publisher": "private-copilot",
   "repository": {
     "type": "git",
     "url": "https://github.com/Amar1432/local-copilot.git"

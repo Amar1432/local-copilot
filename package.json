@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "license": "MIT",
-  "publisher": "local-copilot",
+  "publisher": "private-copilot",
   "repository": {
     "type": "git",
     "url": "https://github.com/Amar1432/local-copilot.git"
@@ -21,7 +21,7 @@
     "typecheck": "pnpm build && pnpm -r typecheck",
     "benchmark": "pnpm --filter @local-copilot/core test src/evaluation",
     "clean": "pnpm -r clean",
-    "package": "pnpm --filter local-copilot package"
+    "package": "pnpm --filter private-copilot package"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^6.0.0",
