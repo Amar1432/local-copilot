@@ -1,10 +1,16 @@
+<div align="center">
+
+<img src="assets/logo.png" alt="Local Copilot Logo" width="128" height="128" style="border-radius: 24px;" />
+
 # Local Copilot
+
+**Private, Fast, Configurable AI Autocomplete for VS Code**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)]()
 [![Tests](https://img.shields.io/badge/tests-406%20passing-brightgreen.svg)]()
 
-**Private, Fast, Configurable AI Autocomplete for VS Code**
+</div>
 
 Local Copilot brings intelligent, real-time code autocomplete to VS Code with a zero-compromise focus on **local privacy**, **sub-300ms latency**, and **multi-file contextual understanding**.
 
