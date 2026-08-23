@@ -39,6 +39,20 @@ describe("Extension Commands & selectModel", () => {
     expect(commandHandlers.has("localCopilot.setupWizard")).toBe(true);
     expect(commandHandlers.has("localCopilot.refreshDiagnostics")).toBe(true);
     expect(commandHandlers.has("localCopilot.exportDiagnostics")).toBe(true);
+    expect(commandHandlers.has("localCopilot.exportTelemetry")).toBe(true);
+  });
+
+  it("should export anonymized telemetry JSON to the clipboard via localCopilot.exportTelemetry", async () => {
+    await activate(mockContext as unknown as vscode.ExtensionContext);
+
+    const handler = commandHandlers.get("localCopilot.exportTelemetry");
+    expect(handler).toBeDefined();
+    await handler!();
+
+    expect(spy.clipboardText).toContain("schemaVersion");
+    expect(spy.clipboardText).toContain("sessionId");
+    expect(spy.clipboardText).toContain("totalRequests");
+    expect(spy.informationMessages).toContain("Anonymized telemetry payload copied to clipboard.");
   });
 
   it("should export diagnostics JSON to the clipboard via localCopilot.exportDiagnostics", async () => {

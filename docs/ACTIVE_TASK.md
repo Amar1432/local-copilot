@@ -36,8 +36,8 @@
 ### Planned Tickets
 
 - [x] LC-035: Build Benchmark Tooling
-- [ ] LC-036: Implement Online Metrics
+- [x] LC-036: Implement Online Metrics
 - [ ] LC-037: Performance Optimization
 - [ ] LC-038: Documentation & Packaging
 
-**Next Ticket:** LC-036 — Implement Online Metrics
+**Next Ticket:** LC-037 — Performance Optimization

@@ -12,7 +12,7 @@ import { getConfiguration, onConfigurationChanged } from "./configuration";
 import { StatusBarManager, showStatusBarQuickMenu } from "./status-bar";
 import { LocalCopilotCompletionProvider } from "./completion-provider";
 import { SecretManager } from "./secret-manager";
-import { ModelDiscoveryService } from "@local-copilot/core";
+import { ModelDiscoveryService, TelemetryExporter } from "@local-copilot/core";
 import { DiagnosticsPanel, type DiagnosticsSnapshot } from "./diagnostics-panel";
 
 let statusBar: StatusBarManager | undefined;
@@ -402,6 +402,32 @@ function registerCommands(
       const json = JSON.stringify(snapshot, null, 2);
       await vscode.env.clipboard.writeText(json);
       vscode.window.showInformationMessage("Diagnostics exported to clipboard.");
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand("localCopilot.exportTelemetry", async () => {
+      const config = await getEffectiveConfig(secrets);
+      const orchestrator = completionProvider?.orchestratorInstance;
+      const summary = orchestrator?.metrics.getSummary();
+      if (!summary) {
+        vscode.window.showWarningMessage("No metrics available to export.");
+        return;
+      }
+
+      const exporter = new TelemetryExporter();
+      const metadata = {
+        sessionId: context.extension?.packageJSON?.version ?? "session",
+        extensionVersion: context.extension?.packageJSON?.version ?? "0.1.0",
+        provider: config.provider,
+        model: config.model,
+        localOnly: config.localOnly,
+      };
+
+      const payload = exporter.buildPayload(summary, metadata);
+      const json = exporter.formatJson(payload);
+      await vscode.env.clipboard.writeText(json);
+      vscode.window.showInformationMessage("Anonymized telemetry payload copied to clipboard.");
     })
   );
 

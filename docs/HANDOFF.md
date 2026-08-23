@@ -4,8 +4,8 @@
 
 **Project:** Local Copilot (VS Code AI Autocomplete Extension)
 **Current Sprint:** Sprint 6 — Testing, Evaluation & Polish
-**Active Ticket:** LC-036 — Implement Online Metrics
-**Overall Progress:** 39/42 tickets completed
+**Active Ticket:** LC-037 — Performance Optimization
+**Overall Progress:** 40/42 tickets completed
 
 ### Key Components
 
@@ -56,10 +56,48 @@
 - [x] LC-033: Setup Wizard Command
 - [x] LC-034: Diagnostics Command Improvements
 - [x] LC-035: Build Benchmark Tooling
+- [x] LC-036: Implement Online Metrics
 
 ---
 
 <!-- Newest session logs are prepended below this line (latest on top) -->
+
+## ✅ LC-036 — Implement Online Metrics & Privacy Telemetry
+
+**Date/Time:** 2026-08-23 | **Agent:** Antigravity | **Ticket:** LC-036
+
+### Summary
+
+Implemented a privacy-safe online metrics and telemetry pipeline in `@local-copilot/core` and integrated it with VS Code commands. Ensures strict opt-in enforcement (`localCopilot.telemetry.enabled`), hard blocking when `localOnly` is enabled, coarse error categorization to prevent secret or code leakage, and zero source code or file path retention.
+
+### Changes Made
+
+- **`packages/core/src/metrics/telemetry.types.ts`**
+  - Defined `TelemetryPayload`, `TelemetryLanguageStats`, `TelemetryConfig`, and `TelemetryMetadata`.
+- **`packages/core/src/metrics/telemetry-exporter.ts`**
+  - Created `TelemetryExporter` class with `canTransmit()` privacy safeguards, `sanitizeErrorCode()` to convert raw error strings into harmless high-level categories (auth, not_found, rate_limit, timeout, network, cancelled, unknown), `buildPayload()`, `export()`, and `formatJson()`.
+- **`packages/core/src/metrics/index.ts`**
+  - Exported telemetry types and exporter class.
+- **`packages/extension/src/extension.ts` & `package.json`**
+  - Registered `localCopilot.exportTelemetry` command to generate and copy anonymized telemetry JSON snapshots to clipboard. Added to `contributes.commands` and `activationEvents`.
+- **Unit Tests**
+  - `packages/core/src/metrics/telemetry.test.ts`: Added 9 unit tests covering permission gates, error sanitization, zero-code retention, local-only blocking, and exporter dispatch.
+  - `packages/extension/src/extension.test.ts`: Verified `localCopilot.exportTelemetry` command registration and clipboard export behavior.
+
+### Acceptance Criteria
+
+- [x] Metrics include latency, acceptance, language breakdown, error category counts
+- [x] Metrics never include source code, file paths, or sensitive user data
+- [x] Metrics are only transmitted when explicitly enabled and not local-only
+- [x] Metrics can be disabled per-workspace / globally
+
+### Verification
+
+- `pnpm test` ✅ (395 passing tests: shared 6, core 199, extension 190)
+- `pnpm lint` ✅ · `pnpm typecheck` ✅ · `pnpm build` ✅
+- Knowledge graph updated (`graphify update .` → 375 nodes, 511 edges, 67 communities)
+
+---
 
 ## ✅ LC-035 — Build Benchmark Tooling
 

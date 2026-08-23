@@ -54,11 +54,16 @@
     "onCommand:localCopilot.quickSettings",
     "onCommand:localCopilot.setupWizard",
     "onCommand:localCopilot.refreshDiagnostics",
-    "onCommand:localCopilot.exportDiagnostics"
+    "onCommand:localCopilot.exportDiagnostics",
+    "onCommand:localCopilot.exportTelemetry"
   ],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
+      {
+        "command": "localCopilot.exportTelemetry",
+        "title": "Local Copilot: Export Anonymized Telemetry"
+      },
       {
         "command": "localCopilot.statusBarMenu",
         "title": "Local Copilot: Status Bar Menu"
