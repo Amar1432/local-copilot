@@ -220,6 +220,7 @@ export const spy = {
   }[],
   statusBarItem: null as MockStatusBarItem | null,
   webviewPanels: [] as MockWebviewPanel[],
+  inlineCompletionProviders: [] as Array<{ selector: unknown; provider: unknown }>,
   secrets: new MockSecretStorage(),
 };
 
@@ -232,6 +233,7 @@ export function resetMocks(): void {
   spy.configurationUpdates = [];
   spy.statusBarItem = null;
   spy.webviewPanels = [];
+  spy.inlineCompletionProviders = [];
   spy.secrets.clear();
 
   mockConfig.enabled = true;
@@ -360,9 +362,10 @@ export const commands = {
 
 export const languages = {
   registerInlineCompletionItemProvider: (
-    _selector: unknown,
-    _provider: unknown
+    selector: unknown,
+    provider: unknown
   ): MockDisposable => {
+    spy.inlineCompletionProviders.push({ selector, provider });
     return new MockDisposable();
   },
 };

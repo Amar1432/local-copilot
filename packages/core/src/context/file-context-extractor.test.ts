@@ -123,6 +123,121 @@ describe("FileContextExtractor", () => {
     expect(defChunk).toBeDefined();
   });
 
+  it("should extract go imports and packages", () => {
+    const goCode = [
+      "package main",
+      "",
+      "import (",
+      "    \"fmt\"",
+      "    \"net/http\"",
+      ")",
+      "",
+      "func main() {",
+      "}",
+    ];
+    const result = extractImportsFromLines(goCode, "go");
+    expect(result).not.toBeNull();
+    expect(result?.content).toContain("package main");
+  });
+
+  it("should extract rust uses and module imports", () => {
+    const rustCode = [
+      "use std::collections::HashMap;",
+      "use std::sync::Arc;",
+      "mod utils;",
+      "",
+      "fn main() {",
+      "}",
+    ];
+    const result = extractImportsFromLines(rustCode, "rust");
+    expect(result).not.toBeNull();
+    expect(result?.count).toBe(3);
+    expect(result?.content).toContain("use std::collections::HashMap;");
+    expect(result?.content).toContain("mod utils;");
+  });
+
+  it("should extract java package and imports", () => {
+    const javaCode = [
+      "package com.example.service;",
+      "",
+      "import java.util.List;",
+      "import java.util.Map;",
+      "import static org.junit.Assert.*;",
+      "",
+      "public class UserService {",
+      "}",
+    ];
+    const result = extractImportsFromLines(javaCode, "java");
+    expect(result).not.toBeNull();
+    expect(result?.count).toBe(4);
+    expect(result?.content).toContain("package com.example.service;");
+    expect(result?.content).toContain("import static org.junit.Assert.*;");
+  });
+
+  it("should extract python enclosing function and async def scope", () => {
+    const pythonCode = [
+      "import os",
+      "",
+      "async def fetch_data(url: str):",
+      "    # fetch logic",
+      "    return None",
+    ];
+    const result = extractEnclosingScope(pythonCode, 3);
+    expect(result).not.toBeNull();
+    expect(result?.symbolName).toBe("fetch_data");
+    expect(result?.content).toContain("async def fetch_data");
+  });
+
+  it("should extract go enclosing func and struct scopes", () => {
+    const goCode = [
+      "package main",
+      "",
+      "type Config struct {",
+      "    Port int",
+      "}",
+      "",
+      "func (s *Server) Start() error {",
+      "    // start server",
+      "    return nil",
+      "}",
+    ];
+    const result = extractEnclosingScope(goCode, 7);
+    expect(result).not.toBeNull();
+    expect(result?.symbolName).toBe("Start");
+    expect(result?.content).toContain("func (s *Server) Start");
+  });
+
+  it("should extract rust enclosing fn, struct, and trait scopes", () => {
+    const rustCode = [
+      "pub struct Config {",
+      "    port: u16,",
+      "}",
+      "",
+      "pub async fn start_server(cfg: Config) -> Result<(), Error> {",
+      "    // starting",
+      "    Ok(())",
+      "}",
+    ];
+    const result = extractEnclosingScope(rustCode, 5);
+    expect(result).not.toBeNull();
+    expect(result?.symbolName).toBe("start_server");
+    expect(result?.content).toContain("pub async fn start_server");
+  });
+
+  it("should extract java enclosing class scope", () => {
+    const javaCode = [
+      "public class OrderService {",
+      "    public void processOrder(String orderId) {",
+      "        // process order",
+      "    }",
+      "}",
+    ];
+    const result = extractEnclosingScope(javaCode, 2);
+    expect(result).not.toBeNull();
+    expect(result?.symbolName).toBe("OrderService");
+    expect(result?.content).toContain("public class OrderService");
+  });
+
   it("should return empty list when document text is empty", async () => {
     const extractor = new FileContextExtractor();
     const target: ContextTarget = {

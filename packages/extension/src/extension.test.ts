@@ -35,6 +35,24 @@ describe("Extension Commands & selectModel", () => {
     expect(commandHandlers.has("localCopilot.statusBarMenu")).toBe(true);
   });
 
+  it("should register inline completion item provider for all expanded languages", async () => {
+    await activate(mockContext as unknown as vscode.ExtensionContext);
+    expect(spy.inlineCompletionProviders).toHaveLength(1);
+
+    const selector = spy.inlineCompletionProviders[0].selector as Array<{ language: string }>;
+    const registeredLanguages = selector.map((s) => s.language);
+    expect(registeredLanguages).toContain("typescript");
+    expect(registeredLanguages).toContain("javascript");
+    expect(registeredLanguages).toContain("typescriptreact");
+    expect(registeredLanguages).toContain("javascriptreact");
+    expect(registeredLanguages).toContain("python");
+    expect(registeredLanguages).toContain("go");
+    expect(registeredLanguages).toContain("rust");
+    expect(registeredLanguages).toContain("java");
+    expect(registeredLanguages).toContain("c");
+    expect(registeredLanguages).toContain("cpp");
+  });
+
   it("should open QuickPick with popular models and allow selecting a model", async () => {
     await activate(mockContext as unknown as vscode.ExtensionContext);
 

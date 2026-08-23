@@ -32,6 +32,14 @@ describe("prompt-builder", () => {
       expect(messages[0].content).toContain("python");
     });
 
+    it("should use # comment prefix for python user content and // for others", () => {
+      const pyMessages = buildStandardMessages(createRequest({ language: "python", documentUri: "file:///app/main.py" }));
+      expect(pyMessages[1].content).toContain("# File: main.py (python)");
+
+      const goMessages = buildStandardMessages(createRequest({ language: "go", documentUri: "file:///app/main.go" }));
+      expect(goMessages[1].content).toContain("// File: main.go (go)");
+    });
+
     it("should include PREFIX tag in user content", () => {
       const messages = buildStandardMessages(createRequest());
       expect(messages[1].content).toContain("<PREFIX>");

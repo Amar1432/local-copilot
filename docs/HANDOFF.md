@@ -4,8 +4,8 @@
 
 **Project:** Local Copilot (VS Code AI Autocomplete Extension)
 **Current Sprint:** Sprint 5 — Extension UI & Diagnostics
-**Active Ticket:** LC-031 — Expanded Language Support
-**Overall Progress:** 30/38 tickets completed
+**Active Ticket:** LC-032 — Toggle Command & Quick Settings
+**Overall Progress:** 31/38 tickets completed
 
 ### Key Components
 
@@ -51,10 +51,58 @@
 - [x] LC-028: Webview Diagnostics Panel
 - [x] LC-029: Status Bar Enhancements
 - [x] LC-030: Completion Metrics Tracker
+- [x] LC-031: Expanded Language Support
 
 ---
 
 <!-- Newest session logs are prepended below this line (latest on top) -->
+
+## ✅ LC-031 — Expanded Language Support
+
+**Date/Time:** 2026-08-23 | **Agent:** Antigravity | **Ticket:** LC-031
+
+### Summary
+
+Expanded language support across `@local-copilot/core` and `@local-copilot/extension` to fully track, parse, extract context for, and complete code in Python, Go, Rust, Java, C, and C++ in addition to TypeScript/JavaScript/TSX/JSX.
+
+### Changes Made
+
+- **Updated `packages/extension/package.json`**
+  - Added `onLanguage:python`, `onLanguage:go`, `onLanguage:rust`, `onLanguage:java`, `onLanguage:c`, and `onLanguage:cpp` to `activationEvents`.
+- **Updated `packages/extension/src/extension.ts`**
+  - Expanded `registerCompletionProvider` document selector to register `InlineCompletionItemProvider` for Python, Go, Rust, Java, C, C++, TypeScript, JavaScript, TSX, and JSX.
+  - Expanded `isTrackedLanguage` to track active editor changes and open documents in Python, Go, Rust, Java, C, and C++ for recent files multi-file context gathering.
+- **Updated `packages/core/src/context/file-context-extractor.ts`**
+  - Added import extraction regex patterns for Rust (`use ...`, `extern crate ...`, `mod ...`), Java (`import ...;`, `package ...;`), Go (`import ...`, `package ...`), Python (`import ...`, `from ... import ...`), C, and C++ (`#include ...`).
+  - Added scope patterns for Python (`def`, `async def`, `class`), Go (`func`, `type ... struct`, `type ... interface`), Rust (`fn`, `pub fn`, `async fn`, `pub async fn`, `struct`, `pub struct`, `enum`, `pub enum`, `trait`, `pub trait`, `impl`), and Java (`public/protected/private class/interface/enum/record`, methods).
+  - Enhanced `extractNearbyDeclarations` to recognize `pub struct`, `trait`, `record`, `enum`, `interface`, and Java access-modified class declarations.
+- **Updated `packages/core/src/context/recent-files-provider.ts`**
+  - Updated `TOP_LEVEL_SYMBOL_PATTERNS` to capture top-level symbols for Python, Go, Rust, and Java.
+  - Updated `normalizeLanguageId` to recognize language aliases (`py`, `golang`, `rs`, `c++`, `java`, `rust`, `go`, `python`).
+- **Updated `packages/extension/src/prompt-builder.ts`**
+  - Added language-appropriate comment syntax (`#` for Python, `//` for others) for file headers in completion prompts.
+- **Added Comprehensive Unit Tests**
+  - Added import, scope, and nearby declaration tests for Python, Go, Rust, and Java in `packages/core/src/context/file-context-extractor.test.ts`.
+  - Added symbol extraction and language normalization tests in `packages/core/src/context/recent-files-provider.test.ts`.
+  - Added inline completion provider registration tests for expanded languages in `packages/extension/src/extension.test.ts`.
+  - Added language-specific prompt comment header tests in `packages/extension/src/prompt-builder.test.ts`.
+
+### Acceptance Criteria
+
+- [x] Python, Go, Rust, and Java added to tracked languages and activation events
+- [x] InlineCompletionItemProvider registered for all target languages
+- [x] Import statement and package parsing supported across all languages
+- [x] Enclosing scope and nearby declaration extraction supported across all languages
+- [x] Top-level symbol extraction and language normalization supported across all languages
+- [x] Language-appropriate prompt formatting supported
+
+### Verification
+
+- `pnpm build` ✅ · `pnpm lint` ✅ · `pnpm typecheck` ✅
+- Full test suite: 355 passing tests (shared: 6, core: 172, extension: 177)
+- Knowledge graph updated (`graphify update .` → 340 nodes, 463 edges, 59 communities)
+
+---
 
 ## ✅ LC-030 — Completion Metrics Tracker
 

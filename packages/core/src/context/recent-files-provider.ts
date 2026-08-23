@@ -83,12 +83,17 @@ const TOP_LEVEL_SYMBOL_PATTERNS = [
   /^(?:export\s+)?(?:const|let|var)\s+([\w$]+)\s*(?::[^=]+)?=\s*(?:async\s*)?(?:\([^)]*\)|[\w$]+)\s*=>/,
   /^(?:export\s+)?type\s+([\w$]+)\s*=/,
   /^(?:export\s+)?enum\s+([\w$]+)/,
-  /^def\s+([\w_]+)\s*\(/,
+  /^(?:async\s+)?def\s+([\w_]+)\s*\(/,
   /^class\s+([\w_]+)(?:\([^)]*\))?:/,
   /^func\s+(?:\([^)]*\)\s+)?([\w]+)\s*\(/,
-  /^fn\s+([\w_]+)\s*(?:<[^>]*>)?\s*\(/,
+  /^type\s+([\w]+)\s+(?:struct|interface)\b/,
+  /^(?:pub\s+)?(?:async\s+)?fn\s+([\w_]+)\s*(?:<[^>]*>)?\s*\(/,
   /^(?:pub\s+)?struct\s+([\w_]+)/,
-  /^trait\s+([\w_]+)/,
+  /^(?:pub\s+)?enum\s+([\w_]+)/,
+  /^(?:pub\s+)?trait\s+([\w_]+)/,
+  /^(?:pub\s+)?impl(?:<[^>]*>)?\s+(?:[\w_]+(?:\s+for\s+)?)+([\w_]+)/,
+  /^(?:public|protected|private)?\s*(?:static\s+)?(?:final\s+)?(?:abstract\s+)?(?:class|interface|enum|record)\s+([\w$]+)/,
+  /^(?:public|protected|private)\s+(?:static\s+)?(?:final\s+)?(?:synchronized\s+)?(?:[\w<>[\\],\\s]+)\s+([\w$]+)\s*\([^)]*\)/,
 ];
 
 /**

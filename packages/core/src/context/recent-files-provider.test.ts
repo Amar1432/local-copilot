@@ -82,7 +82,13 @@ describe("recent-files scoring helpers", () => {
     expect(normalizeLanguageId("typescriptreact")).toBe("typescript");
     expect(normalizeLanguageId("javascriptreact")).toBe("javascript");
     expect(normalizeLanguageId("Python")).toBe("python");
+    expect(normalizeLanguageId("py")).toBe("python");
     expect(normalizeLanguageId("golang")).toBe("go");
+    expect(normalizeLanguageId("go")).toBe("go");
+    expect(normalizeLanguageId("rs")).toBe("rust");
+    expect(normalizeLanguageId("rust")).toBe("rust");
+    expect(normalizeLanguageId("java")).toBe("java");
+    expect(normalizeLanguageId("c++")).toBe("cpp");
   });
 
   it("should extract identifier tokens of length >= 3", () => {
@@ -148,6 +154,51 @@ describe("extractTopLevelSymbols", () => {
     expect(names).toContain("Alias");
     expect(symbols[0].range.startLine).toBe(1);
     expect(symbols[0].range.endLine).toBe(5);
+  });
+
+  it("should extract top-level symbols in Python, Go, Rust, and Java", () => {
+    const pythonLines = [
+      "async def fetch_user(id):",
+      "    pass",
+      "",
+      "class UserAccount:",
+      "    pass",
+    ];
+    const pySymbols = extractTopLevelSymbols(pythonLines, 5);
+    expect(pySymbols.map((s) => s.symbolName)).toEqual(["fetch_user", "UserAccount"]);
+
+    const goLines = [
+      "type Server struct {",
+      "    port int",
+      "}",
+      "",
+      "func NewServer() *Server {",
+      "    return &Server{}",
+      "}",
+    ];
+    const goSymbols = extractTopLevelSymbols(goLines, 5);
+    expect(goSymbols.map((s) => s.symbolName)).toEqual(["Server", "NewServer"]);
+
+    const rustLines = [
+      "pub struct Config {",
+      "    pub port: u16,",
+      "}",
+      "",
+      "pub async fn start_app() {",
+      "}",
+    ];
+    const rustSymbols = extractTopLevelSymbols(rustLines, 5);
+    expect(rustSymbols.map((s) => s.symbolName)).toEqual(["Config", "start_app"]);
+
+    const javaLines = [
+      "public class AuthService {",
+      "    public boolean authenticate(String token) {",
+      "        return true;",
+      "    }",
+      "}",
+    ];
+    const javaSymbols = extractTopLevelSymbols(javaLines, 5);
+    expect(javaSymbols.map((s) => s.symbolName)).toEqual(["AuthService"]);
   });
 
   it("should limit symbol body length to the configured line cap", () => {

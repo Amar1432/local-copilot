@@ -38,6 +38,7 @@ const IMPORT_PATTERNS: Record<string, RegExp[]> = {
   rust: [
     /^\s*use\s+[\w:]+(?:\s*as\s+\w+|\s*\{[^}]*\})?;/,
     /^\s*extern\s+crate\s+\w+;/,
+    /^\s*mod\s+\w+;/,
   ],
   java: [
     /^\s*import\s+(?:static\s+)?[\w.*]+;/,
@@ -56,18 +57,21 @@ const IMPORT_PATTERNS: Record<string, RegExp[]> = {
  */
 const SCOPE_PATTERNS = [
   /^(?:export\s+)?(?:default\s+)?(?:async\s+)?function\s*([\w$]+)?\s*\(/,
-  /^(?:export\s+)?(?:const|let|var)\s+([\w$]+)\s*=\s*(?:async\s*)?(?:\([^)]*\)|[\w$]+)\s*=>/,
+  /^(?:export\s+)?(?:const|let|var)\s+([\w$]+)\s*(?::[^=]+)?=\s*(?:async\s*)?(?:\([^)]*\)|[\w$]+)\s*=>/,
   /^(?:export\s+)?(?:abstract\s+)?class\s+([\w$]+)/,
   /^(?:export\s+)?interface\s+([\w$]+)/,
   /^(?:export\s+)?type\s+([\w$]+)\s*=/,
   /^(?:export\s+)?enum\s+([\w$]+)/,
-  /^def\s+([\w_]+)\s*\(/,
+  /^(?:async\s+)?def\s+([\w_]+)\s*\(/,
   /^class\s+([\w_]+)(?:\([^)]*\))?:/,
   /^func\s+(?:\([^)]*\)\s+)?([\w]+)\s*\(/,
-  /^type\s+([\w]+)\s+struct\b/,
-  /^fn\s+([\w_]+)\s*(?:<[^>]*>)?\s*\(/,
-  /^struct\s+([\w_]+)/,
-  /^trait\s+([\w_]+)/,
+  /^type\s+([\w]+)\s+(?:struct|interface)\b/,
+  /^(?:pub\s+)?(?:async\s+)?fn\s+([\w_]+)\s*(?:<[^>]*>)?\s*\(/,
+  /^(?:pub\s+)?struct\s+([\w_]+)/,
+  /^(?:pub\s+)?enum\s+([\w_]+)/,
+  /^(?:pub\s+)?trait\s+([\w_]+)/,
+  /^(?:pub\s+)?impl(?:<[^>]*>)?\s+(?:[\w_]+(?:\s+for\s+)?)+([\w_]+)/,
+  /^(?:public|protected|private)?\s*(?:static\s+)?(?:final\s+)?(?:abstract\s+)?(?:class|interface|enum|record)\s+([\w$]+)/,
 ];
 
 /**
@@ -174,7 +178,7 @@ export function extractNearbyDeclarations(
   maxCount = 3
 ): Array<{ content: string; range: DocumentRange; symbolName: string }> {
   const declarations: Array<{ content: string; range: DocumentRange; symbolName: string }> = [];
-  const declPattern = /^(?:export\s+)?(?:interface|type|class|struct|enum)\s+([\w$]+)/;
+  const declPattern = /^(?:export\s+|pub\s+|public\s+|protected\s+|private\s+)?(?:interface|type|class|struct|enum|trait|record)\s+([\w$]+)/;
 
   for (let i = 0; i < lines.length; i++) {
     // Skip line if it is inside the active cursor immediate window (+/- 5 lines)

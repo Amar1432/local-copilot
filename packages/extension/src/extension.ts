@@ -401,6 +401,12 @@ function registerCompletionProvider(
     { language: "javascript" },
     { language: "typescriptreact" },
     { language: "javascriptreact" },
+    { language: "python" },
+    { language: "go" },
+    { language: "rust" },
+    { language: "java" },
+    { language: "c" },
+    { language: "cpp" },
   ];
 
   context.subscriptions.push(
@@ -522,6 +528,12 @@ function isTrackedLanguage(languageId: string): boolean {
     "javascript",
     "typescriptreact",
     "javascriptreact",
+    "python",
+    "go",
+    "rust",
+    "java",
+    "c",
+    "cpp",
   ];
   return tracked.includes(languageId);
 }
