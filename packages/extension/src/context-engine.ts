@@ -23,16 +23,23 @@ export function buildCompletionRequest(params: {
   readonly maxLines: number;
 }): CompletionRequest {
   const lines = params.fullText.split("\n");
+  const currentLine = lines[params.cursorLine] ?? "";
 
-  // Prefix: from (cursorLine - maxLines) to cursor
+  // Prefix: lines above cursor + current line text before cursor
   const prefixStartLine = Math.max(0, params.cursorLine - params.maxLines);
   const prefixLines = lines.slice(prefixStartLine, params.cursorLine);
-  const prefix = prefixLines.join("\n");
+  const currentLinePrefix = currentLine.substring(0, params.cursorCharacter);
+  const prefix = prefixLines.length > 0
+    ? [...prefixLines, currentLinePrefix].join("\n")
+    : currentLinePrefix;
 
-  // Suffix: from cursor to (cursorLine + maxLines)
+  // Suffix: current line text after cursor + lines below cursor
+  const currentLineSuffix = currentLine.substring(params.cursorCharacter);
   const suffixEndLine = Math.min(lines.length - 1, params.cursorLine + params.maxLines);
   const suffixLines = lines.slice(params.cursorLine + 1, suffixEndLine + 1);
-  const suffix = suffixLines.join("\n");
+  const suffix = suffixLines.length > 0
+    ? [currentLineSuffix, ...suffixLines].join("\n")
+    : currentLineSuffix;
 
   return {
     documentUri: params.documentUri,

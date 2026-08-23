@@ -120,5 +120,65 @@ describe("completion-normalizer", () => {
         expect(result).toBe("const x = 1;");
       });
     });
+
+    // -----------------------------------------------------------------------
+    // Duplicate current-line removal
+    // -----------------------------------------------------------------------
+
+    describe("duplicate current-line removal", () => {
+      it("should remove output that ends with the current line content", () => {
+        // After accepting "  return sum;" cursor moved past it.
+        // Model re-suggests with a leading newline: "\n  return sum;"
+        const currentLine = "  return sum;";
+        const output = "\n  return sum;";
+        const result = normalizeCompletion(output, "", "", currentLine);
+        expect(result).toBeNull();
+      });
+
+      it("should remove output that starts with the current line content", () => {
+        // Model re-generates the entire current line
+        const currentLine = "  return sum;";
+        const output = "  return sum;\n";
+        const result = normalizeCompletion(output, "", "", currentLine);
+        expect(result).toBeNull();
+      });
+
+      it("should keep output that is different from the current line", () => {
+        const currentLine = "  return sum;";
+        const output = "  return x + y;";
+        const result = normalizeCompletion(output, "", "", currentLine);
+        // Leading whitespace is trimmed by the normalizer's final .trim()
+        expect(result).toBe("return x + y;");
+      });
+
+      it("should keep output when currentLine is empty", () => {
+        const currentLine = "";
+        const output = "  return sum;";
+        const result = normalizeCompletion(output, "", "", currentLine);
+        // Leading whitespace is trimmed by the normalizer's final .trim()
+        expect(result).toBe("return sum;");
+      });
+
+      it("should not crash when currentLine is undefined (backward compat)", () => {
+        const output = "  return sum;";
+        const result = normalizeCompletion(output, "", "");
+        // Leading whitespace is trimmed by the normalizer's final .trim()
+        expect(result).toBe("return sum;");
+      });
+
+      it("should strip current-line duplicate even with surrounding newlines", () => {
+        const currentLine = "    let sum = 0;";
+        const output = "\n    let sum = 0;\n";
+        const result = normalizeCompletion(output, "", "", currentLine);
+        expect(result).toBeNull();
+      });
+
+      it("should suppress output that duplicates preceding lines in prefix", () => {
+        const prefix = "function f() {\n  return false;\n}";
+        const output = "return false;\n}";
+        const result = normalizeCompletion(output, prefix, "");
+        expect(result).toBeNull();
+      });
+    });
   });
 });

@@ -6,6 +6,7 @@
  * - Markdown code fence removal
  * - Explanatory prose removal
  * - Duplicate prefix/suffix detection
+ * - Duplicate current-line detection
  * - Empty/whitespace-only result filtering
  * - Prompt label cleanup
  */
@@ -14,11 +15,17 @@
  * Normalize raw model output into clean completion text.
  *
  * Returns null if the output should be discarded (empty, invalid, etc.).
+ *
+ * @param currentLine - The full text of the line the cursor is on. When
+ *   provided, the normalizer can detect completions that duplicate existing
+ *   content on the cursor line (e.g. after accepting a suggestion the model
+ *   re-suggests the same text).
  */
 export function normalizeCompletion(
   rawOutput: string,
   prefix: string,
-  suffix: string
+  suffix: string,
+  currentLine?: string
 ): string | null {
   if (!rawOutput) return null;
 
@@ -38,13 +45,27 @@ export function normalizeCompletion(
   // Step 4: Remove duplicate suffix (model sometimes includes suffix)
   text = removeDuplicateSuffix(text, suffix);
 
-  // Step 5: Trim whitespace
+  // Step 5: Remove duplicate of current line (model re-suggests accepted text)
+  if (currentLine !== undefined) {
+    text = removeDuplicateCurrentLine(text, currentLine);
+  }
+
+  // Step 6: Trim whitespace
   text = text.trim();
 
-  // Step 6: Check if empty after cleanup
+  // Step 7: Check if empty after cleanup
   if (!text) return null;
 
-  // Step 7: Check if it's just explanatory prose (heuristic)
+  // Step 8: Suppress completion if prefix already ends with this exact text
+  // (prevents repeating code blocks/statements already written before the cursor)
+  if (prefix) {
+    const trimmedPrefix = prefix.trimEnd();
+    if (trimmedPrefix.endsWith(text)) {
+      return null;
+    }
+  }
+
+  // Step 9: Check if it's just explanatory prose (heuristic)
   if (isLikelyProse(text)) return null;
 
   return text;
@@ -94,6 +115,51 @@ function removeDuplicatePrefix(text: string, prefix: string): string {
   const prefixLastLine = prefix.split("\n").pop() ?? "";
   if (prefixLastLine && text.startsWith(prefixLastLine)) {
     return text.slice(prefixLastLine.length);
+  }
+
+  return text;
+}
+
+/**
+ * Remove duplicate of the current line content.
+ *
+ * After accepting a ghost-text suggestion the cursor moves to the end of
+ * the accepted text. The model may then re-suggest the same text because
+ * the cursor line is excluded from the prefix/suffix context sent to the
+ * model. This step detects and strips that duplication.
+ *
+ * Handles two cases:
+ * 1. Output ends with current-line text (model appended after cursor)
+ * 2. Output starts with current-line text (model re-generated the line)
+ */
+function removeDuplicateCurrentLine(
+  text: string,
+  currentLine: string
+): string {
+  const trimmedLine = currentLine.trim();
+  if (!trimmedLine) return text;
+
+  // Strip leading newlines — models often prepend a newline before
+  // re-generating the current line content.
+  let stripped = text;
+  while (stripped.charCodeAt(0) === 10) {
+    stripped = stripped.slice(1);
+  }
+
+  // Case 1: output (after stripping leading newlines) ends with the
+  // current line content — the model re-suggested what was just accepted.
+  if (stripped.endsWith(trimmedLine)) {
+    const candidate = stripped.slice(0, -trimmedLine.length).trimEnd();
+    if (candidate) return candidate;
+    return ""; // entire output was a duplicate
+  }
+
+  // Case 2: output starts with the current line content — the model
+  // re-generated the entire line.
+  if (stripped.startsWith(trimmedLine)) {
+    const candidate = stripped.slice(trimmedLine.length);
+    if (candidate.trim()) return candidate;
+    return ""; // entire output was a duplicate
   }
 
   return text;

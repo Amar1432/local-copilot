@@ -55,8 +55,8 @@ describe("context-engine", () => {
         maxLines: 10,
       });
 
-      expect(request.prefix).toBe("");
-      expect(request.suffix).toBe("");
+      expect(request.prefix).toBe("const x = ");
+      expect(request.suffix).toBe("1;");
     });
 
     it("should handle empty document", () => {

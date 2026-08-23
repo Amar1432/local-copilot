@@ -78,6 +78,15 @@ export class LocalCopilotCompletionProvider implements vscode.InlineCompletionIt
       return { items: [] };
     }
 
+    // Suppress completions that are already present at the cursor position.
+    // After accepting a ghost text suggestion, the model may re-suggest the
+    // same text because buildCompletionRequest excludes the current line from
+    // both prefix and suffix — the model has no visibility into what's already
+    // on the current line. This check prevents the repeating-ghost-text loop.
+    if (isCompletionAlreadyPresent(document, position, result)) {
+      return { items: [] };
+    }
+
     const latencyMs = Date.now() - startTime;
     console.log(`[Local Copilot] Completion in ${latencyMs}ms: "${result.slice(0, 50)}..."`);
 
@@ -97,6 +106,83 @@ export class LocalCopilotCompletionProvider implements vscode.InlineCompletionIt
   dispose(): void {
     this.orchestrator.dispose();
   }
+}
+
+/**
+ * Check if the suggested completion is already present at the cursor position
+ * or exists elsewhere in the document after the cursor.
+ *
+ * Prevents two common duplicate-suggestion scenarios:
+ * 1. Repeating ghost text: the model re-suggests text just accepted on the
+ *    current line (cursor line is excluded from prefix/suffix context).
+ * 2. Reusing existing blocks: the model suggests code blocks that already
+ *    exist further down in the file because the suffix context is limited.
+ */
+function isCompletionAlreadyPresent(
+  document: vscode.TextDocument,
+  position: vscode.Position,
+  completion: string
+): boolean {
+  const trimmedCompletion = completion.trim();
+  if (!trimmedCompletion) return false;
+
+  // --- Check 1: same-line duplicate (just-accepted or already-ahead) ---
+  const currentLineText = document.lineAt(position.line).text;
+  const textBeforeCursor = currentLineText.substring(0, position.character);
+  const textAfterCursorOnLine = currentLineText.substring(position.character);
+
+  // Model re-suggesting text cursor just moved past
+  if (textBeforeCursor.endsWith(trimmedCompletion)) {
+    return true;
+  }
+  // Inserting would overlap with existing text on this line
+  if (textAfterCursorOnLine.startsWith(trimmedCompletion)) {
+    return true;
+  }
+
+  // Preceding lines check: block or statement already written directly before cursor
+  const startLine = Math.max(0, position.line - 10);
+  const textBeforeCursorMultiLine = document
+    .getText(
+      new vscode.Range(
+        new vscode.Position(startLine, 0),
+        position
+      )
+    )
+    .trimEnd();
+  if (textBeforeCursorMultiLine.endsWith(trimmedCompletion)) {
+    return true;
+  }
+
+  // --- Check 2: multi-line suggestion already in document after cursor ---
+  // For non-trivial suggestions (multi-line or >20 chars), check whether the
+  // document text from the cursor forward already contains the same block.
+  // This catches the case where the model reuses a function/block that exists
+  // later in the file while the cursor is on an empty or short line above it.
+  if (trimmedCompletion.includes("\n") || trimmedCompletion.length > 20) {
+    const firstLine = trimmedCompletion.split("\n")[0].trim();
+    if (!firstLine) return false;
+
+    // Collect document text from the cursor position to the end
+    const endLine = Math.min(
+      position.line + 20,
+      document.lineCount - 1
+    );
+    const textAfterCursor = document
+      .getText(
+        new vscode.Range(
+          position,
+          new vscode.Position(endLine, document.lineAt(endLine).text.length)
+        )
+      )
+      .trimStart();
+
+    if (textAfterCursor.startsWith(firstLine)) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 /**

@@ -266,8 +266,19 @@ export class CompletionOrchestrator {
       // Track latency
       this.lastLatencyMs = result.latencyMs;
 
+      // Extract the current line for duplicate detection in the normalizer.
+      // buildCompletionRequest excludes the cursor line from both prefix and
+      // suffix, so the normalizer needs it separately to detect re-suggestions.
+      const lines = params.fullText.split("\n");
+      const currentLine = lines[params.cursorLine] ?? "";
+
       // Normalize the output
-      const normalized = normalizeCompletion(result.text, request.prefix, request.suffix);
+      const normalized = normalizeCompletion(
+        result.text,
+        request.prefix,
+        request.suffix,
+        currentLine
+      );
 
       // Store in L1 Request Cache if valid
       if (normalized !== null) {

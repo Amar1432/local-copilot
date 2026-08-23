@@ -6,6 +6,7 @@
  */
 
 import type { CompletionRequest, ProviderConfig } from "@local-copilot/shared";
+import { formatFimPrompt, isFimSupported } from "@local-copilot/core";
 import { buildStandardMessages } from "./prompt-builder";
 
 /**
@@ -40,14 +41,49 @@ export async function complete(
 } | null> {
   const startTime = Date.now();
 
+  const useFim =
+    config.useFim !== false &&
+    request.useFim !== false &&
+    isFimSupported(config.model);
+
+  let messages: Array<{ readonly role: string; readonly content: string }>;
+  if (useFim) {
+    const fileName = request.documentUri ? request.documentUri.split("/").pop() ?? "" : "";
+    const fimPrompt = formatFimPrompt(
+      request.prefix,
+      request.suffix,
+      config.fimTemplate ?? config.model,
+      { fileName, language: request.language }
+    );
+    messages = [
+      {
+        role: "system",
+        content: `You are a code completion engine for ${request.language}.${fileName ? ` File: ${fileName}.` : ""} Complete only the code at cursor position in ${request.language}. Do not explain. Do not output code in any other language.`,
+      },
+      {
+        role: "user",
+        content: fimPrompt,
+      },
+    ];
+  } else {
+    messages = buildStandardMessages(request);
+  }
+
   // Build the request body
-  const messages = buildStandardMessages(request);
   const body = {
     model: config.model,
     messages,
     max_tokens: config.maxOutputTokens,
     temperature: config.temperature,
     stream: false,
+    stop: [
+      "</COMPLETION>",
+      "<COMPLETION>",
+      "<PREFIX>",
+      "<SUFFIX>",
+      "<|endoftext|>",
+      "<|file_separator|>",
+    ],
   };
 
   // Determine the endpoint URL

@@ -72,14 +72,23 @@ export function getFimTokens(modelOrTemplate?: string): FimTokens {
 export function formatFimPrompt(
   prefix: string,
   suffix: string,
-  templateOrTokens?: string | FimTokens
+  templateOrTokens?: string | FimTokens,
+  options?: { readonly fileName?: string; readonly language?: string }
 ): string {
   const tokens =
     typeof templateOrTokens === "object"
       ? templateOrTokens
       : getFimTokens(templateOrTokens);
 
-  return `${tokens.prefix}${prefix}${tokens.suffix}${suffix}${tokens.middle}`;
+  let formattedPrefix = prefix;
+  if (options?.fileName && !prefix.includes(options.fileName)) {
+    const templateName = typeof templateOrTokens === "string" ? templateOrTokens.toLowerCase() : "";
+    if (templateName.includes("qwen")) {
+      formattedPrefix = `<|file_sep|>${options.fileName}\n${prefix}`;
+    }
+  }
+
+  return `${tokens.prefix}${formattedPrefix}${tokens.suffix}${suffix}${tokens.middle}`;
 }
 
 /**

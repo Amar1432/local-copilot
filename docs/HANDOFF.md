@@ -53,6 +53,25 @@
 
 <!-- Newest session logs are prepended below this line (latest on top) -->
 
+## ⚡ Fix: Inline Context Slicing, Ghost Text Repetition & FIM Support
+
+**Date/Time:** 2026-08-23 | **Agent:** Antigravity | **Ticket:** FIX-INLINE-COMPLETIONS
+
+### Changes Made
+
+- Fixed `buildCompletionRequest` in `packages/extension/src/context-engine.ts` to include character-exact text on the current line in prefix (`0..cursorCharacter`) and suffix (`cursorCharacter..`), enabling real-time inline suggestions while typing on the current line.
+- Fixed ghost-text duplication after accepting completions in `packages/extension/src/completion-normalizer.ts` and `packages/extension/src/completion-provider.ts` by checking preceding lines before the cursor and suppressing suggestions that repeat trailing blocks.
+- Added FIM prompt formatting support and stop sequences to `packages/extension/src/openai-provider.ts`.
+- Updated test suites across `context-engine.test.ts` and `completion-normalizer.test.ts`.
+
+### Verification
+
+- All 155 tests in `@local-copilot/core`, 6 tests in `@local-copilot/shared`, and 136 tests in extension passed (`pnpm test`).
+- Production build succeeded (`pnpm build`).
+- Knowledge graph updated (`graphify update .`).
+
+---
+
 ## ⚡ Setup: Graphify Integration & Workflow Updates
 
 **Date/Time:** 2026-08-22 | **Agent:** Antigravity | **Ticket:** INFRA-GRAPHIFY

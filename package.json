@@ -2,6 +2,7 @@
   "name": "local-copilot",
   "version": "0.1.0",
   "private": true,
+  "license": "MIT",
   "description": "Private, Fast, Configurable AI Autocomplete for VS Code",
   "engines": {
     "node": ">=18.0.0",

@@ -17,16 +17,18 @@ import type { CompletionRequest } from "@local-copilot/shared";
 export function buildStandardMessages(
   request: CompletionRequest
 ): Array<{ readonly role: string; readonly content: string }> {
+  const fileName = request.documentUri ? request.documentUri.split("/").pop() ?? "" : "";
   const systemParts = [
     "You are a code completion engine.",
     "",
     `Language: ${request.language}`,
+    fileName ? `File: ${fileName}` : "",
     "",
-    "Complete only the code at the cursor position.",
+    `Complete only the code at the cursor position in ${request.language}.`,
     "Do not explain. Do not repeat existing text.",
-    "Return only code that should be inserted.",
+    `Return only ${request.language} code that should be inserted.`,
     "Do not include markdown fences or backticks.",
-  ];
+  ].filter(Boolean);
 
   // Inject serialized multi-file context chunks when available
   if (request.contextText) {
@@ -38,6 +40,7 @@ export function buildStandardMessages(
   const systemPrompt = systemParts.join("\n");
 
   const userContent = [
+    fileName ? `// File: ${fileName} (${request.language})` : "",
     request.prefix ? `<PREFIX>\n${request.prefix}</PREFIX>` : "",
     request.suffix ? `<SUFFIX>\n${request.suffix}</SUFFIX>` : "",
     "<COMPLETION>",
