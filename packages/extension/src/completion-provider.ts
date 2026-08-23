@@ -184,12 +184,14 @@ function isCompletionAlreadyPresent(
     return true;
   }
 
-  // Preceding lines check: block or statement already written directly before cursor
-  const startLine = Math.max(0, position.line - 10);
+  // Preceding lines check: block or statement already written directly before cursor.
+  // Use all text from the start of the document up to the cursor, so we catch
+  // multi-line completions regardless of their length (the old 10-line lookback
+  // failed for any completion spanning more than ~10 lines).
   const textBeforeCursorMultiLine = document
     .getText(
       new vscode.Range(
-        new vscode.Position(startLine, 0),
+        new vscode.Position(0, 0),
         position
       )
     )
