@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "license": "MIT",
+  "publisher": "local-copilot",
   "repository": {
     "type": "git",
     "url": "https://github.com/Amar1432/local-copilot.git"
