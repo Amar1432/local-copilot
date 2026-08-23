@@ -1,10 +1,10 @@
 import * as vscode from "vscode";
-import type { ProviderConfig } from "@local-copilot/shared";
-import type { ContextProvider } from "@local-copilot/core";
+import type { ProviderConfig } from "@private-copilot/shared";
+import type { ContextProvider } from "@private-copilot/core";
 import { CompletionOrchestrator } from "./completion-orchestrator";
 
 /**
- * Inline completion provider for Local Copilot.
+ * Inline completion provider for Private Copilot.
  *
  * Uses the CompletionOrchestrator to request completions from the configured
  * provider, normalizes the output, and returns InlineCompletionItems to VS Code.

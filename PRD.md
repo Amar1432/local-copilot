@@ -1,6 +1,6 @@
 # PRD.md — Local AI Autocomplete for VS Code
 
-**Product Name:** Local Copilot (working title)  
+**Product Name:** Private Copilot (working title)  
 **Document Version:** 1.0  
 **Status:** Draft / MVP Definition  
 **Platform:** Visual Studio Code Extension  
@@ -10,7 +10,7 @@
 
 ## 1. Product Overview
 
-Local Copilot is a VS Code extension that provides AI-powered inline code completion and code suggestions while a developer is typing.
+Private Copilot is a VS Code extension that provides AI-powered inline code completion and code suggestions while a developer is typing.
 
 The product is designed around one core principle:
 
@@ -720,31 +720,31 @@ Example VS Code settings:
 
 ```json
 {
-  "localCopilot.enabled": true,
+  "privateCopilot.enabled": true,
 
-  "localCopilot.provider": "custom",
+  "privateCopilot.provider": "custom",
 
-  "localCopilot.baseUrl": "http://localhost:11434/v1",
+  "privateCopilot.baseUrl": "http://localhost:11434/v1",
 
-  "localCopilot.apiKey": "",
+  "privateCopilot.apiKey": "",
 
-  "localCopilot.model": "qwen-coder",
+  "privateCopilot.model": "qwen-coder",
 
-  "localCopilot.debounceMs": 150,
+  "privateCopilot.debounceMs": 150,
 
-  "localCopilot.requestTimeoutMs": 2000,
+  "privateCopilot.requestTimeoutMs": 2000,
 
-  "localCopilot.maxOutputTokens": 128,
+  "privateCopilot.maxOutputTokens": 128,
 
-  "localCopilot.temperature": 0.1,
+  "privateCopilot.temperature": 0.1,
 
-  "localCopilot.context.maxLines": 120,
+  "privateCopilot.context.maxLines": 120,
 
-  "localCopilot.repositoryContext.enabled": false,
+  "privateCopilot.repositoryContext.enabled": false,
 
-  "localCopilot.telemetry.enabled": false,
+  "privateCopilot.telemetry.enabled": false,
 
-  "localCopilot.localOnly": true
+  "privateCopilot.localOnly": true
 }
 ```
 
@@ -777,7 +777,7 @@ For workspace settings:
 When enabled:
 
 ```text
-localCopilot.localOnly = true
+privateCopilot.localOnly = true
 ```
 
 The extension must reject all remote providers.
@@ -1000,15 +1000,15 @@ Reason: Connection refused
 Recommended commands:
 
 ```text
-Local Copilot: Enable
-Local Copilot: Disable
-Local Copilot: Trigger Completion
-Local Copilot: Select Model
-Local Copilot: Select Provider
-Local Copilot: Test Connection
-Local Copilot: Show Diagnostics
-Local Copilot: Clear Cache
-Local Copilot: Open Settings
+Private Copilot: Enable
+Private Copilot: Disable
+Private Copilot: Trigger Completion
+Private Copilot: Select Model
+Private Copilot: Select Provider
+Private Copilot: Test Connection
+Private Copilot: Show Diagnostics
+Private Copilot: Clear Cache
+Private Copilot: Open Settings
 ```
 
 ---
@@ -1453,7 +1453,7 @@ Secrets are always resolved through SecretStorage.
 # 50. Recommended Monorepo Structure
 
 ```text
-local-copilot/
+private-copilot/
 ├── packages/
 │   ├── extension/
 │   │   ├── src/
@@ -2045,7 +2045,7 @@ This allows regressions to be identified.
 Diagnostic command should show:
 
 ```text
-Local Copilot Diagnostics
+Private Copilot Diagnostics
 
 Extension Version: 0.1.0
 
@@ -2308,7 +2308,7 @@ Future local model/ranking features:
 Potential storage:
 
 ```text
-~/.local-copilot/
+~/.private-copilot/
 ```
 
 But source data should be minimized and local by default.
@@ -2329,7 +2329,7 @@ Future project-specific rules could support:
 Potential source:
 
 ```text
-.local-copilot/rules.md
+.private-copilot/rules.md
 ```
 
 This should be opt-in and treated as context, not executable instructions.
@@ -2711,7 +2711,7 @@ That means:
 
 # 99. Final Product Statement
 
-Local Copilot is a VS Code-native AI autocomplete engine built for developers who want the speed and privacy of local inference without giving up access to powerful cloud models.
+Private Copilot is a VS Code-native AI autocomplete engine built for developers who want the speed and privacy of local inference without giving up access to powerful cloud models.
 
 Its architecture should remain deliberately modular:
 

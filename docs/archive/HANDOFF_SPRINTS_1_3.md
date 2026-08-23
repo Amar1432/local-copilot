@@ -44,16 +44,16 @@ Sprint 4 — Context Engine & Multi-File Support: LC-021: Define Context Provide
 
 1. Created `packages/extension/src/secret-manager.ts`:
    - `SecretManager` class wrapping VS Code's native `vscode.SecretStorage` API
-   - `getApiKey(provider, fallback)` resolving provider-specific secret keys (`localCopilot.apiKey.<provider>`), global fallback keys, and legacy config values
+   - `getApiKey(provider, fallback)` resolving provider-specific secret keys (`privateCopilot.apiKey.<provider>`), global fallback keys, and legacy config values
    - `setApiKey(apiKey, provider)` and `deleteApiKey(provider)` for safe persistence and revocation
    - `SecretManager.maskApiKey(key)` utility producing non-reversible masked representations (e.g. `sk-...cdef` or `********`) for logs and UI diagnostics
    - Event listening via `onDidChange` to reactively notify completion providers of secret rotations
 2. Integrated `SecretManager` into `packages/extension/src/extension.ts`:
    - Hydrated effective runtime provider configuration with securely fetched API keys
-   - Registered `localCopilot.setApiKey` command with password-masked input prompt
-   - Registered `localCopilot.deleteApiKey` command to clear stored keys
-   - Sanitized `localCopilot.showDiagnostics` output with masked API key indicators
-3. Updated `packages/extension/package.json` with `localCopilot.setApiKey` and `localCopilot.deleteApiKey` contributions and activation events
+   - Registered `privateCopilot.setApiKey` command with password-masked input prompt
+   - Registered `privateCopilot.deleteApiKey` command to clear stored keys
+   - Sanitized `privateCopilot.showDiagnostics` output with masked API key indicators
+3. Updated `packages/extension/package.json` with `privateCopilot.setApiKey` and `privateCopilot.deleteApiKey` contributions and activation events
 4. Created unit tests in `packages/extension/src/secret-manager.test.ts` (9 tests) and extended `packages/extension/src/extension.test.ts` (+3 tests)
 5. Total test suite expanded to 168 passing tests (100% clean typecheck, lint, and build)
 
@@ -81,7 +81,7 @@ LC-020: Implement Local-Only Mode — Block external requests and validate endpo
    - In-memory model caching with configurable TTL (default 5 minutes) and force refresh support
    - Capability extraction estimating context window (up to 128k/64k/32k/16k/8k/4k), FIM support, and auth requirements
    - Graceful fallback mechanism generating default `ModelInfo` for manually configured models when discovery fails
-2. Updated VS Code Extension `localCopilot.selectModel` command in `packages/extension/src/extension.ts`:
+2. Updated VS Code Extension `privateCopilot.selectModel` command in `packages/extension/src/extension.ts`:
    - Dynamically queries available models using `ModelDiscoveryService`
    - Displays discovered models in a QuickPick with capability indicators (`FIM` / `No FIM` • `local` / `remote`)
    - Provides a direct fallback option `$(edit) Enter model manually...` for manual input
@@ -233,7 +233,7 @@ LC-015: Implement Provider Router — Create a router that selects the appropria
 1. Created `packages/extension/src/request-cache.ts` — In-memory LRU request cache with configurable TTL (default 5000ms), max size (default 100 entries), hit/miss statistics, and LRU eviction order tracking
 2. Integrated `RequestCache` into `CompletionOrchestrator` (`completion-orchestrator.ts`) — Instant cache hit lookup by request fingerprint before debouncing or provider invocation; caches normalized results on completion
 3. Added `clearCache()` and `cacheStats` to `CompletionOrchestrator` and `LocalCopilotCompletionProvider`
-4. Wired `localCopilot.clearCache` and enriched `localCopilot.showDiagnostics` in `extension.ts` to clear and report cache metrics
+4. Wired `privateCopilot.clearCache` and enriched `privateCopilot.showDiagnostics` in `extension.ts` to clear and report cache metrics
 5. Created comprehensive unit tests in `request-cache.test.ts` (9 tests) and `completion-orchestrator.test.ts` (6 tests)
 6. Fixed TypeScript type assertion in `openai-provider.ts` for strict type checking
 7. Total test suite expanded to 97 passing tests (0 failures, 100% clean typecheck, lint, and build)
@@ -248,7 +248,7 @@ LC-015: Implement Provider Router — Create a router that selects the appropria
 
 ### Next Steps
 
-LC-014: Define CompletionProvider Interface — Standardize provider abstraction in `@local-copilot/core`.
+LC-014: Define CompletionProvider Interface — Standardize provider abstraction in `@private-copilot/core`.
 
 ---
 

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { OpenAICompatibleProvider } from "./openai-compatible-provider";
 import { ProviderError } from "./provider.types";
-import type { CompletionRequest, ProviderConfig } from "@local-copilot/shared";
+import type { CompletionRequest, ProviderConfig } from "@private-copilot/shared";
 
 function createMockConfig(overrides?: Partial<ProviderConfig>): ProviderConfig {
   return {

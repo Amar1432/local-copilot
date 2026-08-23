@@ -12,20 +12,20 @@
  * 9. Return clean completion items
  */
 
-import type { ProviderConfig } from "@local-copilot/shared";
+import type { ProviderConfig } from "@private-copilot/shared";
 import type {
   ContextProvider,
   ContextTarget,
   ContextBudget,
   ContextChunk,
-} from "@local-copilot/core";
+} from "@private-copilot/core";
 import {
   BUDGET_PRESETS,
   deduplicateChunks,
   rankAndFilterChunks,
   serializeContextChunks,
   CompletionMetricsTracker,
-} from "@local-copilot/core";
+} from "@private-copilot/core";
 import { buildCompletionRequest, computeFingerprint, generateRequestId } from "./context-engine";
 import { complete, testConnection } from "./openai-provider";
 import { normalizeCompletion } from "./completion-normalizer";

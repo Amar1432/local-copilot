@@ -252,7 +252,7 @@ export class BenchmarkRunner {
   formatMarkdownReport(summary: BenchmarkSummary): string {
     const lines: string[] = [];
 
-    lines.push("# Local Copilot — Benchmark Report");
+    lines.push("# Private Copilot — Benchmark Report");
     lines.push("");
     lines.push(`- **Date:** ${summary.timestamp}`);
     lines.push(`- **Total Cases:** ${summary.totalCases}`);

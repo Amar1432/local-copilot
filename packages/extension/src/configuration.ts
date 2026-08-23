@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import type { ProviderConfig } from "@local-copilot/shared";
+import type { ProviderConfig } from "@private-copilot/shared";
 
 const CONFIG_SECTION = "privateCopilot";
 
@@ -27,7 +27,7 @@ export function getConfiguration(): ProviderConfig {
 }
 
 /**
- * Creates a VS Code configuration change listener for Local Copilot settings.
+ * Creates a VS Code configuration change listener for Private Copilot settings.
  */
 export function onConfigurationChanged(
   callback: (config: ProviderConfig) => void

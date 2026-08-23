@@ -2,7 +2,7 @@ import type {
   CompletionRequest,
   CompletionResponse,
   ProviderConfig,
-} from "@local-copilot/shared";
+} from "@private-copilot/shared";
 import type {
   CompletionProvider,
   ModelInfo,

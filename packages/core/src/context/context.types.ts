@@ -1,5 +1,5 @@
 /**
- * Context types and interfaces for the Local Copilot Context Engine.
+ * Context types and interfaces for the Private Copilot Context Engine.
  */
 
 /**

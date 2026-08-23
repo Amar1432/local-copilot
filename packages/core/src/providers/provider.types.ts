@@ -1,4 +1,4 @@
-import type { CompletionRequest, CompletionResponse, ProviderConfig } from "@local-copilot/shared";
+import type { CompletionRequest, CompletionResponse, ProviderConfig } from "@private-copilot/shared";
 
 /**
  * Authentication type required by a provider or model

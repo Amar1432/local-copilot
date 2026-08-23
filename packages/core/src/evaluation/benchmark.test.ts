@@ -239,7 +239,7 @@ describe("BenchmarkRunner", () => {
     });
 
     const md = runner.formatMarkdownReport(summary);
-    expect(md).toContain("# Local Copilot — Benchmark Report");
+    expect(md).toContain("# Private Copilot — Benchmark Report");
     expect(md).toContain("## Latency Profile");
     expect(md).toContain("## Quality & Accuracy");
     expect(md).toContain("## Language Breakdown");

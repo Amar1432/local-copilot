@@ -1,5 +1,5 @@
 {
-  "name": "@local-copilot/core",
+  "name": "@private-copilot/core",
   "version": "0.1.2",
   "private": true,
   "description": "Core completion engine and provider interfaces",
@@ -20,6 +20,6 @@
     "tsup": "^8.0.0"
   },
   "dependencies": {
-    "@local-copilot/shared": "workspace:*"
+    "@private-copilot/shared": "workspace:*"
   }
 }

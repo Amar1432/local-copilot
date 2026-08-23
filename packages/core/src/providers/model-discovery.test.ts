@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from "vitest";
 import { ModelDiscoveryService } from "./model-discovery";
 import { ProviderRouter } from "./provider-router";
 import type { CompletionProvider, ModelInfo } from "./provider.types";
-import type { ProviderConfig } from "@local-copilot/shared";
+import type { ProviderConfig } from "@private-copilot/shared";
 
 function createConfig(overrides?: Partial<ProviderConfig>): ProviderConfig {
   return {

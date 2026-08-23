@@ -1,4 +1,4 @@
-import type { ProviderConfig } from "@local-copilot/shared";
+import type { ProviderConfig } from "@private-copilot/shared";
 import type { ModelCapabilities, ModelInfo } from "./provider.types";
 import { isFimSupported } from "./fim";
 import type { ProviderRouter } from "./provider-router";

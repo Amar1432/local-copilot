@@ -1,4 +1,4 @@
-import type { ProviderConfig } from "@local-copilot/shared";
+import type { ProviderConfig } from "@private-copilot/shared";
 import { Position, Range } from "../__mocks__/vscode";
 import type { CompletionScenario } from "./completion-scenarios";
 

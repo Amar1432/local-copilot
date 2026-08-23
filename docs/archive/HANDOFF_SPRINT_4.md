@@ -27,7 +27,7 @@ This archive contains session logs for completed Sprint 4 tickets (LC-021 throug
    - Constructor now accepts optional `ContextProvider[]` and passes them to `CompletionOrchestrator`
 
 5. Updated `packages/extension/src/configuration.ts`:
-   - Reads `localCopilot.context.budgetPreset` setting (default: "balanced")
+   - Reads `privateCopilot.context.budgetPreset` setting (default: "balanced")
 
 6. Updated `packages/extension/src/extension.ts`:
    - `createContextProviders()` instantiates `FileContextExtractor`, `RecentFilesProvider` (with shared `RecentFilesBuffer`), and `ImportDefinitionResolver` (with VS Code workspace FS bridge)
@@ -35,7 +35,7 @@ This archive contains session logs for completed Sprint 4 tickets (LC-021 throug
    - Context providers passed to `LocalCopilotCompletionProvider` during activation
 
 7. Updated `packages/extension/package.json`:
-   - Added `localCopilot.context.budgetPreset` setting with enum ["fast", "balanced", "rich"] and description
+   - Added `privateCopilot.context.budgetPreset` setting with enum ["fast", "balanced", "rich"] and description
 
 8. Updated `packages/extension/__mocks__/vscode.ts`:
    - Added `Uri` class, `workspace.fs`, `workspace.onDidOpenTextDocument`, `workspace.onDidChangeTextDocument`, `workspace.onDidCloseTextDocument`, `workspace.textDocuments` mocks for context tracking tests

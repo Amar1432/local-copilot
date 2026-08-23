@@ -35,7 +35,7 @@ importers:
 
   packages/core:
     dependencies:
-      '@local-copilot/shared':
+      '@private-copilot/shared':
         specifier: workspace:*
         version: link:../shared
     devDependencies:
@@ -54,10 +54,10 @@ importers:
 
   packages/extension:
     dependencies:
-      '@local-copilot/core':
+      '@private-copilot/core':
         specifier: workspace:*
         version: link:../core
-      '@local-copilot/shared':
+      '@private-copilot/shared':
         specifier: workspace:*
         version: link:../shared
     devDependencies:

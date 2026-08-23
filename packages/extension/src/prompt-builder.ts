@@ -6,7 +6,7 @@
  * 2. FIM mode: Fill-in-the-middle with prefix + suffix
  */
 
-import type { CompletionRequest } from "@local-copilot/shared";
+import type { CompletionRequest } from "@private-copilot/shared";
 
 /**
  * Build the messages array for an OpenAI-compatible chat completions endpoint.

@@ -3,7 +3,7 @@
  * around the cursor position for completion requests.
  */
 
-import type { CompletionRequest } from "@local-copilot/shared";
+import type { CompletionRequest } from "@private-copilot/shared";
 
 let requestCounter = 0;
 

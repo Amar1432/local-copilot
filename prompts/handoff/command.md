@@ -2,7 +2,7 @@
 
 ## Instructions
 
-You are working on the Local Copilot VS Code extension. Before making any changes:
+You are working on the Private Copilot VS Code extension. Before making any changes:
 
 1. **Read `docs/AI.md` first** — This contains workflow rules, conventions, and execution requirements.
 

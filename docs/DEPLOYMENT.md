@@ -2,7 +2,7 @@
 
 ## Infrastructure Overview
 
-Local Copilot is a VS Code extension distributed as a VSIX package. No backend infrastructure is required for the extension itself.
+Private Copilot is a VS Code extension distributed as a VSIX package. No backend infrastructure is required for the extension itself.
 
 ### Distribution
 
@@ -24,7 +24,7 @@ pnpm install
 pnpm build
 
 # Build extension only
-pnpm --filter @local-copilot/extension build
+pnpm --filter @private-copilot/extension build
 
 # Watch mode
 pnpm dev
@@ -65,13 +65,13 @@ pnpm package
 
 | Setting                         | Description      | Default                     |
 | ------------------------------- | ---------------- | --------------------------- |
-| `localCopilot.enabled`          | Enable extension | `true`                      |
-| `localCopilot.provider`         | Provider type    | `custom`                    |
-| `localCopilot.baseUrl`          | Provider URL     | `http://localhost:11434/v1` |
-| `localCopilot.model`            | Model name       | `""`                        |
-| `localCopilot.localOnly`        | Local-only mode  | `true`                      |
-| `localCopilot.debounceMs`       | Debounce delay   | `150`                       |
-| `localCopilot.requestTimeoutMs` | Request timeout  | `2000`                      |
+| `privateCopilot.enabled`          | Enable extension | `true`                      |
+| `privateCopilot.provider`         | Provider type    | `custom`                    |
+| `privateCopilot.baseUrl`          | Provider URL     | `http://localhost:11434/v1` |
+| `privateCopilot.model`            | Model name       | `""`                        |
+| `privateCopilot.localOnly`        | Local-only mode  | `true`                      |
+| `privateCopilot.debounceMs`       | Debounce delay   | `150`                       |
+| `privateCopilot.requestTimeoutMs` | Request timeout  | `2000`                      |
 
 ## VS Code Version Compatibility
 
@@ -97,13 +97,13 @@ pnpm package
 ### VS Code Marketplace
 
 ```
-ext install local-copilot.local-copilot
+ext install private-copilot.private-copilot
 ```
 
 ### VSIX Manual Install
 
 ```
-code --install-extension local-copilot-0.1.0.vsix
+code --install-extension private-copilot-0.1.0.vsix
 ```
 
 ### Development Install
@@ -146,8 +146,8 @@ ollama pull qwen-coder
 ```bash
 # Any OpenAI-compatible API
 # Configure in VS Code settings:
-# localCopilot.baseUrl = "http://localhost:8000/v1"
-# localCopilot.model = "your-model"
+# privateCopilot.baseUrl = "http://localhost:8000/v1"
+# privateCopilot.model = "your-model"
 ```
 
 ## Known Gotchas

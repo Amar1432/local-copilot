@@ -253,7 +253,7 @@
     "esbuild": "^0.28.0"
   },
   "peerDependencies": {
-    "@local-copilot/core": "workspace:*",
-    "@local-copilot/shared": "workspace:*"
+    "@private-copilot/core": "workspace:*",
+    "@private-copilot/shared": "workspace:*"
   }
 }

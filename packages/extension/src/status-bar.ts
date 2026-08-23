@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import type { ConnectionStatus } from "@local-copilot/shared";
+import type { ConnectionStatus } from "@private-copilot/shared";
 
 /**
  * State options for the status bar manager.

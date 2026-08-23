@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
-import type { ProviderConfig } from "@local-copilot/shared";
-import type { MetricsSummary } from "@local-copilot/core";
+import type { ProviderConfig } from "@private-copilot/shared";
+import type { MetricsSummary } from "@private-copilot/core";
 
 const PANEL_VIEW_TYPE = "privateCopilot.diagnostics";
 const PANEL_TITLE = "Private Copilot Diagnostics";

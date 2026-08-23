@@ -1,5 +1,5 @@
 {
-  "name": "local-copilot",
+  "name": "private-copilot",
   "version": "0.1.2",
   "private": true,
   "license": "MIT",
@@ -19,7 +19,7 @@
     "test": "pnpm -r test",
     "lint": "pnpm -r lint",
     "typecheck": "pnpm build && pnpm -r typecheck",
-    "benchmark": "pnpm --filter @local-copilot/core test src/evaluation",
+    "benchmark": "pnpm --filter @private-copilot/core test src/evaluation",
     "clean": "pnpm -r clean",
     "package": "pnpm --filter private-copilot package"
   },

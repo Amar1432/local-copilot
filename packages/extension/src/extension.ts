@@ -1,18 +1,18 @@
 import * as vscode from "vscode";
-import type { ProviderConfig } from "@local-copilot/shared";
-import type { ContextProvider } from "@local-copilot/core";
+import type { ProviderConfig } from "@private-copilot/shared";
+import type { ContextProvider } from "@private-copilot/core";
 import {
   FileContextExtractor,
   RecentFilesBuffer,
   RecentFilesProvider,
   ImportDefinitionResolver,
   type ImportFileAccess,
-} from "@local-copilot/core";
+} from "@private-copilot/core";
 import { getConfiguration, onConfigurationChanged } from "./configuration";
 import { StatusBarManager, showStatusBarQuickMenu } from "./status-bar";
 import { LocalCopilotCompletionProvider } from "./completion-provider";
 import { SecretManager } from "./secret-manager";
-import { ModelDiscoveryService, TelemetryExporter } from "@local-copilot/core";
+import { ModelDiscoveryService, TelemetryExporter } from "@private-copilot/core";
 import { DiagnosticsPanel, type DiagnosticsSnapshot } from "./diagnostics-panel";
 
 let statusBar: StatusBarManager | undefined;
@@ -455,7 +455,7 @@ function registerCommands(
 }
 
 // ---------------------------------------------------------------------------
-// Quick Settings menu (localCopilot.quickSettings)
+// Quick Settings menu (privateCopilot.quickSettings)
 // ---------------------------------------------------------------------------
 
 type QuickSettingKey =
@@ -613,7 +613,7 @@ async function showQuickSettingsMenu(): Promise<void> {
 }
 
 // ---------------------------------------------------------------------------
-// Setup Wizard (localCopilot.setupWizard)
+// Setup Wizard (privateCopilot.setupWizard)
 // ---------------------------------------------------------------------------
 
 const PROVIDER_DEFAULT_BASE_URLS: Readonly<Record<string, string>> = {

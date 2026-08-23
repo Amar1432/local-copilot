@@ -2,7 +2,7 @@
 
 ## Project State Summary
 
-**Project:** Local Copilot (VS Code AI Autocomplete Extension)
+**Project:** Private Copilot (VS Code AI Autocomplete Extension)
 **Current Sprint:** Sprint 6 — Testing, Evaluation & Polish
 **Active Ticket:** — (MVP All Sprints 1–6 Complete!)
 **Overall Progress:** 42/42 tickets completed (100%)
@@ -79,12 +79,12 @@ Authored comprehensive project documentation (`README.md`, `packages/extension/R
 - **`packages/extension/README.md`**
   - Created standalone extension marketplace README for VSIX distribution.
 - **VSIX Packaging Verification**
-  - Ran `pnpm package` / `vsce package --no-dependencies`, successfully generating `packages/extension/local-copilot-0.1.0.vsix` with zero warnings/errors.
+  - Ran `pnpm package` / `vsce package --no-dependencies`, successfully generating `packages/extension/private-copilot-0.1.0.vsix` with zero warnings/errors.
 
 ### Acceptance Criteria
 
 - [x] README documents installation, setup wizard, and daily usage
-- [x] Extension packages as a valid VSIX package (`local-copilot-0.1.0.vsix`)
+- [x] Extension packages as a valid VSIX package (`private-copilot-0.1.0.vsix`)
 - [x] Documentation covers all 13 configuration options and 13 extension commands
 - [x] All 406 tests pass and builds succeed across monorepo
 
@@ -92,7 +92,7 @@ Authored comprehensive project documentation (`README.md`, `packages/extension/R
 
 - `pnpm test` ✅ (406 passing tests across 29 test suites)
 - `pnpm lint` ✅ · `pnpm typecheck` ✅ · `pnpm build` ✅ · `pnpm package` ✅
-- Remote repository updated: pushed all commits to `https://github.com/Amar1432/local-copilot.git`
+- Remote repository updated: pushed all commits to `https://github.com/Amar1432/private-copilot.git`
 
 ---
 
@@ -102,7 +102,7 @@ Authored comprehensive project documentation (`README.md`, `packages/extension/R
 
 ### Summary
 
-Created the dedicated `PerformanceProfiler` benchmarking suite in `@local-copilot/core/evaluation` measuring context build latency, cache retrieval latency, FIM prompt assembly latency, and end-to-end completion path execution. Validated that all operations strictly meet latency SLAs (Context build <20ms, Cache lookup <5ms, FIM assembly <2ms).
+Created the dedicated `PerformanceProfiler` benchmarking suite in `@private-copilot/core/evaluation` measuring context build latency, cache retrieval latency, FIM prompt assembly latency, and end-to-end completion path execution. Validated that all operations strictly meet latency SLAs (Context build <20ms, Cache lookup <5ms, FIM assembly <2ms).
 
 ### Changes Made
 
@@ -135,7 +135,7 @@ Created the dedicated `PerformanceProfiler` benchmarking suite in `@local-copilo
 
 ### Summary
 
-Implemented a privacy-safe online metrics and telemetry pipeline in `@local-copilot/core` and integrated it with VS Code commands. Ensures strict opt-in enforcement (`localCopilot.telemetry.enabled`), hard blocking when `localOnly` is enabled, coarse error categorization to prevent secret or code leakage, and zero source code or file path retention.
+Implemented a privacy-safe online metrics and telemetry pipeline in `@private-copilot/core` and integrated it with VS Code commands. Ensures strict opt-in enforcement (`privateCopilot.telemetry.enabled`), hard blocking when `localOnly` is enabled, coarse error categorization to prevent secret or code leakage, and zero source code or file path retention.
 
 ### Changes Made
 
@@ -146,10 +146,10 @@ Implemented a privacy-safe online metrics and telemetry pipeline in `@local-copi
 - **`packages/core/src/metrics/index.ts`**
   - Exported telemetry types and exporter class.
 - **`packages/extension/src/extension.ts` & `package.json`**
-  - Registered `localCopilot.exportTelemetry` command to generate and copy anonymized telemetry JSON snapshots to clipboard. Added to `contributes.commands` and `activationEvents`.
+  - Registered `privateCopilot.exportTelemetry` command to generate and copy anonymized telemetry JSON snapshots to clipboard. Added to `contributes.commands` and `activationEvents`.
 - **Unit Tests**
   - `packages/core/src/metrics/telemetry.test.ts`: Added 9 unit tests covering permission gates, error sanitization, zero-code retention, local-only blocking, and exporter dispatch.
-  - `packages/extension/src/extension.test.ts`: Verified `localCopilot.exportTelemetry` command registration and clipboard export behavior.
+  - `packages/extension/src/extension.test.ts`: Verified `privateCopilot.exportTelemetry` command registration and clipboard export behavior.
 
 ### Acceptance Criteria
 
@@ -172,7 +172,7 @@ Implemented a privacy-safe online metrics and telemetry pipeline in `@local-copi
 
 ### Summary
 
-Built the automated evaluation and benchmark framework in `@local-copilot/core`, measuring P50/P90/P95/P99 latencies, exact/prefix match rates, Levenshtein edit distance, normalized similarity, token Jaccard similarity, and language/category breakdowns against a curated multi-language test corpus.
+Built the automated evaluation and benchmark framework in `@private-copilot/core`, measuring P50/P90/P95/P99 latencies, exact/prefix match rates, Levenshtein edit distance, normalized similarity, token Jaccard similarity, and language/category breakdowns against a curated multi-language test corpus.
 
 ### Changes Made
 
@@ -212,17 +212,17 @@ Built the automated evaluation and benchmark framework in `@local-copilot/core`,
 
 ### Summary
 
-Improved diagnostics UX by wiring webview action messages (Refresh, Clear Cache, Reset Metrics, Export JSON, Open Settings) to helper commands and adding an interactive action-button bar to the diagnostics panel. Added two new commands: `localCopilot.refreshDiagnostics` and `localCopilot.exportDiagnostics` (copies the full diagnostics snapshot JSON to the clipboard via `vscode.env.clipboard.writeText`).
+Improved diagnostics UX by wiring webview action messages (Refresh, Clear Cache, Reset Metrics, Export JSON, Open Settings) to helper commands and adding an interactive action-button bar to the diagnostics panel. Added two new commands: `privateCopilot.refreshDiagnostics` and `privateCopilot.exportDiagnostics` (copies the full diagnostics snapshot JSON to the clipboard via `vscode.env.clipboard.writeText`).
 
 ### Changes Made
 
 - **`packages/extension/src/diagnostics-panel.ts`**
-  - Replaced the single `refresh` message handler with a `switch` routing webview messages to helper commands: `refresh` → re-render, `clearCache`/`resetMetrics`/`export`/`openSettings` → corresponding `localCopilot.*` commands.
+  - Replaced the single `refresh` message handler with a `switch` routing webview messages to helper commands: `refresh` → re-render, `clearCache`/`resetMetrics`/`export`/`openSettings` → corresponding `privateCopilot.*` commands.
   - Added an **Actions** section with buttons (`data-action="refresh|clearCache|resetMetrics|export|openSettings"`), button styling via VS Code theme variables, and click listeners in the webview script that `postMessage` the action.
 - **`packages/extension/src/extension.ts`**
-  - Registered `localCopilot.refreshDiagnostics` (re-renders the panel) and `localCopilot.exportDiagnostics` (builds snapshot JSON, writes to clipboard, notifies).
+  - Registered `privateCopilot.refreshDiagnostics` (re-renders the panel) and `privateCopilot.exportDiagnostics` (builds snapshot JSON, writes to clipboard, notifies).
 - **`packages/extension/package.json`**
-  - Declared `localCopilot.refreshDiagnostics` and `localCopilot.exportDiagnostics` in `contributes.commands` + `activationEvents` (`onCommand:`).
+  - Declared `privateCopilot.refreshDiagnostics` and `privateCopilot.exportDiagnostics` in `contributes.commands` + `activationEvents` (`onCommand:`).
 - **`packages/extension/__mocks__/vscode.ts`**
   - Added `env.clipboard.writeText` (records to `spy.clipboardText`) and reset it in `resetMocks` so the export command is testable.
 - **Tests**
@@ -251,24 +251,24 @@ Improved diagnostics UX by wiring webview action messages (Refresh, Clear Cache,
 
 ### Summary
 
-Implemented an interactive `localCopilot.setupWizard` guided first-time setup flow: select provider, enter/confirm base URL (provider-aware defaults), discover or manually enter a model, optionally store an API key in SecretStorage, then run a connection test with instant feedback. Command declared in `package.json`; covered by unit tests.
+Implemented an interactive `privateCopilot.setupWizard` guided first-time setup flow: select provider, enter/confirm base URL (provider-aware defaults), discover or manually enter a model, optionally store an API key in SecretStorage, then run a connection test with instant feedback. Command declared in `package.json`; covered by unit tests.
 
 ### Changes Made
 
 - **`packages/extension/src/extension.ts`**
   - Added `PROVIDER_DEFAULT_BASE_URLS` map (sensible defaults per provider: custom/ollama → `:11434/v1`, openai → `api.openai.com/v1`, lmstudio → `:1234/v1`, vllm → `:8000/v1`).
   - Added `runSetupWizard(secrets)` — sequential steps (provider QuickPick → baseUrl InputBox → model discover/manual QuickPick+InputBox → optional API key InputBox saved via `SecretManager.setApiKey` → `completionProvider.orchestratorInstance.testProviderConnection()` with info/warning feedback). Every step aborts the wizard on cancel.
-  - Registered `localCopilot.setupWizard` command (passes `secretManager`).
+  - Registered `privateCopilot.setupWizard` command (passes `secretManager`).
 - **`packages/extension/package.json`**
-  - Added `onCommand:localCopilot.setupWizard` to `activationEvents`.
-  - Added `localCopilot.setupWizard` ("Local Copilot: Setup Wizard") to `contributes.commands`.
+  - Added `onCommand:privateCopilot.setupWizard` to `activationEvents`.
+  - Added `privateCopilot.setupWizard` ("Private Copilot: Setup Wizard") to `contributes.commands`.
 - **`packages/extension/src/extension.test.ts`**
   - Asserts command registration.
-  - Added happy-path test (applies provider=ollama, baseUrl, model, saves API key to `localCopilot.apiKey.ollama`, reports connected) and cancel-abort test (no config changes when provider step cancelled).
+  - Added happy-path test (applies provider=ollama, baseUrl, model, saves API key to `privateCopilot.apiKey.ollama`, reports connected) and cancel-abort test (no config changes when provider step cancelled).
 
 ### Acceptance Criteria
 
-- [x] `localCopilot.setupWizard` interactive flow: provider, baseUrl, model discover/enter, optional API key via SecretStorage, connection test
+- [x] `privateCopilot.setupWizard` interactive flow: provider, baseUrl, model discover/enter, optional API key via SecretStorage, connection test
 - [x] Command declared in `packages/extension/package.json`
 - [x] Unit tests added in `packages/extension/src/extension.test.ts`
 
@@ -286,26 +286,26 @@ Implemented an interactive `localCopilot.setupWizard` guided first-time setup fl
 
 ### Summary
 
-Implemented the inline `localCopilot.toggle` command (flips `localCopilot.enabled` and shows a notification) and the interactive `localCopilot.quickSettings` QuickPick menu for adjusting the most common settings in one place. Commands declared in `packages/extension/package.json` and covered by new unit tests.
+Implemented the inline `privateCopilot.toggle` command (flips `privateCopilot.enabled` and shows a notification) and the interactive `privateCopilot.quickSettings` QuickPick menu for adjusting the most common settings in one place. Commands declared in `packages/extension/package.json` and covered by new unit tests.
 
 ### Changes Made
 
 - **`packages/extension/src/extension.ts`**
-  - Registered `localCopilot.toggle` — reads current `enabled`, flips it via `workspace.getConfiguration("localCopilot").update`, and shows `Local Copilot enabled/disabled`.
-  - Registered `localCopilot.quickSettings` which opens an interactive menu (`showQuickSettingsMenu`).
+  - Registered `privateCopilot.toggle` — reads current `enabled`, flips it via `workspace.getConfiguration("privateCopilot").update`, and shows `Private Copilot enabled/disabled`.
+  - Registered `privateCopilot.quickSettings` which opens an interactive menu (`showQuickSettingsMenu`).
   - Added `QUICK_SETTINGS` registry covering: enabled, provider, model, localOnly, debounceMs, requestTimeoutMs, temperature, maxOutputTokens, contextBudgetPreset.
   - Added `promptForSettingValue` (boolean → QuickPick true/false, enum → option QuickPick, number → validated InputBox, string → InputBox) and `formatSettingValue` helpers. The menu re-opens after each change until the user cancels (Esc).
 - **`packages/extension/package.json`**
-  - Added `onCommand:localCopilot.toggle` and `onCommand:localCopilot.quickSettings` to `activationEvents`.
-  - Added `localCopilot.toggle` ("Local Copilot: Toggle Enable/Disable") and `localCopilot.quickSettings` ("Local Copilot: Quick Settings") to `contributes.commands`.
+  - Added `onCommand:privateCopilot.toggle` and `onCommand:privateCopilot.quickSettings` to `activationEvents`.
+  - Added `privateCopilot.toggle` ("Private Copilot: Toggle Enable/Disable") and `privateCopilot.quickSettings` ("Private Copilot: Quick Settings") to `contributes.commands`.
 - **`packages/extension/src/extension.test.ts`**
   - Asserts both commands register on activation.
   - Added `toggle` test (flips `enabled` to `false`, notifies) and `quickSettings` test (opens menu, applies a selected setting).
 
 ### Acceptance Criteria
 
-- [x] `localCopilot.toggle` command registered and toggles `enabled` with a notification
-- [x] `localCopilot.quickSettings` command registered and opens an interactive QuickPick for enabled, provider, model, localOnly, debounceMs, requestTimeoutMs, temperature, maxOutputTokens, contextBudgetPreset
+- [x] `privateCopilot.toggle` command registered and toggles `enabled` with a notification
+- [x] `privateCopilot.quickSettings` command registered and opens an interactive QuickPick for enabled, provider, model, localOnly, debounceMs, requestTimeoutMs, temperature, maxOutputTokens, contextBudgetPreset
 - [x] Commands declared in `packages/extension/package.json`
 - [x] Unit tests added in `packages/extension/src/extension.test.ts`
 
@@ -323,7 +323,7 @@ Implemented the inline `localCopilot.toggle` command (flips `localCopilot.enable
 
 ### Summary
 
-Expanded language support across `@local-copilot/core` and `@local-copilot/extension` to fully track, parse, extract context for, and complete code in Python, Go, Rust, Java, C, and C++ in addition to TypeScript/JavaScript/TSX/JSX.
+Expanded language support across `@private-copilot/core` and `@private-copilot/extension` to fully track, parse, extract context for, and complete code in Python, Go, Rust, Java, C, and C++ in addition to TypeScript/JavaScript/TSX/JSX.
 
 ### Changes Made
 
@@ -370,7 +370,7 @@ Expanded language support across `@local-copilot/core` and `@local-copilot/exten
 
 ### Summary
 
-Implemented a comprehensive in-memory completion metrics tracking engine (`CompletionMetricsTracker`) in `@local-copilot/core`, fully integrated with `CompletionOrchestrator`, `LocalCopilotCompletionProvider`, `DiagnosticsPanel`, and registered VS Code commands (`localCopilot.completionAccepted`, `localCopilot.viewMetrics`, `localCopilot.resetMetrics`).
+Implemented a comprehensive in-memory completion metrics tracking engine (`CompletionMetricsTracker`) in `@private-copilot/core`, fully integrated with `CompletionOrchestrator`, `LocalCopilotCompletionProvider`, `DiagnosticsPanel`, and registered VS Code commands (`privateCopilot.completionAccepted`, `privateCopilot.viewMetrics`, `privateCopilot.resetMetrics`).
 
 ### Changes Made
 
@@ -383,22 +383,22 @@ Implemented a comprehensive in-memory completion metrics tracking engine (`Compl
     - Code volume (characters and lines generated vs accepted)
     - Per-language metrics breakdown
     - Bounded recent errors log with timestamps and context
-  - Exported from `@local-copilot/core`.
+  - Exported from `@private-copilot/core`.
 - **Integrated with `packages/extension/src/completion-orchestrator.ts`**
   - Added `CompletionMetricsTracker` instance to `CompletionOrchestrator`.
   - Instrumented `requestCompletion` across all code branches: records requests, cancellations, cache hits/misses, provider successes, normalization results, dismissals, and failures with context.
   - Exposed `get metrics()` getter.
 - **Integrated with `packages/extension/src/completion-provider.ts`**
-  - Attached acceptance tracking command (`localCopilot.completionAccepted`) to `InlineCompletionItem` returned to VS Code editor.
+  - Attached acceptance tracking command (`privateCopilot.completionAccepted`) to `InlineCompletionItem` returned to VS Code editor.
   - Added `recordAcceptance()` and `get metrics` on `LocalCopilotCompletionProvider`.
 - **Enhanced `packages/extension/src/diagnostics-panel.ts`**
   - Added `metrics?: MetricsSummary | null` to `DiagnosticsSnapshot`.
   - Added **Completion Metrics** section to the webview diagnostics panel displaying Acceptance Rate %, Total Requests, Completions Generated/Accepted, Failed/Cancelled, Latency (P50/P95/Avg), and Code Volume (Chars/Lines Gen vs Acc).
 - **Updated `packages/extension/src/extension.ts` & `package.json`**
-  - Registered `localCopilot.completionAccepted`, `localCopilot.viewMetrics`, and `localCopilot.resetMetrics` commands.
+  - Registered `privateCopilot.completionAccepted`, `privateCopilot.viewMetrics`, and `privateCopilot.resetMetrics` commands.
   - Populated live metrics in `buildDiagnosticsSnapshot`.
 - **Added Comprehensive Unit Tests across Packages**
-  - Added `metrics-tracker.test.ts` (9 unit tests in `@local-copilot/core`).
+  - Added `metrics-tracker.test.ts` (9 unit tests in `@private-copilot/core`).
   - Added metrics tracking tests in `completion-orchestrator.test.ts`, `completion-provider.test.ts`, `diagnostics-panel.test.ts`, and `extension.test.ts`.
 
 ### Acceptance Criteria
@@ -425,7 +425,7 @@ Implemented a comprehensive in-memory completion metrics tracking engine (`Compl
 
 ### Summary
 
-Enhanced the status bar manager with active model display, dynamic latency indicators, rich multi-line tooltips, comprehensive state management, and an interactive Quick Actions menu (`localCopilot.statusBarMenu`).
+Enhanced the status bar manager with active model display, dynamic latency indicators, rich multi-line tooltips, comprehensive state management, and an interactive Quick Actions menu (`privateCopilot.statusBarMenu`).
 
 ### Changes Made
 
@@ -436,11 +436,11 @@ Enhanced the status bar manager with active model display, dynamic latency indic
   - Implemented `showStatusBarQuickMenu()` action menu presenting toggle enable/disable, model selection, provider selection, API key configuration, connection testing, diagnostics panel, cache clearing, and settings.
   - Added helper methods: `update()`, `setLatency()`, `setModel()`, `setProvider()`, `setEnabled()`, and `getState()`.
 - **Wired into `packages/extension/src/extension.ts` & `completion-provider.ts`**
-  - Registered `localCopilot.statusBarMenu` command.
+  - Registered `privateCopilot.statusBarMenu` command.
   - Linked completion provider latency callbacks to update the status bar dynamically upon completion.
   - Updated configuration change listeners and connection test workflows to refresh model and latency state in the status bar.
 - **Updated `packages/extension/package.json`**
-  - Declared `localCopilot.statusBarMenu` in `activationEvents` and `contributes.commands`.
+  - Declared `privateCopilot.statusBarMenu` in `activationEvents` and `contributes.commands`.
 - **Added Comprehensive Unit Tests in `status-bar.test.ts` & `extension.test.ts`**
   - Expanded `status-bar.test.ts` to 31 tests covering lifecycle, model formatting, latency indicators, rich tooltips, quick menu execution, and state manipulation methods.
   - Added command registration verification in `extension.test.ts`.
@@ -468,16 +468,16 @@ Enhanced the status bar manager with active model display, dynamic latency indic
 
 ### Summary
 
-Replaced the modal diagnostics dialog (`vscode.window.showInformationMessage` with `{ modal: true }`) with a real-time VS Code **webview panel** that opens via the existing `Local Copilot: Show Diagnostics` command.
+Replaced the modal diagnostics dialog (`vscode.window.showInformationMessage` with `{ modal: true }`) with a real-time VS Code **webview panel** that opens via the existing `Private Copilot: Show Diagnostics` command.
 
 ### Changes Made
 
 - **Created `packages/extension/src/diagnostics-panel.ts`**
-  - `DiagnosticsPanel` class: shows/reveals a single webview panel (`localCopilot.diagnostics`), pulls a fresh `DiagnosticsSnapshot` on every `show()`/`update()`, and listens for a `refresh` message from the webview to re-render.
+  - `DiagnosticsPanel` class: shows/reveals a single webview panel (`privateCopilot.diagnostics`), pulls a fresh `DiagnosticsSnapshot` on every `show()`/`update()`, and listens for a `refresh` message from the webview to re-render.
   - `renderDiagnosticsHtml()` builds accessible, semantic HTML styled **exclusively with VS Code theme variables** (per `docs/DESIGN_SYSTEM.md` theming rules), with status colors falling back to the design-system palette via CSS variables. Sensitive values are escaped via `escapeHtml()`.
   - Panel sections: Provider (version/provider/model/base URL/masked API key/local-only), Configuration (debounce/timeout/tokens/temperature/context/telemetry), Last Request (status + latency), Cache Stats (hits/misses/entries).
 - **Wired into `packages/extension/src/extension.ts`**
-  - `localCopilot.showDiagnostics` now opens the panel instead of a modal.
+  - `privateCopilot.showDiagnostics` now opens the panel instead of a modal.
   - Panel is `context.subscriptions`-owned and disposed on deactivate.
   - Re-renders in real time on configuration changes and after `testConnection` (via `diagnosticsPanel.update()`).
 - **Extended `__mocks__/vscode.ts`** with `ViewColumn` enum and a `MockWebviewPanel`/`MockWebview` (tracking html, visibility, dispose, and `onDidReceiveMessage`/`post`).
@@ -538,7 +538,7 @@ Replaced the modal diagnostics dialog (`vscode.window.showInformationMessage` wi
 
 ### Verification
 
-- All 155 tests in `@local-copilot/core`, 6 tests in `@local-copilot/shared`, and 136 tests in extension passed (`pnpm test`).
+- All 155 tests in `@private-copilot/core`, 6 tests in `@private-copilot/shared`, and 136 tests in extension passed (`pnpm test`).
 - Production build succeeded (`pnpm build`).
 - Knowledge graph updated (`graphify update .`).
 

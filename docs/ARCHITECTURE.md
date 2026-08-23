@@ -2,7 +2,7 @@
 
 ## System Overview
 
-Local Copilot is a VS Code extension that provides AI-powered inline code completion. The architecture is designed for low latency, privacy, and provider flexibility.
+Private Copilot is a VS Code extension that provides AI-powered inline code completion. The architecture is designed for low latency, privacy, and provider flexibility.
 
 ## Component Table
 
@@ -23,7 +23,7 @@ Local Copilot is a VS Code extension that provides AI-powered inline code comple
 ## Repository Structure
 
 ```
-local-copilot/
+private-copilot/
 ├── packages/
 │   ├── extension/           # VS Code extension package
 │   │   ├── src/

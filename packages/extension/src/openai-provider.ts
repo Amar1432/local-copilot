@@ -5,8 +5,8 @@
  * Uses native fetch + AbortController for HTTP requests.
  */
 
-import type { CompletionRequest, ProviderConfig } from "@local-copilot/shared";
-import { formatFimPrompt, isFimSupported } from "@local-copilot/core";
+import type { CompletionRequest, ProviderConfig } from "@private-copilot/shared";
+import { formatFimPrompt, isFimSupported } from "@private-copilot/core";
 import { buildStandardMessages } from "./prompt-builder";
 
 /**
@@ -107,7 +107,7 @@ export async function complete(
 
     if (!response.ok) {
       const errorText = await response.text().catch(() => "Unknown error");
-      console.error(`[Local Copilot] Provider error ${response.status}: ${errorText}`);
+      console.error(`[Private Copilot] Provider error ${response.status}: ${errorText}`);
       return null;
     }
 
@@ -131,7 +131,7 @@ export async function complete(
     if (error instanceof DOMException && error.name === "AbortError") {
       return null;
     }
-    console.error("[Local Copilot] Request failed:", error);
+    console.error("[Private Copilot] Request failed:", error);
     return null;
   }
 }

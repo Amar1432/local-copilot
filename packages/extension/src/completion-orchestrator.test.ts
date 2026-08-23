@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { CompletionOrchestrator } from "./completion-orchestrator";
 import * as openaiProvider from "./openai-provider";
-import type { ProviderConfig } from "@local-copilot/shared";
-import type { ContextProvider, ContextChunk } from "@local-copilot/core";
+import type { ProviderConfig } from "@private-copilot/shared";
+import type { ContextProvider, ContextChunk } from "@private-copilot/core";
 
 vi.mock("./openai-provider", () => ({
   complete: vi.fn(),

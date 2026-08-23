@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { buildStandardMessages, buildFIMPrompt } from "./prompt-builder";
-import type { CompletionRequest } from "@local-copilot/shared";
+import type { CompletionRequest } from "@private-copilot/shared";
 
 function createRequest(overrides: Partial<CompletionRequest> = {}): CompletionRequest {
   return {

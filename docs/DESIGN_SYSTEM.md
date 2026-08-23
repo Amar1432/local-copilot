@@ -99,7 +99,7 @@ Standard VS Code ghost text behavior:
 
 ```
 ┌─────────────────────────────────────┐
-│ Local Copilot Diagnostics │
+│ Private Copilot Diagnostics │
 ├─────────────────────────────────────┤
 │ Extension: 0.1.0 │
 │ Provider: Ollama │
@@ -141,15 +141,15 @@ Standard VS Code ghost text behavior:
 ### Command Palette Commands
 
 ```
-Local Copilot: Enable
-Local Copilot: Disable
-Local Copilot: Trigger Completion
-Local Copilot: Select Model
-Local Copilot: Select Provider
-Local Copilot: Test Connection
-Local Copilot: Show Diagnostics
-Local Copilot: Clear Cache
-Local Copilot: Open Settings
+Private Copilot: Enable
+Private Copilot: Disable
+Private Copilot: Trigger Completion
+Private Copilot: Select Model
+Private Copilot: Select Provider
+Private Copilot: Test Connection
+Private Copilot: Show Diagnostics
+Private Copilot: Clear Cache
+Private Copilot: Open Settings
 ```
 
 ## Accessibility

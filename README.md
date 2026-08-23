@@ -45,8 +45,8 @@ ollama serve
 
 ```bash
 # Clone repository
-git clone https://github.com/Amar1432/local-copilot.git
-cd local-copilot
+git clone https://github.com/Amar1432/private-copilot.git
+cd private-copilot
 
 # Install dependencies and build
 pnpm install
@@ -56,7 +56,7 @@ pnpm build
 pnpm package
 
 # Install VSIX into VS Code
-code --install-extension packages/extension/local-copilot-0.1.0.vsix
+code --install-extension packages/extension/private-copilot-0.1.0.vsix
 ```
 
 ### 3. Setup Wizard
@@ -112,7 +112,7 @@ Configure Private Copilot via VS Code Settings (`Cmd+,` / `Ctrl+,` search `priva
 
 ## 🧪 Benchmarking & Performance Profiling
 
-Local Copilot includes an automated evaluation and performance profiling suite:
+Private Copilot includes an automated evaluation and performance profiling suite:
 
 ```bash
 # Run evaluation benchmark suite across multi-language dataset
@@ -133,7 +133,7 @@ node --loader ts-node/esm benchmarks/run-benchmark.ts --model qwen2.5-coder:7b -
 ## 🏗️ Architecture
 
 ```
-local-copilot/
+private-copilot/
 ├── packages/
 │   ├── core/                  # Core domain & completion logic
 │   │   ├── src/
@@ -156,4 +156,4 @@ local-copilot/
 
 ## 📜 License
 
-MIT © [Local Copilot Contributors](LICENSE)
+MIT © [Private Copilot Contributors](LICENSE)

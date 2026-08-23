@@ -10,7 +10,7 @@ import type {
   CompletionRequest,
   CompletionResponse,
   ProviderConfig,
-} from "@local-copilot/shared";
+} from "@private-copilot/shared";
 
 describe("CompletionProvider Interface & Types", () => {
   it("should allow implementing a mock CompletionProvider conforming to the interface", async () => {

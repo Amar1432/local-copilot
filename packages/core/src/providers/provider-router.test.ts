@@ -6,7 +6,7 @@ import type {
   CompletionRequest,
   CompletionResponse,
   ProviderConfig,
-} from "@local-copilot/shared";
+} from "@private-copilot/shared";
 
 function createMockProvider(id: string): CompletionProvider {
   return {

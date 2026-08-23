@@ -66,13 +66,13 @@ graphify query "<question>"
 
 ```bash
 # Build extension only
-pnpm --filter @local-copilot/extension build
+pnpm --filter @private-copilot/extension build
 
 # Test extension
-pnpm --filter @local-copilot/extension test
+pnpm --filter @private-copilot/extension test
 
 # Build core
-pnpm --filter @local-copilot/core build
+pnpm --filter @private-copilot/core build
 ```
 
 ## 3. Reading Order

@@ -25,7 +25,7 @@ describe("Extension Commands & selectModel", () => {
     );
   });
 
-  it("should activate and register localCopilot commands", async () => {
+  it("should activate and register privateCopilot commands", async () => {
     await activate(mockContext as unknown as vscode.ExtensionContext);
     expect(commandHandlers.has("privateCopilot.selectModel")).toBe(true);
     expect(commandHandlers.has("privateCopilot.selectProvider")).toBe(true);
@@ -42,7 +42,7 @@ describe("Extension Commands & selectModel", () => {
     expect(commandHandlers.has("privateCopilot.exportTelemetry")).toBe(true);
   });
 
-  it("should export anonymized telemetry JSON to the clipboard via localCopilot.exportTelemetry", async () => {
+  it("should export anonymized telemetry JSON to the clipboard via privateCopilot.exportTelemetry", async () => {
     await activate(mockContext as unknown as vscode.ExtensionContext);
 
     const handler = commandHandlers.get("privateCopilot.exportTelemetry");
@@ -55,7 +55,7 @@ describe("Extension Commands & selectModel", () => {
     expect(spy.informationMessages).toContain("Anonymized telemetry payload copied to clipboard.");
   });
 
-  it("should export diagnostics JSON to the clipboard via localCopilot.exportDiagnostics", async () => {
+  it("should export diagnostics JSON to the clipboard via privateCopilot.exportDiagnostics", async () => {
     await activate(mockContext as unknown as vscode.ExtensionContext);
 
     const handler = commandHandlers.get("privateCopilot.exportDiagnostics");
@@ -67,7 +67,7 @@ describe("Extension Commands & selectModel", () => {
     expect(spy.informationMessages).toContain("Diagnostics exported to clipboard.");
   });
 
-  it("should refresh diagnostics without throwing via localCopilot.refreshDiagnostics", async () => {
+  it("should refresh diagnostics without throwing via privateCopilot.refreshDiagnostics", async () => {
     await activate(mockContext as unknown as vscode.ExtensionContext);
 
     const handler = commandHandlers.get("privateCopilot.refreshDiagnostics");
@@ -144,7 +144,7 @@ describe("Extension Commands & selectModel", () => {
     expect(spy.configurationUpdates).toHaveLength(0);
   });
 
-  it("should toggle localCopilot.enabled via localCopilot.toggle", async () => {
+  it("should toggle privateCopilot.enabled via privateCopilot.toggle", async () => {
     await activate(mockContext as unknown as vscode.ExtensionContext);
     expect(spy.configurationUpdates).toHaveLength(0);
 
@@ -271,7 +271,7 @@ describe("Extension Commands & selectModel", () => {
     );
   });
 
-  it("should securely store API key via localCopilot.setApiKey", async () => {
+  it("should securely store API key via privateCopilot.setApiKey", async () => {
     await activate(mockContext as unknown as vscode.ExtensionContext);
 
     vi.spyOn(vscode.window, "showInputBox").mockResolvedValue("sk-my-super-secret-key-12345");
@@ -284,7 +284,7 @@ describe("Extension Commands & selectModel", () => {
     expect(stored).toBe("sk-my-super-secret-key-12345");
   });
 
-  it("should clear API key via localCopilot.deleteApiKey", async () => {
+  it("should clear API key via privateCopilot.deleteApiKey", async () => {
     await spy.secrets.store("privateCopilot.apiKey.custom", "existing-secret");
 
     await activate(mockContext as unknown as vscode.ExtensionContext);
@@ -315,7 +315,7 @@ describe("Extension Commands & selectModel", () => {
     expect(html).not.toContain("sk-1234567890abcdef");
   });
 
-  it("should open diagnostics webview when localCopilot.viewMetrics is executed", async () => {
+  it("should open diagnostics webview when privateCopilot.viewMetrics is executed", async () => {
     await activate(mockContext as unknown as vscode.ExtensionContext);
 
     const handler = commandHandlers.get("privateCopilot.viewMetrics");
@@ -326,7 +326,7 @@ describe("Extension Commands & selectModel", () => {
     expect(spy.webviewPanels[0].viewType).toBe("privateCopilot.diagnostics");
   });
 
-  it("should handle localCopilot.completionAccepted and localCopilot.resetMetrics", async () => {
+  it("should handle privateCopilot.completionAccepted and privateCopilot.resetMetrics", async () => {
     await activate(mockContext as unknown as vscode.ExtensionContext);
 
     const acceptHandler = commandHandlers.get("privateCopilot.completionAccepted");
