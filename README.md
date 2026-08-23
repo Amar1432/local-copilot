@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Amar1432/local-copilot/main/assets/logo.png" alt="Private Copilot Logo" width="128" />
+  <img src="https://raw.githubusercontent.com/Amar1432/private-copilot/main/assets/logo.png" alt="Private Copilot Logo" width="128" />
 </p>
 
 # Private Copilot

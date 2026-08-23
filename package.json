@@ -6,7 +6,7 @@
   "publisher": "private-copilot",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Amar1432/local-copilot.git"
+    "url": "https://github.com/Amar1432/private-copilot.git"
   },
   "description": "Private, Fast, Configurable AI Autocomplete for VS Code",
   "engines": {
