@@ -37,7 +37,7 @@
 
 - [x] LC-035: Build Benchmark Tooling
 - [x] LC-036: Implement Online Metrics
-- [ ] LC-037: Performance Optimization
+- [x] LC-037: Performance Optimization
 - [ ] LC-038: Documentation & Packaging
 
-**Next Ticket:** LC-037 — Performance Optimization
+**Next Ticket:** LC-038 — Documentation & Packaging

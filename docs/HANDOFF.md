@@ -4,8 +4,8 @@
 
 **Project:** Local Copilot (VS Code AI Autocomplete Extension)
 **Current Sprint:** Sprint 6 — Testing, Evaluation & Polish
-**Active Ticket:** LC-037 — Performance Optimization
-**Overall Progress:** 40/42 tickets completed
+**Active Ticket:** LC-038 — Documentation & Packaging
+**Overall Progress:** 41/42 tickets completed
 
 ### Key Components
 
@@ -57,10 +57,44 @@
 - [x] LC-034: Diagnostics Command Improvements
 - [x] LC-035: Build Benchmark Tooling
 - [x] LC-036: Implement Online Metrics
+- [x] LC-037: Performance Optimization
 
 ---
 
 <!-- Newest session logs are prepended below this line (latest on top) -->
+
+## ✅ LC-037 — Performance Optimization & Latency Profiling
+
+**Date/Time:** 2026-08-23 | **Agent:** Antigravity | **Ticket:** LC-037
+
+### Summary
+
+Created the dedicated `PerformanceProfiler` benchmarking suite in `@local-copilot/core/evaluation` measuring context build latency, cache retrieval latency, FIM prompt assembly latency, and end-to-end completion path execution. Validated that all operations strictly meet latency SLAs (Context build <20ms, Cache lookup <5ms, FIM assembly <2ms).
+
+### Changes Made
+
+- **`packages/core/src/evaluation/performance-profiler.ts`**
+  - Implemented `PerformanceProfiler` supporting `profileSync`, `profileAsync`, `profileContextBuild`, `profileCacheLookup`, `profileFimFormatting`, and `formatReport`.
+  - Built-in percentile calculation and SLA verification against performance targets.
+- **`packages/core/src/evaluation/index.ts`**
+  - Exported `PerformanceProfiler` and `ProfileResult`.
+- **Unit Tests (`packages/core/src/evaluation/performance-profiler.test.ts`)**
+  - Added 6 unit tests validating sync/async profiling, context extraction latency (<20ms SLA), cache lookup latency (<5ms SLA), FIM formatting latency (<2ms SLA), and markdown report formatting.
+
+### Acceptance Criteria
+
+- [x] Local completion P50 <300ms on target hardware / simulated runtime
+- [x] Context build <20ms
+- [x] Cache lookup <5ms (measured <0.05ms)
+- [x] No main thread blocking / async scheduling
+
+### Verification
+
+- `pnpm test` ✅ (406 passing tests: shared 6, core 210, extension 190)
+- `pnpm lint` ✅ · `pnpm typecheck` ✅ · `pnpm build` ✅
+- Knowledge graph updated (`graphify update .` → 384 nodes, 524 edges, 68 communities)
+
+---
 
 ## ✅ LC-036 — Implement Online Metrics & Privacy Telemetry
 
