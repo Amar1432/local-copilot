@@ -158,73 +158,73 @@ class LocalCopilotCompletionProvider implements vscode.InlineCompletionItemProvi
 
 ```json
 {
-  "localCopilot.enabled": {
+  "privateCopilot.enabled": {
     "type": "boolean",
     "default": true,
     "description": "Enable/disable the extension"
   },
-  "localCopilot.provider": {
+  "privateCopilot.provider": {
     "type": "string",
     "enum": ["custom", "ollama", "openai", "lmstudio", "vllm"],
     "default": "custom",
     "description": "Provider type"
   },
-  "localCopilot.baseUrl": {
+  "privateCopilot.baseUrl": {
     "type": "string",
     "default": "http://localhost:11434/v1",
     "description": "Provider base URL"
   },
-  "localCopilot.apiKey": {
+  "privateCopilot.apiKey": {
     "type": "string",
     "default": "",
     "description": "API key (stored in SecretStorage)"
   },
-  "localCopilot.model": {
+  "privateCopilot.model": {
     "type": "string",
     "default": "",
     "description": "Model identifier"
   },
-  "localCopilot.debounceMs": {
+  "privateCopilot.debounceMs": {
     "type": "number",
     "default": 150,
     "minimum": 0,
     "maximum": 1000,
     "description": "Debounce delay in milliseconds"
   },
-  "localCopilot.requestTimeoutMs": {
+  "privateCopilot.requestTimeoutMs": {
     "type": "number",
     "default": 2000,
     "minimum": 500,
     "maximum": 10000,
     "description": "Request timeout in milliseconds"
   },
-  "localCopilot.maxOutputTokens": {
+  "privateCopilot.maxOutputTokens": {
     "type": "number",
     "default": 128,
     "minimum": 1,
     "maximum": 1024,
     "description": "Maximum output tokens"
   },
-  "localCopilot.temperature": {
+  "privateCopilot.temperature": {
     "type": "number",
     "default": 0.1,
     "minimum": 0,
     "maximum": 1,
     "description": "Sampling temperature"
   },
-  "localCopilot.context.maxLines": {
+  "privateCopilot.context.maxLines": {
     "type": "number",
     "default": 120,
     "minimum": 10,
     "maximum": 500,
     "description": "Maximum context lines"
   },
-  "localCopilot.localOnly": {
+  "privateCopilot.localOnly": {
     "type": "boolean",
     "default": true,
     "description": "Block all remote requests"
   },
-  "localCopilot.telemetry.enabled": {
+  "privateCopilot.telemetry.enabled": {
     "type": "boolean",
     "default": false,
     "description": "Enable anonymous telemetry"

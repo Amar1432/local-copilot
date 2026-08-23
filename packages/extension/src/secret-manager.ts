@@ -1,6 +1,6 @@
 import type * as vscode from "vscode";
 
-const BASE_SECRET_KEY = "localCopilot.apiKey";
+const BASE_SECRET_KEY = "privateCopilot.apiKey";
 
 /**
  * SecretManager coordinates secure storage, retrieval, and masking of API keys

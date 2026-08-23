@@ -119,7 +119,7 @@ export class LocalCopilotCompletionProvider implements vscode.InlineCompletionIt
     }
 
     const latencyMs = Date.now() - startTime;
-    console.log(`[Local Copilot] Completion in ${latencyMs}ms: "${result.slice(0, 50)}..."`);
+    console.log(`[Private Copilot] Completion in ${latencyMs}ms: "${result.slice(0, 50)}..."`);
 
     return {
       items: [
@@ -127,8 +127,8 @@ export class LocalCopilotCompletionProvider implements vscode.InlineCompletionIt
           insertText: result,
           range: new vscode.Range(position, position),
           command: {
-            title: "Local Copilot Completion Accepted",
-            command: "localCopilot.completionAccepted",
+            title: "Private Copilot Completion Accepted",
+            command: "privateCopilot.completionAccepted",
             arguments: [
               {
                 text: result,

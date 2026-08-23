@@ -1,10 +1,10 @@
 import * as vscode from "vscode";
 import type { ProviderConfig } from "@local-copilot/shared";
 
-const CONFIG_SECTION = "localCopilot";
+const CONFIG_SECTION = "privateCopilot";
 
 /**
- * Reads the current Local Copilot configuration from VS Code settings.
+ * Reads the current Private Copilot configuration from VS Code settings.
  */
 export function getConfiguration(): ProviderConfig {
   const config = vscode.workspace.getConfiguration(CONFIG_SECTION);

@@ -27,25 +27,25 @@ describe("Extension Commands & selectModel", () => {
 
   it("should activate and register localCopilot commands", async () => {
     await activate(mockContext as unknown as vscode.ExtensionContext);
-    expect(commandHandlers.has("localCopilot.selectModel")).toBe(true);
-    expect(commandHandlers.has("localCopilot.selectProvider")).toBe(true);
-    expect(commandHandlers.has("localCopilot.testConnection")).toBe(true);
-    expect(commandHandlers.has("localCopilot.showDiagnostics")).toBe(true);
-    expect(commandHandlers.has("localCopilot.setApiKey")).toBe(true);
-    expect(commandHandlers.has("localCopilot.deleteApiKey")).toBe(true);
-    expect(commandHandlers.has("localCopilot.statusBarMenu")).toBe(true);
-    expect(commandHandlers.has("localCopilot.toggle")).toBe(true);
-    expect(commandHandlers.has("localCopilot.quickSettings")).toBe(true);
-    expect(commandHandlers.has("localCopilot.setupWizard")).toBe(true);
-    expect(commandHandlers.has("localCopilot.refreshDiagnostics")).toBe(true);
-    expect(commandHandlers.has("localCopilot.exportDiagnostics")).toBe(true);
-    expect(commandHandlers.has("localCopilot.exportTelemetry")).toBe(true);
+    expect(commandHandlers.has("privateCopilot.selectModel")).toBe(true);
+    expect(commandHandlers.has("privateCopilot.selectProvider")).toBe(true);
+    expect(commandHandlers.has("privateCopilot.testConnection")).toBe(true);
+    expect(commandHandlers.has("privateCopilot.showDiagnostics")).toBe(true);
+    expect(commandHandlers.has("privateCopilot.setApiKey")).toBe(true);
+    expect(commandHandlers.has("privateCopilot.deleteApiKey")).toBe(true);
+    expect(commandHandlers.has("privateCopilot.statusBarMenu")).toBe(true);
+    expect(commandHandlers.has("privateCopilot.toggle")).toBe(true);
+    expect(commandHandlers.has("privateCopilot.quickSettings")).toBe(true);
+    expect(commandHandlers.has("privateCopilot.setupWizard")).toBe(true);
+    expect(commandHandlers.has("privateCopilot.refreshDiagnostics")).toBe(true);
+    expect(commandHandlers.has("privateCopilot.exportDiagnostics")).toBe(true);
+    expect(commandHandlers.has("privateCopilot.exportTelemetry")).toBe(true);
   });
 
   it("should export anonymized telemetry JSON to the clipboard via localCopilot.exportTelemetry", async () => {
     await activate(mockContext as unknown as vscode.ExtensionContext);
 
-    const handler = commandHandlers.get("localCopilot.exportTelemetry");
+    const handler = commandHandlers.get("privateCopilot.exportTelemetry");
     expect(handler).toBeDefined();
     await handler!();
 
@@ -58,7 +58,7 @@ describe("Extension Commands & selectModel", () => {
   it("should export diagnostics JSON to the clipboard via localCopilot.exportDiagnostics", async () => {
     await activate(mockContext as unknown as vscode.ExtensionContext);
 
-    const handler = commandHandlers.get("localCopilot.exportDiagnostics");
+    const handler = commandHandlers.get("privateCopilot.exportDiagnostics");
     expect(handler).toBeDefined();
     await handler!();
 
@@ -70,7 +70,7 @@ describe("Extension Commands & selectModel", () => {
   it("should refresh diagnostics without throwing via localCopilot.refreshDiagnostics", async () => {
     await activate(mockContext as unknown as vscode.ExtensionContext);
 
-    const handler = commandHandlers.get("localCopilot.refreshDiagnostics");
+    const handler = commandHandlers.get("privateCopilot.refreshDiagnostics");
     expect(handler).toBeDefined();
     await expect(handler!()).resolves.toBeUndefined();
     expect(spy.informationMessages).toContain("Diagnostics refreshed.");
@@ -108,7 +108,7 @@ describe("Extension Commands & selectModel", () => {
       return undefined;
     });
 
-    const handler = commandHandlers.get("localCopilot.setupWizard");
+    const handler = commandHandlers.get("privateCopilot.setupWizard");
     expect(handler).toBeDefined();
     await handler!();
 
@@ -123,7 +123,7 @@ describe("Extension Commands & selectModel", () => {
       ])
     );
 
-    expect(await spy.secrets.get("localCopilot.apiKey.ollama")).toBe(
+    expect(await spy.secrets.get("privateCopilot.apiKey.ollama")).toBe(
       "sk-test-secret-123"
     );
     expect(
@@ -137,7 +137,7 @@ describe("Extension Commands & selectModel", () => {
     // Cancel immediately at the provider step
     vi.spyOn(vscode.window, "showQuickPick").mockResolvedValue(undefined);
 
-    const handler = commandHandlers.get("localCopilot.setupWizard");
+    const handler = commandHandlers.get("privateCopilot.setupWizard");
     expect(handler).toBeDefined();
     await handler!();
 
@@ -148,7 +148,7 @@ describe("Extension Commands & selectModel", () => {
     await activate(mockContext as unknown as vscode.ExtensionContext);
     expect(spy.configurationUpdates).toHaveLength(0);
 
-    const handler = commandHandlers.get("localCopilot.toggle");
+    const handler = commandHandlers.get("privateCopilot.toggle");
     expect(handler).toBeDefined();
     await handler!();
 
@@ -157,7 +157,7 @@ describe("Extension Commands & selectModel", () => {
         expect.objectContaining({ key: "enabled", value: false }),
       ])
     );
-    expect(spy.informationMessages).toContain("Local Copilot disabled");
+    expect(spy.informationMessages).toContain("Private Copilot disabled");
   });
 
   it("should open quick settings menu and apply a selected setting", async () => {
@@ -182,7 +182,7 @@ describe("Extension Commands & selectModel", () => {
         return undefined;
       });
 
-    const handler = commandHandlers.get("localCopilot.quickSettings");
+    const handler = commandHandlers.get("privateCopilot.quickSettings");
     expect(handler).toBeDefined();
     await handler!();
 
@@ -225,7 +225,7 @@ describe("Extension Commands & selectModel", () => {
       return { label: "deepseek-coder:6.7b" } as unknown as vscode.QuickPickItem;
     });
 
-    const handler = commandHandlers.get("localCopilot.selectModel");
+    const handler = commandHandlers.get("privateCopilot.selectModel");
     expect(handler).toBeDefined();
     await handler!();
 
@@ -257,7 +257,7 @@ describe("Extension Commands & selectModel", () => {
       .spyOn(vscode.window, "showInputBox")
       .mockResolvedValue("custom-local-model:latest");
 
-    const handler = commandHandlers.get("localCopilot.selectModel");
+    const handler = commandHandlers.get("privateCopilot.selectModel");
     await handler!();
 
     expect(showInputBoxSpy).toHaveBeenCalled();
@@ -276,39 +276,39 @@ describe("Extension Commands & selectModel", () => {
 
     vi.spyOn(vscode.window, "showInputBox").mockResolvedValue("sk-my-super-secret-key-12345");
 
-    const handler = commandHandlers.get("localCopilot.setApiKey");
+    const handler = commandHandlers.get("privateCopilot.setApiKey");
     expect(handler).toBeDefined();
     await handler!();
 
-    const stored = await spy.secrets.get("localCopilot.apiKey.custom");
+    const stored = await spy.secrets.get("privateCopilot.apiKey.custom");
     expect(stored).toBe("sk-my-super-secret-key-12345");
   });
 
   it("should clear API key via localCopilot.deleteApiKey", async () => {
-    await spy.secrets.store("localCopilot.apiKey.custom", "existing-secret");
+    await spy.secrets.store("privateCopilot.apiKey.custom", "existing-secret");
 
     await activate(mockContext as unknown as vscode.ExtensionContext);
 
-    const handler = commandHandlers.get("localCopilot.deleteApiKey");
+    const handler = commandHandlers.get("privateCopilot.deleteApiKey");
     expect(handler).toBeDefined();
     await handler!();
 
-    const stored = await spy.secrets.get("localCopilot.apiKey.custom");
+    const stored = await spy.secrets.get("privateCopilot.apiKey.custom");
     expect(stored).toBeUndefined();
   });
 
   it("should display masked API key in diagnostics webview panel", async () => {
-    await spy.secrets.store("localCopilot.apiKey.custom", "sk-1234567890abcdef");
+    await spy.secrets.store("privateCopilot.apiKey.custom", "sk-1234567890abcdef");
 
     await activate(mockContext as unknown as vscode.ExtensionContext);
 
-    const handler = commandHandlers.get("localCopilot.showDiagnostics");
+    const handler = commandHandlers.get("privateCopilot.showDiagnostics");
     expect(handler).toBeDefined();
     await handler!();
 
     // Diagnostics opens a real-time webview panel instead of a modal dialog
     expect(spy.webviewPanels).toHaveLength(1);
-    expect(spy.webviewPanels[0].viewType).toBe("localCopilot.diagnostics");
+    expect(spy.webviewPanels[0].viewType).toBe("privateCopilot.diagnostics");
 
     const html = spy.webviewPanels[0].webview.html;
     expect(html).toContain("sk-...cdef");
@@ -318,18 +318,18 @@ describe("Extension Commands & selectModel", () => {
   it("should open diagnostics webview when localCopilot.viewMetrics is executed", async () => {
     await activate(mockContext as unknown as vscode.ExtensionContext);
 
-    const handler = commandHandlers.get("localCopilot.viewMetrics");
+    const handler = commandHandlers.get("privateCopilot.viewMetrics");
     expect(handler).toBeDefined();
     await handler!();
 
     expect(spy.webviewPanels).toHaveLength(1);
-    expect(spy.webviewPanels[0].viewType).toBe("localCopilot.diagnostics");
+    expect(spy.webviewPanels[0].viewType).toBe("privateCopilot.diagnostics");
   });
 
   it("should handle localCopilot.completionAccepted and localCopilot.resetMetrics", async () => {
     await activate(mockContext as unknown as vscode.ExtensionContext);
 
-    const acceptHandler = commandHandlers.get("localCopilot.completionAccepted");
+    const acceptHandler = commandHandlers.get("privateCopilot.completionAccepted");
     expect(acceptHandler).toBeDefined();
     await acceptHandler!({
       text: "const x = 10;",
@@ -337,7 +337,7 @@ describe("Extension Commands & selectModel", () => {
       latencyMs: 100,
     });
 
-    const resetHandler = commandHandlers.get("localCopilot.resetMetrics");
+    const resetHandler = commandHandlers.get("privateCopilot.resetMetrics");
     expect(resetHandler).toBeDefined();
     await resetHandler!();
 

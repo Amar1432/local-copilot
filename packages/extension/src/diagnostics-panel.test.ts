@@ -53,8 +53,8 @@ describe("DiagnosticsPanel", () => {
     await panel.show();
 
     expect(spy.webviewPanels).toHaveLength(1);
-    expect(spy.webviewPanels[0].viewType).toBe("localCopilot.diagnostics");
-    expect(spy.webviewPanels[0].title).toBe("Local Copilot Diagnostics");
+    expect(spy.webviewPanels[0].viewType).toBe("privateCopilot.diagnostics");
+    expect(spy.webviewPanels[0].title).toBe("Private Copilot Diagnostics");
     expect(spy.webviewPanels[0].visible).toBe(true);
     expect(panel.isVisible).toBe(true);
   });
@@ -272,39 +272,39 @@ describe("DiagnosticsPanel", () => {
   // Webview action messages route to helper commands
   // -----------------------------------------------------------------------
 
-  it("should route a clearCache webview message to the localCopilot.clearCache command", async () => {
+  it("should route a clearCache webview message to the privateCopilot.clearCache command", async () => {
     await panel.show();
     spy.webviewPanels[0].webview.post({ command: "clearCache" });
 
     expect(
-      spy.commands.some((c) => c.command === "localCopilot.clearCache")
+      spy.commands.some((c) => c.command === "privateCopilot.clearCache")
     ).toBe(true);
   });
 
-  it("should route a resetMetrics webview message to the localCopilot.resetMetrics command", async () => {
+  it("should route a resetMetrics webview message to the privateCopilot.resetMetrics command", async () => {
     await panel.show();
     spy.webviewPanels[0].webview.post({ command: "resetMetrics" });
 
     expect(
-      spy.commands.some((c) => c.command === "localCopilot.resetMetrics")
+      spy.commands.some((c) => c.command === "privateCopilot.resetMetrics")
     ).toBe(true);
   });
 
-  it("should route an export webview message to the localCopilot.exportDiagnostics command", async () => {
+  it("should route an export webview message to the privateCopilot.exportDiagnostics command", async () => {
     await panel.show();
     spy.webviewPanels[0].webview.post({ command: "export" });
 
     expect(
-      spy.commands.some((c) => c.command === "localCopilot.exportDiagnostics")
+      spy.commands.some((c) => c.command === "privateCopilot.exportDiagnostics")
     ).toBe(true);
   });
 
-  it("should route an openSettings webview message to the localCopilot.openSettings command", async () => {
+  it("should route an openSettings webview message to the privateCopilot.openSettings command", async () => {
     await panel.show();
     spy.webviewPanels[0].webview.post({ command: "openSettings" });
 
     expect(
-      spy.commands.some((c) => c.command === "localCopilot.openSettings")
+      spy.commands.some((c) => c.command === "privateCopilot.openSettings")
     ).toBe(true);
   });
 

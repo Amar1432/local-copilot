@@ -76,7 +76,7 @@ describe("SecretManager", () => {
       });
 
       await secretManager.setApiKey("secret-1", "ollama");
-      expect(receivedEvents).toContain("localCopilot.apiKey.ollama");
+      expect(receivedEvents).toContain("privateCopilot.apiKey.ollama");
     });
   });
 });

@@ -37,120 +37,120 @@
     "onLanguage:java",
     "onLanguage:c",
     "onLanguage:cpp",
-    "onCommand:localCopilot.enable",
-    "onCommand:localCopilot.disable",
-    "onCommand:localCopilot.triggerCompletion",
-    "onCommand:localCopilot.selectModel",
-    "onCommand:localCopilot.selectProvider",
-    "onCommand:localCopilot.testConnection",
-    "onCommand:localCopilot.showDiagnostics",
-    "onCommand:localCopilot.clearCache",
-    "onCommand:localCopilot.openSettings",
-    "onCommand:localCopilot.setApiKey",
-    "onCommand:localCopilot.deleteApiKey",
-    "onCommand:localCopilot.statusBarMenu",
-    "onCommand:localCopilot.viewMetrics",
-    "onCommand:localCopilot.resetMetrics",
-    "onCommand:localCopilot.toggle",
-    "onCommand:localCopilot.quickSettings",
-    "onCommand:localCopilot.setupWizard",
-    "onCommand:localCopilot.refreshDiagnostics",
-    "onCommand:localCopilot.exportDiagnostics",
-    "onCommand:localCopilot.exportTelemetry"
+    "onCommand:privateCopilot.enable",
+    "onCommand:privateCopilot.disable",
+    "onCommand:privateCopilot.triggerCompletion",
+    "onCommand:privateCopilot.selectModel",
+    "onCommand:privateCopilot.selectProvider",
+    "onCommand:privateCopilot.testConnection",
+    "onCommand:privateCopilot.showDiagnostics",
+    "onCommand:privateCopilot.clearCache",
+    "onCommand:privateCopilot.openSettings",
+    "onCommand:privateCopilot.setApiKey",
+    "onCommand:privateCopilot.deleteApiKey",
+    "onCommand:privateCopilot.statusBarMenu",
+    "onCommand:privateCopilot.viewMetrics",
+    "onCommand:privateCopilot.resetMetrics",
+    "onCommand:privateCopilot.toggle",
+    "onCommand:privateCopilot.quickSettings",
+    "onCommand:privateCopilot.setupWizard",
+    "onCommand:privateCopilot.refreshDiagnostics",
+    "onCommand:privateCopilot.exportDiagnostics",
+    "onCommand:privateCopilot.exportTelemetry"
   ],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "localCopilot.exportTelemetry",
-        "title": "Local Copilot: Export Anonymized Telemetry"
+        "command": "privateCopilot.exportTelemetry",
+        "title": "Private Copilot: Export Anonymized Telemetry"
       },
       {
-        "command": "localCopilot.statusBarMenu",
-        "title": "Local Copilot: Status Bar Menu"
+        "command": "privateCopilot.statusBarMenu",
+        "title": "Private Copilot: Status Bar Menu"
       },
       {
-        "command": "localCopilot.viewMetrics",
-        "title": "Local Copilot: View Completion Metrics"
+        "command": "privateCopilot.viewMetrics",
+        "title": "Private Copilot: View Completion Metrics"
       },
       {
-        "command": "localCopilot.resetMetrics",
-        "title": "Local Copilot: Reset Completion Metrics"
+        "command": "privateCopilot.resetMetrics",
+        "title": "Private Copilot: Reset Completion Metrics"
       },
       {
-        "command": "localCopilot.enable",
-        "title": "Local Copilot: Enable"
+        "command": "privateCopilot.enable",
+        "title": "Private Copilot: Enable"
       },
       {
-        "command": "localCopilot.disable",
-        "title": "Local Copilot: Disable"
+        "command": "privateCopilot.disable",
+        "title": "Private Copilot: Disable"
       },
       {
-        "command": "localCopilot.triggerCompletion",
-        "title": "Local Copilot: Trigger Completion"
+        "command": "privateCopilot.triggerCompletion",
+        "title": "Private Copilot: Trigger Completion"
       },
       {
-        "command": "localCopilot.selectModel",
-        "title": "Local Copilot: Select Model"
+        "command": "privateCopilot.selectModel",
+        "title": "Private Copilot: Select Model"
       },
       {
-        "command": "localCopilot.selectProvider",
-        "title": "Local Copilot: Select Provider"
+        "command": "privateCopilot.selectProvider",
+        "title": "Private Copilot: Select Provider"
       },
       {
-        "command": "localCopilot.testConnection",
-        "title": "Local Copilot: Test Connection"
+        "command": "privateCopilot.testConnection",
+        "title": "Private Copilot: Test Connection"
       },
       {
-        "command": "localCopilot.showDiagnostics",
-        "title": "Local Copilot: Show Diagnostics"
+        "command": "privateCopilot.showDiagnostics",
+        "title": "Private Copilot: Show Diagnostics"
       },
       {
-        "command": "localCopilot.clearCache",
-        "title": "Local Copilot: Clear Cache"
+        "command": "privateCopilot.clearCache",
+        "title": "Private Copilot: Clear Cache"
       },
       {
-        "command": "localCopilot.openSettings",
-        "title": "Local Copilot: Open Settings"
+        "command": "privateCopilot.openSettings",
+        "title": "Private Copilot: Open Settings"
       },
       {
-        "command": "localCopilot.setApiKey",
-        "title": "Local Copilot: Set API Key"
+        "command": "privateCopilot.setApiKey",
+        "title": "Private Copilot: Set API Key"
       },
       {
-        "command": "localCopilot.deleteApiKey",
-        "title": "Local Copilot: Clear API Key"
+        "command": "privateCopilot.deleteApiKey",
+        "title": "Private Copilot: Clear API Key"
       },
       {
-        "command": "localCopilot.toggle",
-        "title": "Local Copilot: Toggle Enable/Disable"
+        "command": "privateCopilot.toggle",
+        "title": "Private Copilot: Toggle Enable/Disable"
       },
       {
-        "command": "localCopilot.quickSettings",
-        "title": "Local Copilot: Quick Settings"
+        "command": "privateCopilot.quickSettings",
+        "title": "Private Copilot: Quick Settings"
       },
       {
-        "command": "localCopilot.setupWizard",
-        "title": "Local Copilot: Setup Wizard"
+        "command": "privateCopilot.setupWizard",
+        "title": "Private Copilot: Setup Wizard"
       },
       {
-        "command": "localCopilot.refreshDiagnostics",
-        "title": "Local Copilot: Refresh Diagnostics"
+        "command": "privateCopilot.refreshDiagnostics",
+        "title": "Private Copilot: Refresh Diagnostics"
       },
       {
-        "command": "localCopilot.exportDiagnostics",
-        "title": "Local Copilot: Export Diagnostics to Clipboard"
+        "command": "privateCopilot.exportDiagnostics",
+        "title": "Private Copilot: Export Diagnostics to Clipboard"
       }
     ],
     "configuration": {
-      "title": "Local Copilot",
+      "title": "Private Copilot",
       "properties": {
-        "localCopilot.enabled": {
+        "privateCopilot.enabled": {
           "type": "boolean",
           "default": true,
           "description": "Enable/disable the extension"
         },
-        "localCopilot.provider": {
+        "privateCopilot.provider": {
           "type": "string",
           "enum": [
             "custom",
@@ -162,57 +162,57 @@
           "default": "custom",
           "description": "Provider type"
         },
-        "localCopilot.baseUrl": {
+        "privateCopilot.baseUrl": {
           "type": "string",
           "default": "http://localhost:11434/v1",
           "description": "Provider base URL"
         },
-        "localCopilot.apiKey": {
+        "privateCopilot.apiKey": {
           "type": "string",
           "default": "",
           "description": "API key (stored in SecretStorage)"
         },
-        "localCopilot.model": {
+        "privateCopilot.model": {
           "type": "string",
           "default": "",
           "description": "Model identifier"
         },
-        "localCopilot.debounceMs": {
+        "privateCopilot.debounceMs": {
           "type": "number",
           "default": 150,
           "minimum": 0,
           "maximum": 1000,
           "description": "Debounce delay in milliseconds"
         },
-        "localCopilot.requestTimeoutMs": {
+        "privateCopilot.requestTimeoutMs": {
           "type": "number",
           "default": 2000,
           "minimum": 500,
           "maximum": 10000,
           "description": "Request timeout in milliseconds"
         },
-        "localCopilot.maxOutputTokens": {
+        "privateCopilot.maxOutputTokens": {
           "type": "number",
           "default": 128,
           "minimum": 1,
           "maximum": 1024,
           "description": "Maximum output tokens"
         },
-        "localCopilot.temperature": {
+        "privateCopilot.temperature": {
           "type": "number",
           "default": 0.1,
           "minimum": 0,
           "maximum": 1,
           "description": "Sampling temperature"
         },
-        "localCopilot.context.maxLines": {
+        "privateCopilot.context.maxLines": {
           "type": "number",
           "default": 120,
           "minimum": 10,
           "maximum": 500,
           "description": "Maximum context lines"
         },
-        "localCopilot.context.budgetPreset": {
+        "privateCopilot.context.budgetPreset": {
           "type": "string",
           "enum": [
             "fast",
@@ -222,12 +222,12 @@
           "default": "balanced",
           "description": "Context budget preset: fast (512 tokens, 4 chunks), balanced (1024 tokens, 10 chunks), rich (2048 tokens, 16 chunks)"
         },
-        "localCopilot.localOnly": {
+        "privateCopilot.localOnly": {
           "type": "boolean",
           "default": true,
           "description": "Block all remote requests"
         },
-        "localCopilot.telemetry.enabled": {
+        "privateCopilot.telemetry.enabled": {
           "type": "boolean",
           "default": false,
           "description": "Enable anonymous telemetry"

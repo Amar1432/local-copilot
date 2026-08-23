@@ -62,7 +62,7 @@ code --install-extension packages/extension/local-copilot-0.1.0.vsix
 ### 3. Setup Wizard
 Once installed, open the VS Code Command Palette (`Cmd+Shift+P` / `Ctrl+Shift+P`) and run:
 ```text
-Local Copilot: Setup Wizard
+Private Copilot: Setup Wizard
 ```
 The guided 5-step wizard will configure your provider, base URL, discover local models, optionally store your API key, and test connectivity.
 
@@ -70,23 +70,23 @@ The guided 5-step wizard will configure your provider, base URL, discover local 
 
 ## ⚙️ Configuration
 
-Configure Local Copilot via VS Code Settings (`Cmd+,` / `Ctrl+,` search `localCopilot`):
+Configure Private Copilot via VS Code Settings (`Cmd+,` / `Ctrl+,` search `privateCopilot`):
 
 | Setting | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
-| `localCopilot.enabled` | `boolean` | `true` | Enable/disable inline code completions |
-| `localCopilot.provider` | `enum` | `custom` | Provider: `custom`, `ollama`, `openai`, `lmstudio`, `vllm` |
-| `localCopilot.baseUrl` | `string` | `http://localhost:11434/v1` | Base URL of the OpenAI-compatible inference endpoint |
-| `localCopilot.model` | `string` | `""` | Model identifier (e.g. `qwen2.5-coder:7b`, `deepseek-coder:6.7b`) |
-| `localCopilot.apiKey` | `string` | `""` | Stored securely in VS Code `SecretStorage` |
-| `localCopilot.localOnly` | `boolean` | `true` | When true, hard-blocks all remote network requests |
-| `localCopilot.debounceMs` | `number` | `150` | Debounce delay before dispatching completion request (0–1000ms) |
-| `localCopilot.requestTimeoutMs` | `number` | `2000` | Abort request timeout in milliseconds (500–10000ms) |
-| `localCopilot.temperature` | `number` | `0.1` | Sampling temperature for code generation (0.0–1.0) |
-| `localCopilot.maxOutputTokens` | `number` | `128` | Maximum output completion tokens (1–1024) |
-| `localCopilot.context.maxLines` | `number` | `120` | Maximum surrounding prefix/suffix lines from active file |
-| `localCopilot.context.budgetPreset` | `enum` | `balanced` | Context budget: `fast` (512 tokens), `balanced` (1024 tokens), `rich` (2048 tokens) |
-| `localCopilot.telemetry.enabled` | `boolean` | `false` | Anonymized aggregate telemetry (strictly opt-in, zero code retention) |
+| `privateCopilot.enabled` | `boolean` | `true` | Enable/disable inline code completions |
+| `privateCopilot.provider` | `enum` | `custom` | Provider: `custom`, `ollama`, `openai`, `lmstudio`, `vllm` |
+| `privateCopilot.baseUrl` | `string` | `http://localhost:11434/v1` | Base URL of the OpenAI-compatible inference endpoint |
+| `privateCopilot.model` | `string` | `""` | Model identifier (e.g. `qwen2.5-coder:7b`, `deepseek-coder:6.7b`) |
+| `privateCopilot.apiKey` | `string` | `""` | Stored securely in VS Code `SecretStorage` |
+| `privateCopilot.localOnly` | `boolean` | `true` | When true, hard-blocks all remote network requests |
+| `privateCopilot.debounceMs` | `number` | `150` | Debounce delay before dispatching completion request (0–1000ms) |
+| `privateCopilot.requestTimeoutMs` | `number` | `2000` | Abort request timeout in milliseconds (500–10000ms) |
+| `privateCopilot.temperature` | `number` | `0.1` | Sampling temperature for code generation (0.0–1.0) |
+| `privateCopilot.maxOutputTokens` | `number` | `128` | Maximum output completion tokens (1–1024) |
+| `privateCopilot.context.maxLines` | `number` | `120` | Maximum surrounding prefix/suffix lines from active file |
+| `privateCopilot.context.budgetPreset` | `enum` | `balanced` | Context budget: `fast` (512 tokens), `balanced` (1024 tokens), `rich` (2048 tokens) |
+| `privateCopilot.telemetry.enabled` | `boolean` | `false` | Anonymized aggregate telemetry (strictly opt-in, zero code retention) |
 
 ---
 
@@ -94,19 +94,19 @@ Configure Local Copilot via VS Code Settings (`Cmd+,` / `Ctrl+,` search `localCo
 
 | Command | Command ID | Description |
 | :--- | :--- | :--- |
-| **Setup Wizard** | `localCopilot.setupWizard` | 5-step guided onboarding & connection check |
-| **Status Bar Menu** | `localCopilot.statusBarMenu` | Interactive quick pick menu for status & settings |
-| **Toggle Enable/Disable** | `localCopilot.toggle` | Quickly toggle autocomplete on or off |
-| **Quick Settings** | `localCopilot.quickSettings` | Change debounce, temperature, model, or preset on the fly |
-| **Select Model** | `localCopilot.selectModel` | Discover models from live endpoint or enter manually |
-| **Select Provider** | `localCopilot.selectProvider` | Switch between Ollama, LM Studio, vLLM, OpenAI, Custom |
-| **Test Connection** | `localCopilot.testConnection` | Verify provider availability and measure roundtrip latency |
-| **Show Diagnostics** | `localCopilot.showDiagnostics` | Open real-time Webview diagnostics & metrics panel |
-| **Clear Cache** | `localCopilot.clearCache` | Flush in-memory L1 LRU request cache |
-| **Export Diagnostics** | `localCopilot.exportDiagnostics` | Copy full system diagnostics JSON to clipboard |
-| **Export Telemetry** | `localCopilot.exportTelemetry` | Copy anonymized aggregate telemetry JSON to clipboard |
-| **Set API Key** | `localCopilot.setApiKey` | Securely store API key in VS Code SecretStorage |
-| **Clear API Key** | `localCopilot.deleteApiKey` | Clear stored credentials for active provider |
+| **Setup Wizard** | `privateCopilot.setupWizard` | 5-step guided onboarding & connection check |
+| **Status Bar Menu** | `privateCopilot.statusBarMenu` | Interactive quick pick menu for status & settings |
+| **Toggle Enable/Disable** | `privateCopilot.toggle` | Quickly toggle autocomplete on or off |
+| **Quick Settings** | `privateCopilot.quickSettings` | Change debounce, temperature, model, or preset on the fly |
+| **Select Model** | `privateCopilot.selectModel` | Discover models from live endpoint or enter manually |
+| **Select Provider** | `privateCopilot.selectProvider` | Switch between Ollama, LM Studio, vLLM, OpenAI, Custom |
+| **Test Connection** | `privateCopilot.testConnection` | Verify provider availability and measure roundtrip latency |
+| **Show Diagnostics** | `privateCopilot.showDiagnostics` | Open real-time Webview diagnostics & metrics panel |
+| **Clear Cache** | `privateCopilot.clearCache` | Flush in-memory L1 LRU request cache |
+| **Export Diagnostics** | `privateCopilot.exportDiagnostics` | Copy full system diagnostics JSON to clipboard |
+| **Export Telemetry** | `privateCopilot.exportTelemetry` | Copy anonymized aggregate telemetry JSON to clipboard |
+| **Set API Key** | `privateCopilot.setApiKey` | Securely store API key in VS Code SecretStorage |
+| **Clear API Key** | `privateCopilot.deleteApiKey` | Clear stored credentials for active provider |
 
 ---
 

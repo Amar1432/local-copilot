@@ -35,8 +35,8 @@ export class StatusBarManager implements vscode.Disposable {
 
   constructor(initialState?: Partial<StatusBarState>) {
     this.item = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
-    this.item.command = "localCopilot.statusBarMenu";
-    this.item.tooltip = "Local Copilot — Click to open menu";
+    this.item.command = "privateCopilot.statusBarMenu";
+    this.item.tooltip = "Private Copilot — Click to open menu";
 
     if (initialState) {
       if (initialState.status !== undefined) this.status = initialState.status;
@@ -145,7 +145,7 @@ export class StatusBarManager implements vscode.Disposable {
     if (!this.enabled) {
       this.item.text = "$(circle-slash) AI: Disabled";
       this.item.color = new vscode.ThemeColor("statusBarItem.warningForeground");
-      this.item.tooltip = "Local Copilot — Disabled";
+      this.item.tooltip = "Private Copilot — Disabled";
       return;
     }
 
@@ -162,17 +162,17 @@ export class StatusBarManager implements vscode.Disposable {
           this.item.text = "$(plug) AI: Local Only";
         }
         this.item.color = undefined;
-        baseTooltip = "Local Copilot — Local Only (connected)";
+        baseTooltip = "Private Copilot — Local Only (connected)";
       } else if (this.status === "checking") {
         this.item.text = "$(sync~spin) AI: Checking...";
         this.item.color = undefined;
-        baseTooltip = "Local Copilot — Checking connection...";
+        baseTooltip = "Private Copilot — Checking connection...";
       } else {
         this.item.text = this.model
           ? `$(warning) AI: Local Only (${this.model})`
           : "$(warning) AI: Local Only";
         this.item.color = new vscode.ThemeColor("statusBarItem.warningForeground");
-        baseTooltip = "Local Copilot — Local Only (disconnected)";
+        baseTooltip = "Private Copilot — Local Only (disconnected)";
       }
     } else {
       if (this.status === "connected") {
@@ -185,17 +185,17 @@ export class StatusBarManager implements vscode.Disposable {
           this.item.text = "$(check) AI: Connected";
         }
         this.item.color = undefined;
-        baseTooltip = "Local Copilot — Connected";
+        baseTooltip = "Private Copilot — Connected";
       } else if (this.status === "checking") {
         this.item.text = "$(sync~spin) AI: Checking...";
         this.item.color = undefined;
-        baseTooltip = "Local Copilot — Checking connection...";
+        baseTooltip = "Private Copilot — Checking connection...";
       } else {
         this.item.text = this.model
           ? `$(x) AI: Offline (${this.model})`
           : "$(x) AI: Offline";
         this.item.color = new vscode.ThemeColor("statusBarItem.errorForeground");
-        baseTooltip = "Local Copilot — Disconnected";
+        baseTooltip = "Private Copilot — Disconnected";
       }
     }
 
@@ -219,21 +219,21 @@ export class StatusBarManager implements vscode.Disposable {
 }
 
 /**
- * Present an interactive QuickPick menu with common Local Copilot actions.
+ * Present an interactive QuickPick menu with common Private Copilot actions.
  */
 export async function showStatusBarQuickMenu(): Promise<void> {
-  const config = vscode.workspace.getConfiguration("localCopilot");
+  const config = vscode.workspace.getConfiguration("privateCopilot");
   const isEnabled = config.get<boolean>("enabled", true);
   const currentModel = config.get<string>("model", "");
   const currentProvider = config.get<string>("provider", "custom");
 
   const items = [
     {
-      label: isEnabled ? "$(circle-slash) Disable Local Copilot" : "$(check) Enable Local Copilot",
+      label: isEnabled ? "$(circle-slash) Disable Private Copilot" : "$(check) Enable Private Copilot",
       description: isEnabled ? "Currently enabled" : "Currently disabled",
       action: async () => {
         await vscode.commands.executeCommand(
-          isEnabled ? "localCopilot.disable" : "localCopilot.enable"
+          isEnabled ? "privateCopilot.disable" : "privateCopilot.enable"
         );
       },
     },
@@ -242,7 +242,7 @@ export async function showStatusBarQuickMenu(): Promise<void> {
       description: currentModel ? `Current: ${currentModel}` : "None configured",
       detail: "Select or specify active completion model",
       action: async () => {
-        await vscode.commands.executeCommand("localCopilot.selectModel");
+        await vscode.commands.executeCommand("privateCopilot.selectModel");
       },
     },
     {
@@ -250,48 +250,48 @@ export async function showStatusBarQuickMenu(): Promise<void> {
       description: `Current: ${currentProvider}`,
       detail: "Switch provider runtime (custom, ollama, openai, lmstudio, vllm)",
       action: async () => {
-        await vscode.commands.executeCommand("localCopilot.selectProvider");
+        await vscode.commands.executeCommand("privateCopilot.selectProvider");
       },
     },
     {
       label: "$(key) Set API Key...",
       description: "Store provider API key securely in SecretStorage",
       action: async () => {
-        await vscode.commands.executeCommand("localCopilot.setApiKey");
+        await vscode.commands.executeCommand("privateCopilot.setApiKey");
       },
     },
     {
       label: "$(refresh) Test Connection",
       description: "Verify provider endpoint responsiveness",
       action: async () => {
-        await vscode.commands.executeCommand("localCopilot.testConnection");
+        await vscode.commands.executeCommand("privateCopilot.testConnection");
       },
     },
     {
       label: "$(graph) Show Diagnostics",
       description: "Open real-time webview diagnostics panel",
       action: async () => {
-        await vscode.commands.executeCommand("localCopilot.showDiagnostics");
+        await vscode.commands.executeCommand("privateCopilot.showDiagnostics");
       },
     },
     {
       label: "$(trash) Clear Cache",
       description: "Clear completion request cache",
       action: async () => {
-        await vscode.commands.executeCommand("localCopilot.clearCache");
+        await vscode.commands.executeCommand("privateCopilot.clearCache");
       },
     },
     {
       label: "$(gear) Open Settings",
-      description: "Configure all Local Copilot extension settings",
+      description: "Configure all Private Copilot extension settings",
       action: async () => {
-        await vscode.commands.executeCommand("localCopilot.openSettings");
+        await vscode.commands.executeCommand("privateCopilot.openSettings");
       },
     },
   ];
 
   const selected = (await vscode.window.showQuickPick(items, {
-    placeHolder: "Local Copilot — Quick Actions",
+    placeHolder: "Private Copilot — Quick Actions",
   })) as (typeof items)[number] | undefined;
 
   if (selected) {

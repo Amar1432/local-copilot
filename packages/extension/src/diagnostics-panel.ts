@@ -2,8 +2,8 @@ import * as vscode from "vscode";
 import type { ProviderConfig } from "@local-copilot/shared";
 import type { MetricsSummary } from "@local-copilot/core";
 
-const PANEL_VIEW_TYPE = "localCopilot.diagnostics";
-const PANEL_TITLE = "Local Copilot Diagnostics";
+const PANEL_VIEW_TYPE = "privateCopilot.diagnostics";
+const PANEL_TITLE = "Private Copilot Diagnostics";
 
 /**
  * Immutable snapshot of everything the diagnostics panel renders.
@@ -98,16 +98,16 @@ export class DiagnosticsPanel implements vscode.Disposable {
             void this.refresh();
             break;
           case "clearCache":
-            void vscode.commands.executeCommand("localCopilot.clearCache");
+            void vscode.commands.executeCommand("privateCopilot.clearCache");
             break;
           case "resetMetrics":
-            void vscode.commands.executeCommand("localCopilot.resetMetrics");
+            void vscode.commands.executeCommand("privateCopilot.resetMetrics");
             break;
           case "export":
-            void vscode.commands.executeCommand("localCopilot.exportDiagnostics");
+            void vscode.commands.executeCommand("privateCopilot.exportDiagnostics");
             break;
           case "openSettings":
-            void vscode.commands.executeCommand("localCopilot.openSettings");
+            void vscode.commands.executeCommand("privateCopilot.openSettings");
             break;
           default:
             break;
@@ -267,8 +267,8 @@ export function renderDiagnosticsHtml(snapshot: DiagnosticsSnapshot): string {
   .actions button:hover { background-color: var(--vscode-button-hoverBackground, #0a6ebd); }
 </style>
 </head>
-<body aria-label="Local Copilot Diagnostics">
-  <h1>Local Copilot Diagnostics
+<body aria-label="Private Copilot Diagnostics">
+  <h1>Private Copilot Diagnostics
     <span class="status-badge" role="status" data-status="${snapshot.connectionState}">
       <span class="dot ${statusClass}" aria-hidden="true"></span>${statusLabel}
     </span>

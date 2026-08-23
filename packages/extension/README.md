@@ -28,7 +28,7 @@ Private Copilot brings intelligent, low-latency AI code completion directly into
 1. Start your local model runtime (e.g. `ollama run qwen2.5-coder:7b`).
 2. Open the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`) and run:
    ```
-   Local Copilot: Setup Wizard
+   Private Copilot: Setup Wizard
    ```
 3. Follow the 5-step guided setup to connect to your endpoint and test connectivity.
 
@@ -36,12 +36,12 @@ Private Copilot brings intelligent, low-latency AI code completion directly into
 
 ## ⌨️ Common Commands
 
-- `Local Copilot: Setup Wizard` — Guided configuration
-- `Local Copilot: Status Bar Menu` — Interactive status menu
-- `Local Copilot: Toggle Enable/Disable` — Turn autocomplete on or off
-- `Local Copilot: Quick Settings` — Adjust settings without opening preferences
-- `Local Copilot: Show Diagnostics` — Open real-time metrics dashboard
-- `Local Copilot: Clear Cache` — Flush in-memory completion cache
+- `Private Copilot: Setup Wizard` — Guided configuration
+- `Private Copilot: Status Bar Menu` — Interactive status menu
+- `Private Copilot: Toggle Enable/Disable` — Turn autocomplete on or off
+- `Private Copilot: Quick Settings` — Adjust settings without opening preferences
+- `Private Copilot: Show Diagnostics` — Open real-time metrics dashboard
+- `Private Copilot: Clear Cache` — Flush in-memory completion cache
 
 ---
 

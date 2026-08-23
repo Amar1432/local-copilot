@@ -28,8 +28,8 @@ describe("StatusBarManager", () => {
     expect(spy.statusBarItem?.visible).toBe(true);
   });
 
-  it("should assign localCopilot.statusBarMenu as the default command", () => {
-    expect(spy.statusBarItem?.command).toBe("localCopilot.statusBarMenu");
+  it("should assign privateCopilot.statusBarMenu as the default command", () => {
+    expect(spy.statusBarItem?.command).toBe("privateCopilot.statusBarMenu");
   });
 
   it("should have a dispose method", () => {
@@ -148,7 +148,7 @@ describe("StatusBarManager", () => {
     it('should display "AI: Disabled" when enabled is false', () => {
       statusBar.setEnabled(false);
       expect(spy.statusBarItem?.text).toBe("$(circle-slash) AI: Disabled");
-      expect(spy.statusBarItem?.tooltip).toBe("Local Copilot — Disabled");
+      expect(spy.statusBarItem?.tooltip).toBe("Private Copilot — Disabled");
     });
 
     it("should restore normal text when re-enabled", () => {
@@ -212,17 +212,17 @@ describe("StatusBarManager", () => {
   describe("tooltip", () => {
     it("should set appropriate base tooltip for local-only connected", () => {
       statusBar.setStatus("connected", true);
-      expect(spy.statusBarItem?.tooltip).toBe("Local Copilot — Local Only (connected)");
+      expect(spy.statusBarItem?.tooltip).toBe("Private Copilot — Local Only (connected)");
     });
 
     it("should set appropriate base tooltip for remote connected", () => {
       statusBar.setStatus("connected", false);
-      expect(spy.statusBarItem?.tooltip).toBe("Local Copilot — Connected");
+      expect(spy.statusBarItem?.tooltip).toBe("Private Copilot — Connected");
     });
 
     it("should set appropriate base tooltip for offline", () => {
       statusBar.setStatus("disconnected", false);
-      expect(spy.statusBarItem?.tooltip).toBe("Local Copilot — Disconnected");
+      expect(spy.statusBarItem?.tooltip).toBe("Private Copilot — Disconnected");
     });
 
     it("should include provider, model, and latency in rich tooltip when provided", () => {
@@ -235,7 +235,7 @@ describe("StatusBarManager", () => {
       });
 
       const tooltip = spy.statusBarItem?.tooltip ?? "";
-      expect(tooltip).toContain("Local Copilot — Local Only (connected)");
+      expect(tooltip).toContain("Private Copilot — Local Only (connected)");
       expect(tooltip).toContain("Provider: ollama");
       expect(tooltip).toContain("Model: qwen-coder");
       expect(tooltip).toContain("Latency: 142ms");
@@ -277,7 +277,7 @@ describe("StatusBarManager", () => {
       expect(quickPickItems.some((i) => i.label.includes("Clear Cache"))).toBe(true);
       expect(quickPickItems.some((i) => i.label.includes("Open Settings"))).toBe(true);
 
-      expect(executeCommandSpy).toHaveBeenCalledWith("localCopilot.disable");
+      expect(executeCommandSpy).toHaveBeenCalledWith("privateCopilot.disable");
     });
   });
 });

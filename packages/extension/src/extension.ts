@@ -109,7 +109,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     );
   }
 
-  console.log("Local Copilot activated.");
+  console.log("Private Copilot activated.");
 }
 
 /**
@@ -122,7 +122,7 @@ export function deactivate(): void {
   completionProvider = undefined;
   secretManager = undefined;
   diagnosticsPanel = undefined;
-  console.log("Local Copilot deactivated.");
+  console.log("Private Copilot deactivated.");
 }
 
 /**
@@ -153,29 +153,29 @@ function registerCommands(
   secrets: SecretManager
 ): void {
   context.subscriptions.push(
-    vscode.commands.registerCommand("localCopilot.enable", async () => {
-      const config = vscode.workspace.getConfiguration("localCopilot");
+    vscode.commands.registerCommand("privateCopilot.enable", async () => {
+      const config = vscode.workspace.getConfiguration("privateCopilot");
       await config.update("enabled", true, vscode.ConfigurationTarget.Global);
-      vscode.window.showInformationMessage("Local Copilot enabled");
+      vscode.window.showInformationMessage("Private Copilot enabled");
     })
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("localCopilot.disable", async () => {
-      const config = vscode.workspace.getConfiguration("localCopilot");
+    vscode.commands.registerCommand("privateCopilot.disable", async () => {
+      const config = vscode.workspace.getConfiguration("privateCopilot");
       await config.update("enabled", false, vscode.ConfigurationTarget.Global);
-      vscode.window.showInformationMessage("Local Copilot disabled");
+      vscode.window.showInformationMessage("Private Copilot disabled");
     })
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("localCopilot.triggerCompletion", () => {
+    vscode.commands.registerCommand("privateCopilot.triggerCompletion", () => {
       vscode.commands.executeCommand("editor.action.triggerSuggest");
     })
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("localCopilot.setApiKey", async () => {
+    vscode.commands.registerCommand("privateCopilot.setApiKey", async () => {
       const config = getConfiguration();
       const apiKey = await vscode.window.showInputBox({
         password: true,
@@ -196,7 +196,7 @@ function registerCommands(
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("localCopilot.deleteApiKey", async () => {
+    vscode.commands.registerCommand("privateCopilot.deleteApiKey", async () => {
       const config = getConfiguration();
       await secrets.deleteApiKey(config.provider);
       const effective = await getEffectiveConfig(secrets);
@@ -206,7 +206,7 @@ function registerCommands(
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("localCopilot.selectModel", async () => {
+    vscode.commands.registerCommand("privateCopilot.selectModel", async () => {
       const config = await getEffectiveConfig(secrets);
       const discovery = new ModelDiscoveryService();
 
@@ -275,12 +275,12 @@ function registerCommands(
           value: config.model,
         });
         if (custom !== undefined && custom.trim()) {
-          const cfg = vscode.workspace.getConfiguration("localCopilot");
+          const cfg = vscode.workspace.getConfiguration("privateCopilot");
           await cfg.update("model", custom.trim(), vscode.ConfigurationTarget.Global);
           vscode.window.showInformationMessage(`Model set to: ${custom.trim()}`);
         }
       } else {
-        const cfg = vscode.workspace.getConfiguration("localCopilot");
+        const cfg = vscode.workspace.getConfiguration("privateCopilot");
         await cfg.update("model", selected.label, vscode.ConfigurationTarget.Global);
         vscode.window.showInformationMessage(`Model set to: ${selected.label}`);
       }
@@ -288,7 +288,7 @@ function registerCommands(
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("localCopilot.selectProvider", async () => {
+    vscode.commands.registerCommand("privateCopilot.selectProvider", async () => {
       const items = [
         { label: "custom", description: "Custom OpenAI-compatible endpoint" },
         { label: "ollama", description: "Ollama local runtime" },
@@ -300,7 +300,7 @@ function registerCommands(
         placeHolder: "Select a provider",
       });
       if (selected) {
-        const cfg = vscode.workspace.getConfiguration("localCopilot");
+        const cfg = vscode.workspace.getConfiguration("privateCopilot");
         await cfg.update("provider", selected.label, vscode.ConfigurationTarget.Global);
         vscode.window.showInformationMessage(`Provider set to: ${selected.label}`);
       }
@@ -308,7 +308,7 @@ function registerCommands(
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("localCopilot.testConnection", async () => {
+    vscode.commands.registerCommand("privateCopilot.testConnection", async () => {
       const cfg = getConfiguration();
       status.setStatus("checking", cfg.localOnly, cfg.model);
       vscode.window.showInformationMessage("Testing connection...");
@@ -332,26 +332,26 @@ function registerCommands(
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("localCopilot.statusBarMenu", async () => {
+    vscode.commands.registerCommand("privateCopilot.statusBarMenu", async () => {
       await showStatusBarQuickMenu();
     })
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("localCopilot.showDiagnostics", async () => {
+    vscode.commands.registerCommand("privateCopilot.showDiagnostics", async () => {
       await diagnosticsPanel?.show();
     })
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("localCopilot.viewMetrics", async () => {
+    vscode.commands.registerCommand("privateCopilot.viewMetrics", async () => {
       await diagnosticsPanel?.show();
     })
   );
 
   context.subscriptions.push(
     vscode.commands.registerCommand(
-      "localCopilot.completionAccepted",
+      "privateCopilot.completionAccepted",
       (options?: {
         readonly id?: string;
         readonly text?: string;
@@ -368,34 +368,34 @@ function registerCommands(
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("localCopilot.resetMetrics", () => {
+    vscode.commands.registerCommand("privateCopilot.resetMetrics", () => {
       completionProvider?.orchestratorInstance.metrics.reset();
       vscode.window.showInformationMessage("Completion metrics reset");
     })
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("localCopilot.clearCache", () => {
+    vscode.commands.registerCommand("privateCopilot.clearCache", () => {
       completionProvider?.clearCache();
       vscode.window.showInformationMessage("Cache cleared");
     })
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("localCopilot.openSettings", () => {
-      vscode.commands.executeCommand("workbench.action.openSettings", "localCopilot");
+    vscode.commands.registerCommand("privateCopilot.openSettings", () => {
+      vscode.commands.executeCommand("workbench.action.openSettings", "privateCopilot");
     })
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("localCopilot.refreshDiagnostics", async () => {
+    vscode.commands.registerCommand("privateCopilot.refreshDiagnostics", async () => {
       await diagnosticsPanel?.update();
       vscode.window.showInformationMessage("Diagnostics refreshed.");
     })
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("localCopilot.exportDiagnostics", async () => {
+    vscode.commands.registerCommand("privateCopilot.exportDiagnostics", async () => {
       const snapshot = await buildDiagnosticsSnapshot(
         context.extension?.packageJSON?.version ?? "unknown"
       );
@@ -406,7 +406,7 @@ function registerCommands(
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("localCopilot.exportTelemetry", async () => {
+    vscode.commands.registerCommand("privateCopilot.exportTelemetry", async () => {
       const config = await getEffectiveConfig(secrets);
       const orchestrator = completionProvider?.orchestratorInstance;
       const summary = orchestrator?.metrics.getSummary();
@@ -432,23 +432,23 @@ function registerCommands(
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("localCopilot.toggle", async () => {
-      const cfg = vscode.workspace.getConfiguration("localCopilot");
+    vscode.commands.registerCommand("privateCopilot.toggle", async () => {
+      const cfg = vscode.workspace.getConfiguration("privateCopilot");
       const current = cfg.get<boolean>("enabled", true);
       const next = !current;
       await cfg.update("enabled", next, vscode.ConfigurationTarget.Global);
-      vscode.window.showInformationMessage(`Local Copilot ${next ? "enabled" : "disabled"}`);
+      vscode.window.showInformationMessage(`Private Copilot ${next ? "enabled" : "disabled"}`);
     })
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("localCopilot.quickSettings", async () => {
+    vscode.commands.registerCommand("privateCopilot.quickSettings", async () => {
       await showQuickSettingsMenu();
     })
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("localCopilot.setupWizard", async () => {
+    vscode.commands.registerCommand("privateCopilot.setupWizard", async () => {
       await runSetupWizard(secrets);
     })
   );
@@ -585,7 +585,7 @@ async function promptForSettingValue(
 async function showQuickSettingsMenu(): Promise<void> {
   // eslint-disable-next-line no-constant-condition
   while (true) {
-    const config = vscode.workspace.getConfiguration("localCopilot");
+    const config = vscode.workspace.getConfiguration("privateCopilot");
     const items = QUICK_SETTINGS.map((s) => ({
       setting: s.key,
       label: `$(gear) ${s.label}`,
@@ -635,7 +635,7 @@ const PROVIDER_DEFAULT_BASE_URLS: Readonly<Record<string, string>> = {
  * Any step can be cancelled (Esc / empty required field) to abort the wizard.
  */
 async function runSetupWizard(secrets: SecretManager): Promise<void> {
-  const config = vscode.workspace.getConfiguration("localCopilot");
+  const config = vscode.workspace.getConfiguration("privateCopilot");
 
   // Step 1 — provider
   const providerItems = Object.keys(PROVIDER_DEFAULT_BASE_URLS).map((p) => ({
@@ -717,7 +717,7 @@ async function runSetupWizard(secrets: SecretManager): Promise<void> {
   try {
     const connected = await completionProvider?.orchestratorInstance.testProviderConnection();
     if (connected) {
-      vscode.window.showInformationMessage("Setup complete — Local Copilot is connected!");
+      vscode.window.showInformationMessage("Setup complete — Private Copilot is connected!");
     } else {
       vscode.window.showWarningMessage(
         "Setup complete, but the connection test failed. Check your provider settings."
