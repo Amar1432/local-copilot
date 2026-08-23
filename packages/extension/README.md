@@ -1,14 +1,12 @@
-<div align="center">
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Amar1432/local-copilot/main/assets/logo.png" alt="Private Copilot Logo" width="128" />
+</p>
 
-<img src="media/icon.png" alt="Local Copilot Logo" width="128" height="128" style="border-radius: 24px;" />
-
-# Local Copilot for Visual Studio Code
+# Private Copilot for Visual Studio Code
 
 **Private, Fast, Configurable AI Autocomplete**
 
-</div>
-
-Local Copilot brings intelligent, low-latency AI code completion directly into your editor without sending your code to the cloud.
+Private Copilot brings intelligent, low-latency AI code completion directly into your editor without sending your code to the cloud.
 
 ---
 
