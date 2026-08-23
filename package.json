@@ -17,7 +17,7 @@
     "dev": "pnpm -r dev",
     "test": "pnpm -r test",
     "lint": "pnpm -r lint",
-    "typecheck": "pnpm -r typecheck",
+    "typecheck": "pnpm build && pnpm -r typecheck",
     "benchmark": "pnpm --filter @local-copilot/core test src/evaluation",
     "clean": "pnpm -r clean",
     "package": "pnpm --filter local-copilot package"
