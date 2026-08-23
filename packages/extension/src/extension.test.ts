@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import * as vscode from "vscode";
 import { activate } from "./extension";
+import { CompletionOrchestrator } from "./completion-orchestrator";
 import { resetMocks, spy } from "../__mocks__/vscode";
 
 describe("Extension Commands & selectModel", () => {
@@ -35,6 +36,75 @@ describe("Extension Commands & selectModel", () => {
     expect(commandHandlers.has("localCopilot.statusBarMenu")).toBe(true);
     expect(commandHandlers.has("localCopilot.toggle")).toBe(true);
     expect(commandHandlers.has("localCopilot.quickSettings")).toBe(true);
+    expect(commandHandlers.has("localCopilot.setupWizard")).toBe(true);
+  });
+
+  it("should run setup wizard and apply provider/baseUrl/model and save API key", async () => {
+    await activate(mockContext as unknown as vscode.ExtensionContext);
+
+    vi.spyOn(
+      CompletionOrchestrator.prototype,
+      "testProviderConnection"
+    ).mockResolvedValue(true);
+
+    let qpCall = 0;
+    vi.spyOn(vscode.window, "showQuickPick").mockImplementation(
+      async (_items) => {
+        qpCall += 1;
+        if (qpCall === 1) {
+          // Step 1: select provider "ollama"
+          return { label: "ollama" } as unknown as vscode.QuickPickItem;
+        }
+        // Step 3: choose "Enter model manually..."
+        return {
+          label: "$(edit) Enter model manually...",
+        } as unknown as vscode.QuickPickItem;
+      }
+    );
+
+    let ibCall = 0;
+    vi.spyOn(vscode.window, "showInputBox").mockImplementation(async () => {
+      ibCall += 1;
+      if (ibCall === 1) return "http://localhost:11434/v1"; // baseUrl
+      if (ibCall === 2) return "qwen2.5-coder:7b"; // model (manual)
+      if (ibCall === 3) return "sk-test-secret-123"; // api key
+      return undefined;
+    });
+
+    const handler = commandHandlers.get("localCopilot.setupWizard");
+    expect(handler).toBeDefined();
+    await handler!();
+
+    expect(spy.configurationUpdates).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ key: "provider", value: "ollama" }),
+        expect.objectContaining({
+          key: "baseUrl",
+          value: "http://localhost:11434/v1",
+        }),
+        expect.objectContaining({ key: "model", value: "qwen2.5-coder:7b" }),
+      ])
+    );
+
+    expect(await spy.secrets.get("localCopilot.apiKey.ollama")).toBe(
+      "sk-test-secret-123"
+    );
+    expect(
+      spy.informationMessages.some((m) => m.includes("connected"))
+    ).toBe(true);
+  });
+
+  it("should abort setup wizard when a step is cancelled", async () => {
+    await activate(mockContext as unknown as vscode.ExtensionContext);
+
+    // Cancel immediately at the provider step
+    vi.spyOn(vscode.window, "showQuickPick").mockResolvedValue(undefined);
+
+    const handler = commandHandlers.get("localCopilot.setupWizard");
+    expect(handler).toBeDefined();
+    await handler!();
+
+    expect(spy.configurationUpdates).toHaveLength(0);
   });
 
   it("should toggle localCopilot.enabled via localCopilot.toggle", async () => {

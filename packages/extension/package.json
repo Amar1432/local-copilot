@@ -51,7 +51,8 @@
     "onCommand:localCopilot.viewMetrics",
     "onCommand:localCopilot.resetMetrics",
     "onCommand:localCopilot.toggle",
-    "onCommand:localCopilot.quickSettings"
+    "onCommand:localCopilot.quickSettings",
+    "onCommand:localCopilot.setupWizard"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -119,6 +120,10 @@
       {
         "command": "localCopilot.quickSettings",
         "title": "Local Copilot: Quick Settings"
+      },
+      {
+        "command": "localCopilot.setupWizard",
+        "title": "Local Copilot: Setup Wizard"
       }
     ],
     "configuration": {

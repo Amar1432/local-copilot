@@ -26,7 +26,7 @@
 - [x] LC-029: Status Bar Enhancements
 - [x] LC-031: Expanded Language Support
 - [x] LC-032: Toggle Command & Quick Settings
-- [ ] LC-033: Setup Wizard Command
+- [x] LC-033: Setup Wizard Command
 - [ ] LC-034: Diagnostics Command Improvements
 
-**Next Ticket:** LC-033 — Setup Wizard Command
+**Next Ticket:** LC-034 — Diagnostics Command Improvements

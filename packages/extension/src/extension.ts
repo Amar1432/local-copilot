@@ -402,6 +402,12 @@ function registerCommands(
       await showQuickSettingsMenu();
     })
   );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand("localCopilot.setupWizard", async () => {
+      await runSetupWizard(secrets);
+    })
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -558,6 +564,124 @@ async function showQuickSettingsMenu(): Promise<void> {
     await config.update(def.key, updated, vscode.ConfigurationTarget.Global);
     vscode.window.showInformationMessage(
       `${def.label} set to ${formatSettingValue(updated)}`
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Setup Wizard (localCopilot.setupWizard)
+// ---------------------------------------------------------------------------
+
+const PROVIDER_DEFAULT_BASE_URLS: Readonly<Record<string, string>> = {
+  custom: "http://localhost:11434/v1",
+  ollama: "http://localhost:11434/v1",
+  openai: "https://api.openai.com/v1",
+  lmstudio: "http://localhost:1234/v1",
+  vllm: "http://localhost:8000/v1",
+};
+
+/**
+ * Guided first-time setup flow:
+ *   1. Select provider
+ *   2. Enter/confirm base URL (prefilled with a sensible provider default)
+ *   3. Discover or manually enter a model
+ *   4. Optionally store an API key in SecretStorage
+ *   5. Run a connection test with instant feedback
+ *
+ * Any step can be cancelled (Esc / empty required field) to abort the wizard.
+ */
+async function runSetupWizard(secrets: SecretManager): Promise<void> {
+  const config = vscode.workspace.getConfiguration("localCopilot");
+
+  // Step 1 — provider
+  const providerItems = Object.keys(PROVIDER_DEFAULT_BASE_URLS).map((p) => ({
+    label: p,
+    description: `Base URL: ${PROVIDER_DEFAULT_BASE_URLS[p]}`,
+  }));
+  const pickedProvider = await vscode.window.showQuickPick(providerItems, {
+    placeHolder: "Step 1/5: Select a provider",
+  });
+  if (!pickedProvider) return;
+  const provider = (pickedProvider as { label: string }).label;
+  await config.update("provider", provider, vscode.ConfigurationTarget.Global);
+
+  // Step 2 — base URL (prefilled with provider default)
+  const defaultBaseUrl = PROVIDER_DEFAULT_BASE_URLS[provider] ?? "http://localhost:11434/v1";
+  const baseUrl = await vscode.window.showInputBox({
+    prompt: "Step 2/5: Enter the provider base URL",
+    value: defaultBaseUrl,
+    validateInput: (raw) =>
+      raw && raw.trim() ? null : "Base URL is required",
+  });
+  if (baseUrl === undefined) return;
+  await config.update("baseUrl", baseUrl.trim(), vscode.ConfigurationTarget.Global);
+
+  // Step 3 — discover or enter a model
+  const effective = await getEffectiveConfig(secrets);
+  let discovered: Array<{ label: string; description?: string }> = [];
+  try {
+    const models = await new ModelDiscoveryService().discoverModels(effective);
+    discovered = models.map((m) => ({
+      label: m.id,
+      description: m.capabilities.fim ? "FIM supported" : "No FIM",
+    }));
+  } catch {
+    // Discovery endpoint offline — fall back to manual entry
+  }
+
+  const manualOption = {
+    label: "$(edit) Enter model manually...",
+    description: "Type a custom model identifier",
+  };
+  const modelItems = [...discovered, manualOption];
+  const pickedModel = await vscode.window.showQuickPick(modelItems, {
+    placeHolder: "Step 3/5: Select a model (discovered or enter manually)",
+  });
+  if (!pickedModel) return;
+
+  let model: string | undefined;
+  if ((pickedModel as { label: string }).label === manualOption.label) {
+    const custom = await vscode.window.showInputBox({
+      prompt: "Step 3/5: Enter model identifier",
+      value: effective.model,
+    });
+    if (custom === undefined) return;
+    model = custom.trim();
+    if (!model) return;
+  } else {
+    model = (pickedModel as { label: string }).label;
+  }
+  await config.update("model", model, vscode.ConfigurationTarget.Global);
+
+  // Step 4 — optional API key
+  const apiKey = await vscode.window.showInputBox({
+    prompt: "Step 4/5: Enter API key (optional — leave empty to skip or clear)",
+    password: true,
+    ignoreFocusOut: true,
+  });
+  if (apiKey === undefined) return;
+  if (apiKey.trim()) {
+    await secrets.setApiKey(apiKey.trim(), provider);
+    vscode.window.showInformationMessage("API key saved securely in SecretStorage.");
+  } else {
+    await secrets.deleteApiKey(provider);
+    vscode.window.showInformationMessage("API key cleared.");
+  }
+
+  // Step 5 — connection test with instant feedback
+  vscode.window.showInformationMessage("Step 5/5: Testing connection...");
+  try {
+    const connected = await completionProvider?.orchestratorInstance.testProviderConnection();
+    if (connected) {
+      vscode.window.showInformationMessage("Setup complete — Local Copilot is connected!");
+    } else {
+      vscode.window.showWarningMessage(
+        "Setup complete, but the connection test failed. Check your provider settings."
+      );
+    }
+  } catch {
+    vscode.window.showWarningMessage(
+      "Setup complete, but the connection test failed. Check your provider settings."
     );
   }
 }

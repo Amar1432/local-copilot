@@ -4,8 +4,8 @@
 
 **Project:** Local Copilot (VS Code AI Autocomplete Extension)
 **Current Sprint:** Sprint 5 — Extension UI & Diagnostics
-**Active Ticket:** LC-033 — Setup Wizard Command
-**Overall Progress:** 32/38 tickets completed
+**Active Ticket:** LC-034 — Diagnostics Command Improvements
+**Overall Progress:** 33/38 tickets completed
 
 ### Key Components
 
@@ -56,6 +56,41 @@
 ---
 
 <!-- Newest session logs are prepended below this line (latest on top) -->
+
+## ✅ LC-033 — Setup Wizard Command
+
+**Date/Time:** 2026-08-23 | **Agent:** Ryan (ryan-mt5cdet4) | **Ticket:** LC-033
+
+### Summary
+
+Implemented an interactive `localCopilot.setupWizard` guided first-time setup flow: select provider, enter/confirm base URL (provider-aware defaults), discover or manually enter a model, optionally store an API key in SecretStorage, then run a connection test with instant feedback. Command declared in `package.json`; covered by unit tests.
+
+### Changes Made
+
+- **`packages/extension/src/extension.ts`**
+  - Added `PROVIDER_DEFAULT_BASE_URLS` map (sensible defaults per provider: custom/ollama → `:11434/v1`, openai → `api.openai.com/v1`, lmstudio → `:1234/v1`, vllm → `:8000/v1`).
+  - Added `runSetupWizard(secrets)` — sequential steps (provider QuickPick → baseUrl InputBox → model discover/manual QuickPick+InputBox → optional API key InputBox saved via `SecretManager.setApiKey` → `completionProvider.orchestratorInstance.testProviderConnection()` with info/warning feedback). Every step aborts the wizard on cancel.
+  - Registered `localCopilot.setupWizard` command (passes `secretManager`).
+- **`packages/extension/package.json`**
+  - Added `onCommand:localCopilot.setupWizard` to `activationEvents`.
+  - Added `localCopilot.setupWizard` ("Local Copilot: Setup Wizard") to `contributes.commands`.
+- **`packages/extension/src/extension.test.ts`**
+  - Asserts command registration.
+  - Added happy-path test (applies provider=ollama, baseUrl, model, saves API key to `localCopilot.apiKey.ollama`, reports connected) and cancel-abort test (no config changes when provider step cancelled).
+
+### Acceptance Criteria
+
+- [x] `localCopilot.setupWizard` interactive flow: provider, baseUrl, model discover/enter, optional API key via SecretStorage, connection test
+- [x] Command declared in `packages/extension/package.json`
+- [x] Unit tests added in `packages/extension/src/extension.test.ts`
+
+### Verification
+
+- `pnpm test` ✅ · `pnpm lint` ✅ · `pnpm typecheck` ✅ · `pnpm build` ✅
+- Full extension suite: 181 passing tests (12 files)
+- Knowledge graph updated (`graphify update .` → 344 nodes, 477 edges, 59 communities)
+
+---
 
 ## ✅ LC-032 — Toggle Command & Quick Settings
 
