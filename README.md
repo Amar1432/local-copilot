@@ -7,8 +7,8 @@
 **Private, Fast, Configurable AI Autocomplete for VS Code**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)]()
-[![Tests](https://img.shields.io/badge/tests-406%20passing-brightgreen.svg)]()
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](<>)
+[![Tests](https://img.shields.io/badge/tests-406%20passing-brightgreen.svg)](<>)
 
 Private Copilot brings intelligent, real-time code autocomplete to VS Code with a zero-compromise focus on **local privacy**, **sub-300ms latency**, and **multi-file contextual understanding**.
 
@@ -31,6 +31,7 @@ Private Copilot brings intelligent, real-time code autocomplete to VS Code with 
 ## 📦 Quick Start
 
 ### 1. Prerequisites
+
 - **VS Code:** `1.74.0` or later
 - **Node.js:** `18+` and **pnpm:** `8+`
 - **Local Model Runtime:** [Ollama](https://ollama.com/), [LM Studio](https://lmstudio.ai/), or [vLLM](https://github.com/vllm-project/vllm)
@@ -60,10 +61,13 @@ code --install-extension packages/extension/private-copilot-0.1.0.vsix
 ```
 
 ### 3. Setup Wizard
+
 Once installed, open the VS Code Command Palette (`Cmd+Shift+P` / `Ctrl+Shift+P`) and run:
+
 ```text
 Private Copilot: Setup Wizard
 ```
+
 The guided 5-step wizard will configure your provider, base URL, discover local models, optionally store your API key, and test connectivity.
 
 ---
@@ -72,41 +76,41 @@ The guided 5-step wizard will configure your provider, base URL, discover local 
 
 Configure Private Copilot via VS Code Settings (`Cmd+,` / `Ctrl+,` search `privateCopilot`):
 
-| Setting | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| `privateCopilot.enabled` | `boolean` | `true` | Enable/disable inline code completions |
-| `privateCopilot.provider` | `enum` | `custom` | Provider: `custom`, `ollama`, `openai`, `lmstudio`, `vllm` |
-| `privateCopilot.baseUrl` | `string` | `http://localhost:11434/v1` | Base URL of the OpenAI-compatible inference endpoint |
-| `privateCopilot.model` | `string` | `""` | Model identifier (e.g. `qwen2.5-coder:7b`, `deepseek-coder:6.7b`) |
-| `privateCopilot.apiKey` | `string` | `""` | Stored securely in VS Code `SecretStorage` |
-| `privateCopilot.localOnly` | `boolean` | `true` | When true, hard-blocks all remote network requests |
-| `privateCopilot.debounceMs` | `number` | `150` | Debounce delay before dispatching completion request (0–1000ms) |
-| `privateCopilot.requestTimeoutMs` | `number` | `2000` | Abort request timeout in milliseconds (500–10000ms) |
-| `privateCopilot.temperature` | `number` | `0.1` | Sampling temperature for code generation (0.0–1.0) |
-| `privateCopilot.maxOutputTokens` | `number` | `128` | Maximum output completion tokens (1–1024) |
-| `privateCopilot.context.maxLines` | `number` | `120` | Maximum surrounding prefix/suffix lines from active file |
-| `privateCopilot.context.budgetPreset` | `enum` | `balanced` | Context budget: `fast` (512 tokens), `balanced` (1024 tokens), `rich` (2048 tokens) |
-| `privateCopilot.telemetry.enabled` | `boolean` | `false` | Anonymized aggregate telemetry (strictly opt-in, zero code retention) |
+| Setting                               | Type      | Default                     | Description                                                                         |
+| :------------------------------------ | :-------- | :-------------------------- | :---------------------------------------------------------------------------------- |
+| `privateCopilot.enabled`              | `boolean` | `true`                      | Enable/disable inline code completions                                              |
+| `privateCopilot.provider`             | `enum`    | `custom`                    | Provider: `custom`, `ollama`, `openai`, `lmstudio`, `vllm`                          |
+| `privateCopilot.baseUrl`              | `string`  | `http://localhost:11434/v1` | Base URL of the OpenAI-compatible inference endpoint                                |
+| `privateCopilot.model`                | `string`  | `""`                        | Model identifier (e.g. `qwen2.5-coder:7b`, `deepseek-coder:6.7b`)                   |
+| `privateCopilot.apiKey`               | `string`  | `""`                        | Stored securely in VS Code `SecretStorage`                                          |
+| `privateCopilot.localOnly`            | `boolean` | `true`                      | When true, hard-blocks all remote network requests                                  |
+| `privateCopilot.debounceMs`           | `number`  | `150`                       | Debounce delay before dispatching completion request (0–1000ms)                     |
+| `privateCopilot.requestTimeoutMs`     | `number`  | `2000`                      | Abort request timeout in milliseconds (500–10000ms)                                 |
+| `privateCopilot.temperature`          | `number`  | `0.1`                       | Sampling temperature for code generation (0.0–1.0)                                  |
+| `privateCopilot.maxOutputTokens`      | `number`  | `128`                       | Maximum output completion tokens (1–1024)                                           |
+| `privateCopilot.context.maxLines`     | `number`  | `120`                       | Maximum surrounding prefix/suffix lines from active file                            |
+| `privateCopilot.context.budgetPreset` | `enum`    | `balanced`                  | Context budget: `fast` (512 tokens), `balanced` (1024 tokens), `rich` (2048 tokens) |
+| `privateCopilot.telemetry.enabled`    | `boolean` | `false`                     | Anonymized aggregate telemetry (strictly opt-in, zero code retention)               |
 
 ---
 
 ## ⌨️ Commands
 
-| Command | Command ID | Description |
-| :--- | :--- | :--- |
-| **Setup Wizard** | `privateCopilot.setupWizard` | 5-step guided onboarding & connection check |
-| **Status Bar Menu** | `privateCopilot.statusBarMenu` | Interactive quick pick menu for status & settings |
-| **Toggle Enable/Disable** | `privateCopilot.toggle` | Quickly toggle autocomplete on or off |
-| **Quick Settings** | `privateCopilot.quickSettings` | Change debounce, temperature, model, or preset on the fly |
-| **Select Model** | `privateCopilot.selectModel` | Discover models from live endpoint or enter manually |
-| **Select Provider** | `privateCopilot.selectProvider` | Switch between Ollama, LM Studio, vLLM, OpenAI, Custom |
-| **Test Connection** | `privateCopilot.testConnection` | Verify provider availability and measure roundtrip latency |
-| **Show Diagnostics** | `privateCopilot.showDiagnostics` | Open real-time Webview diagnostics & metrics panel |
-| **Clear Cache** | `privateCopilot.clearCache` | Flush in-memory L1 LRU request cache |
-| **Export Diagnostics** | `privateCopilot.exportDiagnostics` | Copy full system diagnostics JSON to clipboard |
-| **Export Telemetry** | `privateCopilot.exportTelemetry` | Copy anonymized aggregate telemetry JSON to clipboard |
-| **Set API Key** | `privateCopilot.setApiKey` | Securely store API key in VS Code SecretStorage |
-| **Clear API Key** | `privateCopilot.deleteApiKey` | Clear stored credentials for active provider |
+| Command                   | Command ID                         | Description                                                |
+| :------------------------ | :--------------------------------- | :--------------------------------------------------------- |
+| **Setup Wizard**          | `privateCopilot.setupWizard`       | 5-step guided onboarding & connection check                |
+| **Status Bar Menu**       | `privateCopilot.statusBarMenu`     | Interactive quick pick menu for status & settings          |
+| **Toggle Enable/Disable** | `privateCopilot.toggle`            | Quickly toggle autocomplete on or off                      |
+| **Quick Settings**        | `privateCopilot.quickSettings`     | Change debounce, temperature, model, or preset on the fly  |
+| **Select Model**          | `privateCopilot.selectModel`       | Discover models from live endpoint or enter manually       |
+| **Select Provider**       | `privateCopilot.selectProvider`    | Switch between Ollama, LM Studio, vLLM, OpenAI, Custom     |
+| **Test Connection**       | `privateCopilot.testConnection`    | Verify provider availability and measure roundtrip latency |
+| **Show Diagnostics**      | `privateCopilot.showDiagnostics`   | Open real-time Webview diagnostics & metrics panel         |
+| **Clear Cache**           | `privateCopilot.clearCache`        | Flush in-memory L1 LRU request cache                       |
+| **Export Diagnostics**    | `privateCopilot.exportDiagnostics` | Copy full system diagnostics JSON to clipboard             |
+| **Export Telemetry**      | `privateCopilot.exportTelemetry`   | Copy anonymized aggregate telemetry JSON to clipboard      |
+| **Set API Key**           | `privateCopilot.setApiKey`         | Securely store API key in VS Code SecretStorage            |
+| **Clear API Key**         | `privateCopilot.deleteApiKey`      | Clear stored credentials for active provider               |
 
 ---
 
@@ -123,6 +127,7 @@ node --loader ts-node/esm benchmarks/run-benchmark.ts --model qwen2.5-coder:7b -
 ```
 
 ### Performance SLAs
+
 - **Context Build:** `<20ms` (P50 `<5ms`, P95 `<12ms`)
 - **Cache Lookup:** `<5ms` (measured `<0.05ms`)
 - **FIM Assembly:** `<2ms` (measured `<0.02ms`)

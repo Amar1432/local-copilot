@@ -39,7 +39,8 @@ export function buildStandardMessages(
 
   const systemPrompt = systemParts.join("\n");
 
-  const commentPrefix = request.language === "python" ? "#" : "//";
+  const commentPrefix =
+    request.language === "python" ? "#" : request.language === "sql" ? "--" : "//";
   const userContent = [
     fileName ? `${commentPrefix} File: ${fileName} (${request.language})` : "",
     request.prefix ? `<PREFIX>\n${request.prefix}</PREFIX>` : "",

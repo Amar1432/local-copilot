@@ -109,7 +109,39 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     );
   }
 
+  // Boot automatically: verify the provider endpoint and update the status bar
+  // so the user does NOT have to manually run "Test Connection" before the
+  // extension starts working.
+  void autoCheckConnection();
+
   console.log("Private Copilot activated.");
+}
+
+/**
+ * Fire-and-forget connection check run at activation.
+ *
+ * Verifies the configured provider endpoint and updates the status bar to
+ * "connected"/"disconnected" accordingly. Suggestions are never gated on this
+ * check — it exists purely so the extension self-boots and shows accurate
+ * status without requiring a manual "Test Connection" first.
+ */
+async function autoCheckConnection(): Promise<void> {
+  if (!completionProvider || !statusBar) return;
+
+  const cfg = getConfiguration();
+  if (!cfg.enabled || !cfg.model) {
+    return;
+  }
+
+  statusBar.setStatus("checking", cfg.localOnly, cfg.model);
+  const connected = await completionProvider.orchestratorInstance.testProviderConnection();
+  if (connected) {
+    const latency = completionProvider.orchestratorInstance.latencyMs;
+    statusBar.setStatus("connected", cfg.localOnly, cfg.model, latency);
+  } else {
+    statusBar.setStatus("disconnected", cfg.localOnly, cfg.model);
+  }
+  await diagnosticsPanel?.update();
 }
 
 /**
@@ -744,6 +776,7 @@ function registerCompletionProvider(
     { language: "typescriptreact" },
     { language: "javascriptreact" },
     { language: "python" },
+    { language: "sql" },
     { language: "go" },
     { language: "rust" },
     { language: "java" },
@@ -871,6 +904,7 @@ function isTrackedLanguage(languageId: string): boolean {
     "typescriptreact",
     "javascriptreact",
     "python",
+    "sql",
     "go",
     "rust",
     "java",

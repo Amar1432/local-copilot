@@ -42,6 +42,12 @@ export function normalizeCompletion(
   // Step 3: Remove duplicate prefix (model often repeats the prefix)
   text = removeDuplicatePrefix(text, prefix);
 
+  // Step 3b: Remove a MULTI-LINE echo of the prefix. Weak local models (e.g.
+  // qwen2.5-coder at end-of-file) re-emit a whole block of the file they were
+  // given as context before generating anything new.
+  text = removeMultiLinePrefixEcho(text, prefix);
+  if (!text) return null;
+
   // Step 4: Remove duplicate suffix (model sometimes includes suffix)
   text = removeDuplicateSuffix(text, suffix);
 
@@ -61,6 +67,18 @@ export function normalizeCompletion(
   if (prefix) {
     const trimmedPrefix = prefix.trimEnd();
     if (trimmedPrefix.endsWith(text)) {
+      return null;
+    }
+  }
+
+  // Step 8b: Suppress a single-line completion that just repeats the last
+  // non-empty line of the prefix (the "echo the line above" failure mode).
+  if (!text.includes("\n")) {
+    const lastPrefixLine = prefix
+      .split("\n")
+      .filter((l) => l.trim().length > 0)
+      .pop();
+    if (lastPrefixLine && text.trim() === lastPrefixLine.trim()) {
       return null;
     }
   }
@@ -118,6 +136,53 @@ function removeDuplicatePrefix(text: string, prefix: string): string {
   }
 
   return text;
+}
+
+/**
+ * Remove a multi-line echo of the prefix from the start of the output.
+ *
+ * Weak local models (qwen2.5-coder and similar) sometimes re-emit a block of
+ * the file they were given as context — e.g. with the cursor at the end of a
+ * file they regenerate the beginning of the file before continuing. This
+ * strips the echoed lines and keeps only the genuine continuation.
+ *
+ * Conservative by design: only strips when the echoed run is clearly a repeat
+ * (>= 4 lines matching contiguous prefix lines, and consuming >= 50% of the
+ * completion), so legitimate completions are never truncated.
+ */
+function removeMultiLinePrefixEcho(text: string, prefix: string): string {
+  const textLines = text.split("\n");
+  if (textLines.length < 4) return text;
+  if (!prefix) return text;
+  const prefixLines = prefix.split("\n");
+  if (prefixLines.length < 4) return text;
+
+  // Find the longest contiguous run of completion lines (from the start of the
+  // completion) that matches a contiguous run of prefix lines, whitespace- and
+  // case-insensitively for the comparison.
+  let longestRun = 0;
+  for (let start = 0; start < prefixLines.length; start++) {
+    let run = 0;
+    while (
+      start + run < prefixLines.length &&
+      run < textLines.length &&
+      textLines[run].trim().toLowerCase() === prefixLines[start + run].trim().toLowerCase()
+    ) {
+      run++;
+    }
+    if (run > longestRun) {
+      longestRun = run;
+    }
+    if (run >= textLines.length) break;
+  }
+
+  // Only strip a clear echo: at least 4 lines, consuming at least half of the
+  // completion. Smaller matches are handled by the single-line de-dup steps.
+  if (longestRun < 4 || longestRun / textLines.length < 0.5) {
+    return text;
+  }
+
+  return textLines.slice(longestRun).join("\n").trimStart();
 }
 
 /**

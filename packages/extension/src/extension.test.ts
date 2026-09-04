@@ -209,6 +209,7 @@ describe("Extension Commands & selectModel", () => {
     expect(registeredLanguages).toContain("typescriptreact");
     expect(registeredLanguages).toContain("javascriptreact");
     expect(registeredLanguages).toContain("python");
+    expect(registeredLanguages).toContain("sql");
     expect(registeredLanguages).toContain("go");
     expect(registeredLanguages).toContain("rust");
     expect(registeredLanguages).toContain("java");

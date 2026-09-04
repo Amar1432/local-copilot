@@ -24,6 +24,7 @@ interface PendingRequest {
 export class RequestScheduler {
   private currentRequest: PendingRequest | null = null;
   private debounceTimer: ReturnType<typeof setTimeout> | null = null;
+  private pendingResolve: ((signal: AbortSignal) => void) | null = null;
   private readonly debounceMs: number;
 
   constructor(debounceMs: number) {
@@ -49,10 +50,12 @@ export class RequestScheduler {
     readonly suffix: string;
     readonly model: string;
   }): Promise<AbortSignal> | null {
-    // Cancel any pending debounce timer
+    // Cancel any pending debounce timer, resolving its caller with an aborted
+    // signal so it doesn't hang forever waiting for a timer that never fires.
     if (this.debounceTimer !== null) {
       clearTimeout(this.debounceTimer);
       this.debounceTimer = null;
+      this.resolvePendingAsCancelled();
     }
 
     // Cancel any in-flight request
@@ -79,8 +82,10 @@ export class RequestScheduler {
     const abortController = new AbortController();
 
     return new Promise<AbortSignal>((resolve) => {
+      this.pendingResolve = resolve;
       this.debounceTimer = setTimeout(() => {
         this.debounceTimer = null;
+        this.pendingResolve = null;
 
         this.currentRequest = {
           requestId: params.requestId,
@@ -101,12 +106,25 @@ export class RequestScheduler {
     if (this.debounceTimer !== null) {
       clearTimeout(this.debounceTimer);
       this.debounceTimer = null;
+      this.resolvePendingAsCancelled();
     }
 
     if (this.currentRequest !== null) {
       this.currentRequest.abortController.abort();
       this.currentRequest = null;
     }
+  }
+
+  /**
+   * Resolve a debounce-waiting request with an already-aborted signal so its
+   * caller exits immediately instead of hanging until disposed.
+   */
+  private resolvePendingAsCancelled(): void {
+    if (this.pendingResolve === null) return;
+    const stale = new AbortController();
+    stale.abort();
+    this.pendingResolve(stale.signal);
+    this.pendingResolve = null;
   }
 
   /**

@@ -2,6 +2,46 @@
 
 All notable changes to Private Copilot will be documented in this file.
 
+## [0.1.5] — 2026-09-05
+
+### Added
+
+- **SQL support** — Inline completions now work in SQL files and SQL code
+  cells inside Jupyter notebooks (Python cells were already supported). SQL is
+  also included in recent-file context tracking and the extension activation
+  events.
+
+## [0.1.4] — 2026-09-05
+
+### Fixed
+
+- **Duplicate / echoed suggestions** — Weak local models (e.g. qwen2.5-coder)
+  often re-emit file content instead of a genuine continuation: with the cursor
+  at the end of a file they regenerate the start of the file as ghost text, and
+  after accepting a suggestion they re-suggest the same text. Three layers now
+  prevent this:
+  - The normalizer strips multi-line echoes of the prefix from model output,
+    keeping only the genuine continuation.
+  - The provider suppresses any substantial completion that already exists as a
+    contiguous block anywhere before the cursor.
+  - A suggestion already delivered for a state is not re-served after the user
+    has had time to react, and accepting a suggestion invalidates its cache
+    entry — killing the "same suggestion as the last accepted one" loop.
+
+- **Stale completions after cancellation** — Results that arrive after a request
+  was cancelled mid-flight are now discarded instead of being shown.
+
+- **Request scheduler hang** — A superseded debounce-pending request resolved
+  its promise never; it now exits cleanly with an aborted signal.
+
+### Changed
+
+- **Auto-connect at startup** — The extension now verifies the provider
+  endpoint automatically on activation and updates the status bar, so running
+  "Test Connection" manually before suggestions appear is no longer needed.
+  Also activates on `onStartupFinished` instead of only when a supported
+  language file is opened or a command is run.
+
 ## [0.1.3] — 2026-08-23
 
 ### Changed

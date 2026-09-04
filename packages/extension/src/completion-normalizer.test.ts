@@ -122,6 +122,82 @@ describe("completion-normalizer", () => {
     });
 
     // -----------------------------------------------------------------------
+    // Multi-line prefix echo removal
+    // -----------------------------------------------------------------------
+
+    describe("multi-line prefix echo removal", () => {
+      it("strips a multi-line echo of the prefix and keeps the continuation", () => {
+        const prefix = "function f() {\n  return 1;\n}\n";
+        const output = "function f() {\n  return 1;\n}\n\nconst x = 2;";
+        expect(normalizeCompletion(output, prefix, "")).toBe("const x = 2;");
+      });
+
+      it("returns null when the output is entirely a duplicate of the prefix", () => {
+        const prefix = "function f() {\n  return 1;\n}\n";
+        const output = "function f() {\n  return 1;\n}\n";
+        expect(normalizeCompletion(output, prefix, "")).toBeNull();
+      });
+
+      it("does not strip legitimate completions", () => {
+        const prefix = "function f() {\n";
+        const output = "  return 1;\n}";
+        expect(normalizeCompletion(output, prefix, "")).toBe("return 1;\n}");
+      });
+
+      it("strips an echo of an earlier file block (cursor at end of file)", () => {
+        // Model re-emits the start of the file before continuing (the reported
+        // bug: qwen2.5-coder at end-of-file echoes the file beginning).
+        const prefix = [
+          "// Your code here",
+          "// flyodd loop detection",
+          "function hasCycle(head: ListNode | null): boolean {",
+          "    if (!head || !head.next) return false;",
+          "",
+          "    let slow = head;",
+          "    let fast = head.next;",
+          "",
+          "    while (fast && fast.next) {",
+          "        if (slow === fast) return true;",
+          "        slow = slow.next!;",
+          "        fast = fast.next.next!;",
+          "    }",
+          "",
+          "    return false;",
+          "}",
+          "",
+          "class ListNode {",
+          "    val: number;",
+          "    next: ListNode | null;",
+          "    constructor(val?: number, next?: ListNode | null) {",
+          "        this.val = (val === undefined ? 0 : val);",
+          "        this.next = (next === undefined ? null : next);",
+          "    }",
+          "}",
+        ].join("\n");
+        const echo = [
+          "// Your code here",
+          "// flyodd loop detection",
+          "function hasCycle(head: ListNode | null): boolean {",
+          "    if (!head || !head.next) return false;",
+          "",
+          "    let slow = head;",
+          "    let fast = head.next;",
+          "",
+          "    while (fast && fast.next) {",
+          "        if (slow === fast) return true;",
+          "        slow = slow.next!;",
+          "        fast = fast.next.next!;",
+          "    }",
+          "",
+          "    return false;",
+          "}",
+        ].join("\n");
+        const output = `${echo}\n\nconst newFeature = true;`;
+        expect(normalizeCompletion(output, prefix, "")).toBe("const newFeature = true;");
+      });
+    });
+
+    // -----------------------------------------------------------------------
     // Duplicate current-line removal
     // -----------------------------------------------------------------------
 

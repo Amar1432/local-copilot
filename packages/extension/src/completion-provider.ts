@@ -45,6 +45,9 @@ export class LocalCopilotCompletionProvider implements vscode.InlineCompletionIt
 
   /**
    * Record that a completion was accepted by the user.
+   *
+   * Also invalidates the accepted suggestion's cache entry so it can never be
+   * re-served for a later request.
    */
   recordAcceptance(options: {
     readonly id?: string;
@@ -54,7 +57,7 @@ export class LocalCopilotCompletionProvider implements vscode.InlineCompletionIt
     readonly charCount?: number;
     readonly lineCount?: number;
   }): void {
-    this.orchestrator.metrics.recordAcceptance(options);
+    this.orchestrator.handleAcceptance(options);
   }
 
   /**
@@ -198,6 +201,17 @@ function isCompletionAlreadyPresent(
     .trimEnd();
   if (textBeforeCursorMultiLine.endsWith(trimmedCompletion)) {
     return true;
+  }
+
+  // Anywhere-before-cursor check: for substantial completions, suppress when
+  // the entire suggestion already exists as a contiguous block earlier in the
+  // document. Weak local models (e.g. qwen2.5-coder at end-of-file) echo the
+  // start of the file instead of generating a continuation — the resulting
+  // ghost text would duplicate existing code.
+  if (trimmedCompletion.includes("\n") || trimmedCompletion.length > 20) {
+    if (textBeforeCursorMultiLine.includes(trimmedCompletion)) {
+      return true;
+    }
   }
 
   // --- Check 2: multi-line suggestion already in document after cursor ---

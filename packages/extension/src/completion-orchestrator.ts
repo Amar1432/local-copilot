@@ -25,6 +25,7 @@ import {
   rankAndFilterChunks,
   serializeContextChunks,
   CompletionMetricsTracker,
+  type RecordAcceptanceOptions,
 } from "@private-copilot/core";
 import { buildCompletionRequest, computeFingerprint, generateRequestId } from "./context-engine";
 import { complete, testConnection } from "./openai-provider";
@@ -41,6 +42,15 @@ export type OrchestratorState = "idle" | "connected" | "disconnected" | "checkin
  * Completion Orchestrator — manages the full completion lifecycle.
  */
 export class CompletionOrchestrator {
+  /**
+   * A suggestion already delivered for a state may be re-served within this
+   * window (covers VS Code re-firing the provider for the same state while the
+   * ghost text is still on screen). After the window, a re-request of the same
+   * state means the user saw and dismissed the suggestion — it must NOT come
+   * back, otherwise the "same suggestion keeps reappearing" loop occurs.
+   */
+  private static readonly RE_DELIVER_GRACE_MS = 500;
+
   private scheduler: RequestScheduler;
   private cache: RequestCache<string>;
   private config: ProviderConfig;
@@ -48,6 +58,9 @@ export class CompletionOrchestrator {
   private lastLatencyMs: number | null = null;
   private contextProviders: ContextProvider[];
   private metricsTracker: CompletionMetricsTracker;
+
+  /** Fingerprint + delivery time of the last suggestion actually returned. */
+  private lastDelivered: { readonly fingerprint: string; readonly at: number } | null = null;
 
   constructor(
     config: ProviderConfig,
@@ -224,6 +237,19 @@ export class CompletionOrchestrator {
       model: this.config.model,
     });
 
+    // A suggestion was already delivered for this exact state and the user has
+    // had time to react to it (dismiss/accept). Re-requesting the same state
+    // (e.g. VS Code re-fires after a rejected suggestion, or the cursor moved
+    // away and back) must NOT surface the same suggestion again.
+    if (
+      this.lastDelivered !== null &&
+      this.lastDelivered.fingerprint === fingerprint &&
+      Date.now() - this.lastDelivered.at > CompletionOrchestrator.RE_DELIVER_GRACE_MS
+    ) {
+      this.metricsTracker.recordDismissal({ language: params.language });
+      return null;
+    }
+
     // Check L1 Request Cache
     const cached = this.cache.get(fingerprint);
     if (cached !== null) {
@@ -236,6 +262,7 @@ export class CompletionOrchestrator {
         model: this.config.model,
         cached: true,
       });
+      this.lastDelivered = { fingerprint, at: Date.now() };
       return cached;
     }
     this.metricsTracker.recordCacheMiss({ language: params.language });
@@ -293,6 +320,14 @@ export class CompletionOrchestrator {
       // Mark request as completed
       this.scheduler.markCompleted(requestId);
 
+      // The request may have been cancelled while the provider call was in
+      // flight (e.g. the user kept typing). Providers that ignore abort can
+      // still return a result — discard it so stale text is never displayed.
+      if (abortSignal.aborted || params.cancellationToken?.isCancellationRequested) {
+        this.metricsTracker.recordCancellation({ language: params.language });
+        return null;
+      }
+
       if (result === null) {
         this.metricsTracker.recordFailure({
           message: "No completion returned from provider",
@@ -322,6 +357,7 @@ export class CompletionOrchestrator {
       // Store in L1 Request Cache if valid
       if (normalized !== null) {
         this.cache.set(fingerprint, normalized);
+        this.lastDelivered = { fingerprint, at: Date.now() };
         this.metricsTracker.recordSuccess({
           latencyMs: result.latencyMs,
           text: normalized,
@@ -347,10 +383,26 @@ export class CompletionOrchestrator {
   }
 
   /**
+   * Record that a delivered suggestion was accepted by the user.
+   *
+   * The accepted suggestion's cache entry is invalidated so it can never be
+   * re-served — even if a stale re-request for the pre-acceptance state slips
+   * through (e.g. VS Code firing the provider for the old document state).
+   */
+  handleAcceptance(options: RecordAcceptanceOptions): void {
+    this.metricsTracker.recordAcceptance(options);
+    if (this.lastDelivered !== null) {
+      this.cache.delete(this.lastDelivered.fingerprint);
+      this.lastDelivered = null;
+    }
+  }
+
+  /**
    * Clear the in-memory completion cache.
    */
   clearCache(): void {
     this.cache.clear();
+    this.lastDelivered = null;
   }
 
   /**
